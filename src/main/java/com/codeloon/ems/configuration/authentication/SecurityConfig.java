@@ -31,10 +31,12 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAuthenticationFilter authenticationFilter;
     private final CustomCorsConfiguration customCorsConfiguration;
+
     @Bean
     public GrantedAuthorityDefaults grantedAuthorityDefaults() {
         return new GrantedAuthorityDefaults(""); // Disables the default "ROLE_" prefix
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -46,23 +48,21 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(c -> c.configurationSource(customCorsConfiguration))
                 .authorizeHttpRequests((authorize) -> {
-                    authorize.requestMatchers("/api/auth/**").permitAll();
+                    authorize.requestMatchers(
+                            "/api/auth/**",
+                            "/api/public/**",
+                            "/ems/user/register").permitAll();
                     authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     authorize.anyRequest().authenticated();
                 }).httpBasic(Customizer.withDefaults());
 
-        http.exceptionHandling( exception -> exception
+        http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(authenticationEntryPoint));
 
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-//    @Bean
-//    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-//        return configuration.getAuthenticationManager();
-//    }
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return new AuthenticationManager() {
@@ -72,6 +72,7 @@ public class SecurityConfig {
             }
         };
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         return new CustomAuthenticationProvider(userDetailsService);

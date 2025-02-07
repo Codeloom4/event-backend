@@ -1,9 +1,12 @@
 package com.codeloon.ems.service;
 
+import com.codeloon.ems.dto.ResetDto;
 import com.codeloon.ems.dto.UserDto;
 import com.codeloon.ems.entity.Role;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.entity.UserPersonalData;
+import com.codeloon.ems.model.CommonResponse;
+import com.codeloon.ems.model.UserBean;
 import com.codeloon.ems.repository.RolesRepository;
 import com.codeloon.ems.repository.UserPersonalDataRepository;
 import com.codeloon.ems.repository.UserRepository;
@@ -15,6 +18,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,13 +43,13 @@ public class UserServiceImpl implements UserService {
     private final EntityManager entityManager;
 
     @Override
-    public List<UserDto> getAllUsers() {
-        List<UserDto> userBeans = new ArrayList<>();
+    public List<UserBean> getAllUsers() {
+        List<UserBean> userBeans = new ArrayList<>();
         try {
             List<User> users = userRepository.findAll();
-            UserDto userBean = null;
+            UserBean userBean = null;
             for (User user : users) {
-                userBean = new UserDto();
+                userBean = new UserBean();
                 BeanUtils.copyProperties(user, userBean);
                 userBeans.add(userBean);
             }
@@ -66,6 +70,12 @@ public class UserServiceImpl implements UserService {
             Optional<User> user = userRepository.findByUsername(userDto.getUsername());
             if (user.isEmpty()) {
                 customerId = UserUtils.generateCustomUUID(userRole, userDto.getUsername());
+
+                // If role is customer.
+                if(userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT)){
+                    userDto.getRoles().add(DataVarList.ROLE_CLIENT);
+                }
+
                 User userEntity = User.builder()
                         .id(customerId)
                         .username(userDto.getUsername())
@@ -161,6 +171,11 @@ public class UserServiceImpl implements UserService {
         responseBean.setContent(userDto);
 
         return responseBean;
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> resetPassword(ResetDto resetDto) {
+        return null;
     }
 
 

@@ -1,6 +1,7 @@
 package com.codeloon.ems.controller;
 
 import com.codeloon.ems.dto.UserDto;
+import com.codeloon.ems.model.UserBean;
 import com.codeloon.ems.service.UserService;
 import com.codeloon.ems.util.DataVarList;
 import com.codeloon.ems.util.ResponseBean;
@@ -25,7 +26,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> getAllUser() {
-        List<UserDto> users = userService.getAllUsers();
+        List<UserBean> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
