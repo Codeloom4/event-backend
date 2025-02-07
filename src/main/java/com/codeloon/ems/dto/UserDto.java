@@ -1,7 +1,5 @@
 package com.codeloon.ems.dto;
 
-import com.codeloon.ems.aop.validation.StrongPassword;
-import com.codeloon.ems.aop.validation.ValidRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
