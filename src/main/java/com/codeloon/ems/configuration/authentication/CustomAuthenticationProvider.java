@@ -1,8 +1,6 @@
 package com.codeloon.ems.configuration.authentication;
 
-import com.codeloon.ems.service.CustomUserDetails;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;

@@ -4,6 +4,7 @@ import com.codeloon.ems.configuration.authentication.JwtTokenProvider;
 import com.codeloon.ems.model.AuthResponse;
 import com.codeloon.ems.dto.LoginDto;
 import com.codeloon.ems.util.DataVarList;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,11 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public ResponseEntity<AuthResponse> login(LoginDto loginDto) {
         String token = "";
