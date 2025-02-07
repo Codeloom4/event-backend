@@ -14,7 +14,7 @@ public interface InventoryService {
 
     ResponseBean createInventory(InventoryDto inventory);
 
-    ResponseBean updateInventory(InventoryDto inventory);
+    ResponseBean updateInventory(Long InventoryId, InventoryDto inventory);
 
     ResponseBean deleteInventory(Long inventoryId);
 

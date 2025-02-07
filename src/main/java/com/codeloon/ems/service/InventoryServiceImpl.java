@@ -137,8 +137,49 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public ResponseBean updateInventory(InventoryDto inventory) {
-        return null;
+    public ResponseBean updateInventory(Long InventoryId, InventoryDto inventory) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+
+            Optional<Inventory> inventoryOptional = inventoryRepository.findById(InventoryId);
+            if(inventoryOptional.isPresent()){
+                Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+                Inventory inventoryEntity = inventoryOptional.get();
+
+                inventoryEntity = Inventory.builder()
+                        .itemName(inventory.getItemName())
+                        .isRefundable(inventory.getIsRefundable())
+                        .purchasePrice(inventory.getPurchasePrice())
+                        .salesPrice(inventory.getSalesPrice())
+                        .orderQuantity(inventory.getOrderQuantity())
+                        .salesQuantity(inventory.getSalesQuantity())
+                        .createdAt(LocalDateTime.now())
+                        .createdUser(getSystemUser.get())
+                        .build();
+
+                inventoryRepository.saveAndFlush(inventoryEntity);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Inventory update successfully.";
+                log.info("Inventory update successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
+                        inventoryEntity.getItemName());
+            }else {
+                log.error("Invalid inventory id");
+                msg = "Invalid inventory id.";
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating inventory", ex);
+            msg = "Error occurred while updating inventory.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(inventory);
+        }
+        return responseBean;
     }
 
     @Override
