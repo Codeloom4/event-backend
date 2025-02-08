@@ -1,29 +1,32 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.configuration.authentication.JwtTokenProvider;
-import com.codeloon.ems.dto.AuthResponseDto;
+import com.codeloon.ems.model.AuthResponse;
 import com.codeloon.ems.dto.LoginDto;
 import com.codeloon.ems.util.DataVarList;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    public ResponseEntity<AuthResponseDto> login(LoginDto loginDto) {
+    public ResponseEntity<AuthResponse> login(LoginDto loginDto) {
         String token = "";
+        String userRole = null;
         try {
             // 01 - AuthenticationManager is used to authenticate the user
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -37,25 +40,30 @@ public class AuthServiceImpl implements AuthService {
 
             // 03 - Generate the token based on username and secret key
             token = jwtTokenProvider.generateToken(authentication);
+
+            //04 - Roles
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            userRole = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
         } catch (AuthenticationException e) {
             // 04 - Return the token to controller
             return handleAuthenticationException(e);
         }
-        // 04 - Return the token to controller
-        return this.buildResponse(token, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
+        // 05 - Return the token to controller
+        return this.buildResponse(token, userRole, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
     }
 
 
-    private ResponseEntity<AuthResponseDto> buildResponse(String token, String authMsg, String authStatus, HttpStatus httpStatus) {
-        AuthResponseDto authResponseDto = AuthResponseDto.builder()
+    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole, String authMsg, String authStatus, HttpStatus httpStatus) {
+        AuthResponse authResponseDto = AuthResponse.builder()
                 .accessCode(authStatus)
                 .accessToken(token)
                 .accessMsg(authMsg)
+                .userRole(userRole)
                 .build();
         return new ResponseEntity<>(authResponseDto, httpStatus);
     }
 
-    private ResponseEntity<AuthResponseDto> handleAuthenticationException(AuthenticationException e) {
+    private ResponseEntity<AuthResponse> handleAuthenticationException(AuthenticationException e) {
         String accessMsg = "";
         String accessCode = DataVarList.AUTH_FAILED_ACCOUNT_ISSUE;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -80,8 +88,7 @@ public class AuthServiceImpl implements AuthService {
             accessMsg = DataVarList.FAILED_AUTH_ACC_INVALIED;
             httpStatus = HttpStatus.UNAUTHORIZED;
         }
-
-        return buildResponse("", accessMsg, accessCode, httpStatus);
+        return buildResponse("", null, accessMsg, accessCode, httpStatus);
     }
 
 }

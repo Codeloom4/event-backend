@@ -1,4 +1,4 @@
-package com.codeloon.ems.dto;
+package com.codeloon.ems.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponseDto {
+public class AuthResponse {
 
     private String accessToken;
     private String accessMsg;
     private String accessCode;
+    private String userRole;
+
 }
