@@ -118,6 +118,7 @@ public class InventoryServiceImpl implements InventoryService {
                     .createdUser(getSystemUser.get())
                     .build();
 
+
             inventoryRepository.saveAndFlush(inventoryEntity);
 
             code = ResponseCode.RSP_SUCCESS;
