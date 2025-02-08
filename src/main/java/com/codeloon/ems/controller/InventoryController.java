@@ -47,6 +47,7 @@ public class InventoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryDto inventory) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -55,7 +56,7 @@ public class InventoryController {
             responseBean = inventoryService.createInventory(inventory);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
-            log.error("Error occurred while saving new user.{} ", ex.getMessage());
+            log.error("Error occurred while saving new inventory.{} ", ex.getMessage());
         } finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
@@ -63,12 +64,13 @@ public class InventoryController {
     }
 
     @PutMapping("/{inventoryId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> updateInventory(@PathVariable Long InventoryId, @RequestBody InventoryDto inventory) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            responseBean = inventoryService.updateInventory(inventory);
+            responseBean = inventoryService.updateInventory(InventoryId, inventory);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while saving inventory.{} ", ex.getMessage());

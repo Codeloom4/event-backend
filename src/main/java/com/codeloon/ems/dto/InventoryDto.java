@@ -26,5 +26,5 @@ public class InventoryDto {
     private String endBarcode;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private User createdUser;
+    private String createdUser;
 }

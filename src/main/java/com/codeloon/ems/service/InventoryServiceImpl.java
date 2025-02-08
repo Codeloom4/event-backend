@@ -1,11 +1,18 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.InventoryDto;
+import com.codeloon.ems.dto.UserDto;
 import com.codeloon.ems.entity.Inventory;
+import com.codeloon.ems.entity.Role;
+import com.codeloon.ems.entity.User;
+import com.codeloon.ems.entity.UserPersonalData;
 import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.repository.InventoryRepository;
+import com.codeloon.ems.repository.UserRepository;
+import com.codeloon.ems.util.DataVarList;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
+import com.codeloon.ems.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -14,9 +21,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +37,7 @@ import java.util.List;
 public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<InventoryDto> getAllInventory() {
@@ -83,12 +97,89 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public ResponseBean createInventory(InventoryDto inventory) {
-        return null;
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            String startingBcode = ""; //TODO generate Starting Barcode
+            String endingBcode = "";  //TODO generate ending Barcode
+            Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+            Inventory inventoryEntity = Inventory.builder()
+                    .itemName(inventory.getItemName())
+                    .startBarcode(startingBcode)
+                    .endBarcode(endingBcode)
+                    .isRefundable(inventory.getIsRefundable())
+                    .purchasePrice(inventory.getPurchasePrice())
+                    .salesPrice(inventory.getSalesPrice())
+                    .orderQuantity(inventory.getOrderQuantity())
+                    .salesQuantity(inventory.getSalesQuantity())
+                    .createdAt(LocalDateTime.now())
+                    .createdUser(getSystemUser.get())
+                    .build();
+
+            inventoryRepository.saveAndFlush(inventoryEntity);
+
+            code = ResponseCode.RSP_SUCCESS;
+            msg = "Inventory created successfully.";
+            log.info("Inventory created  successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
+                    inventoryEntity.getItemName());
+
+        }catch (Exception ex) {
+            log.error("Error occurred while adding inventory", ex);
+            msg = "Error occurred while adding inventory.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(inventory);
+        }
+        return responseBean;
     }
 
     @Override
-    public ResponseBean updateInventory(InventoryDto inventory) {
-        return null;
+    public ResponseBean updateInventory(Long InventoryId, InventoryDto inventory) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+
+            Optional<Inventory> inventoryOptional = inventoryRepository.findById(InventoryId);
+            if(inventoryOptional.isPresent()){
+                Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+                Inventory inventoryEntity = inventoryOptional.get();
+
+                inventoryEntity = Inventory.builder()
+                        .itemName(inventory.getItemName())
+                        .isRefundable(inventory.getIsRefundable())
+                        .purchasePrice(inventory.getPurchasePrice())
+                        .salesPrice(inventory.getSalesPrice())
+                        .orderQuantity(inventory.getOrderQuantity())
+                        .salesQuantity(inventory.getSalesQuantity())
+                        .createdAt(LocalDateTime.now())
+                        .createdUser(getSystemUser.get())
+                        .build();
+
+                inventoryRepository.saveAndFlush(inventoryEntity);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Inventory update successfully.";
+                log.info("Inventory update successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
+                        inventoryEntity.getItemName());
+            }else {
+                log.error("Invalid inventory id");
+                msg = "Invalid inventory id.";
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating inventory", ex);
+            msg = "Error occurred while updating inventory.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(inventory);
+        }
+        return responseBean;
     }
 
     @Override
