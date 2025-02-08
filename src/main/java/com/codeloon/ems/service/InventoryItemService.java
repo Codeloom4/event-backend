@@ -13,5 +13,7 @@ public interface InventoryItemService {
     List<InventoryItemBean> getAllInventoryItems();
 
     ResponseBean createItem(InventoryItemDto inventoryItemDto);
+    ResponseBean updateItem(InventoryItemDto inventoryItemDto);
+    ResponseBean deleteItem(Long inventoryItemId);
 
 }
