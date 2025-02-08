@@ -18,5 +18,4 @@ public interface InventoryService {
 
     ResponseBean deleteInventory(Long inventoryId);
 
-    ResponseBean createInventory(String userRole, InventoryDto inventory);
 }

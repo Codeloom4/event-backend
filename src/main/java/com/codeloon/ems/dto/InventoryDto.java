@@ -1,5 +1,6 @@
 package com.codeloon.ems.dto;
 
+import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class InventoryDto {
     private Long id;
+    private Long itemId;
     private String itemName;
     private Boolean isRefundable;
     private Long purchasePrice;
