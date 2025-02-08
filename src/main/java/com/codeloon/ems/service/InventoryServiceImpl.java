@@ -119,6 +119,7 @@ public class InventoryServiceImpl implements InventoryService {
                     .build();
 
 
+
             inventoryRepository.saveAndFlush(inventoryEntity);
 
             code = ResponseCode.RSP_SUCCESS;
