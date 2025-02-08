@@ -1,3 +1,5 @@
+CREATE DATABASE ems_db;
+
 -- Table: users
 CREATE TABLE users (
     id VARCHAR(36) PRIMARY KEY,  -- Use VARCHAR(36) to store UUID
