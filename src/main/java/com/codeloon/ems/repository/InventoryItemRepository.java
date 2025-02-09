@@ -12,4 +12,5 @@ import java.util.List;
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, Long> {
     @Query (value = "SELECT a.id, a.itemName FROM InventoryItem a")
     List<InventoryItemBean> findAllInventoryItems();
+
 }

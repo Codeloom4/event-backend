@@ -28,9 +28,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     @Override
     public List<InventoryItemBean> getAllInventoryItems() {
-        List<InventoryItemBean> inventoryItemBeanList;
+        List<InventoryItemBean> inventoryItemBeanList = new ArrayList<>();
+        List<InventoryItem> inventories = new ArrayList<>();
         try {
-            inventoryItemBeanList = inventoryItemRepository.findAllInventoryItems();
+
+            inventories = inventoryItemRepository.findAll();
+            if (!inventories.isEmpty()) {
+                inventories.forEach(data->{
+                    InventoryItemBean temp = new InventoryItemBean();
+                    temp.setId(data.getId());
+                    temp.setItemName(data.getItemName());
+
+                    inventoryItemBeanList.add(temp);
+                });
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

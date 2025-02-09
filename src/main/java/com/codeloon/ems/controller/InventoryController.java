@@ -3,6 +3,7 @@ package com.codeloon.ems.controller;
 import com.codeloon.ems.dto.InventoryDto;
 import com.codeloon.ems.dto.UserDto;
 import com.codeloon.ems.model.DataTableBean;
+import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.service.InventoryService;
 import com.codeloon.ems.util.ResponseBean;
 import jakarta.validation.Valid;
@@ -47,8 +48,7 @@ public class InventoryController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryDto inventory) {
+    public ResponseEntity<?> createInventory(@RequestBody InventoryDto inventory) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
