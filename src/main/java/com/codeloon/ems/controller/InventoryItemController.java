@@ -27,6 +27,7 @@ public class InventoryItemController {
     public ResponseEntity<List<InventoryItemBean>> getAllEvents() {
         return ResponseEntity.ok(inventoryItemService.getAllInventoryItems());
     }
+
     @PostMapping
     public ResponseEntity<ResponseBean> createItem(@RequestBody InventoryItemDto inventoryItemDto) {
         return ResponseEntity.ok(inventoryItemService.createItem(inventoryItemDto));
