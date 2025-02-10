@@ -23,6 +23,10 @@ public class Inventory {
     @Column(name = "item_name", nullable = false)
     private String itemName;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "item_Id", referencedColumnName = "id", nullable = false)
+    private InventoryItem itemId;
+
     @Column(name = "is_refundable", nullable = false)
     private Boolean isRefundable;
 
@@ -40,6 +44,9 @@ public class Inventory {
 
     @Column(name = "balance_qty", nullable = false)
     private Integer balanceQuantity;
+
+    @Column(name = "total_amount", nullable = false)
+    private Double totalAmount;
 
     @Column(name = "start_Barcode")
     private String startBarcode;

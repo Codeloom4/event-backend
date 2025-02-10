@@ -1,18 +1,15 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.InventoryDto;
-import com.codeloon.ems.dto.UserDto;
 import com.codeloon.ems.entity.Inventory;
-import com.codeloon.ems.entity.Role;
+import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
-import com.codeloon.ems.entity.UserPersonalData;
 import com.codeloon.ems.model.DataTableBean;
+import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.InventoryRepository;
 import com.codeloon.ems.repository.UserRepository;
-import com.codeloon.ems.util.DataVarList;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
-import com.codeloon.ems.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -21,15 +18,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,6 +31,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final UserRepository userRepository;
+    private final InventoryItemRepository inventoryItemRepository;
 
     @Override
     public List<InventoryDto> getAllInventory() {
@@ -104,9 +98,15 @@ public class InventoryServiceImpl implements InventoryService {
         try {
             String startingBcode = ""; //TODO generate Starting Barcode
             String endingBcode = "";  //TODO generate ending Barcode
+
             Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+            Optional<InventoryItem> getInventoryItem = inventoryItemRepository.findById(inventory.getItemId());
+            InventoryItem inventoryItem = getInventoryItem.get();
+
             Inventory inventoryEntity = Inventory.builder()
+                    .id(2L)
                     .itemName(inventory.getItemName())
+                    .itemId(inventoryItem)
                     .startBarcode(startingBcode)
                     .endBarcode(endingBcode)
                     .isRefundable(inventory.getIsRefundable())
@@ -116,9 +116,14 @@ public class InventoryServiceImpl implements InventoryService {
                     .salesQuantity(inventory.getSalesQuantity())
                     .createdAt(LocalDateTime.now())
                     .createdUser(getSystemUser.get())
+                    .balanceQuantity(inventory.getOrderQuantity())
+                    .totalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()))
                     .build();
 
             inventoryRepository.saveAndFlush(inventoryEntity);
+            inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventoryEntity.getSalesPrice())/2);
+            inventoryItem.setQuantity(inventoryItem.getQuantity() + inventoryEntity.getOrderQuantity());
+            inventoryItemRepository.saveAndFlush(inventoryItem);
 
             code = ResponseCode.RSP_SUCCESS;
             msg = "Inventory created successfully.";
@@ -163,8 +168,8 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryRepository.saveAndFlush(inventoryEntity);
 
                 code = ResponseCode.RSP_SUCCESS;
-                msg = "Inventory update successfully.";
-                log.info("Inventory update successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
+                msg = "Inventory updated successfully.";
+                log.info("Inventory updated successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
                         inventoryEntity.getItemName());
             }else {
                 log.error("Invalid inventory id");
@@ -184,12 +189,34 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public ResponseBean deleteInventory(Long inventoryId) {
-        return null;
-    }
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        try {
+            Optional<Inventory> inventoryOptional = inventoryRepository.findById(inventoryId);
+            if (inventoryOptional.isPresent()) {
+                Inventory inventory = inventoryOptional.get();
+                inventoryRepository.delete(inventory);
 
-    @Override
-    public ResponseBean createInventory(String userRole, InventoryDto inventory) {
-        return null;
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Inventory deleted successfully.";
+                log.info("Inventory deleted successfully. Inventory ID : {}, Inv Name : {}", inventory.getId(),
+                        inventory.getItemName());
+            }else {
+                log.error("Invalid inventory id");
+                msg = "Invalid inventory id.";
+            }
+        }
+        catch (Exception ex) {
+            log.error("Error occurred while deleting inventory", ex);
+            msg = "Error occurred while deleting inventory.";
+        }
+        finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
     }
 
 
