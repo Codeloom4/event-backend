@@ -1,6 +1,14 @@
 server:
   port: 9999
 spring:
+#  datasource:
+#    url: jdbc:mysql://mysql-3667c571-codeloom4-emsdb.k.aivencloud.com:13372/defaultdb
+#    username: avnadmin
+#    password: AVNS_EGn8V0ttbUNcdQYNfxm
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    hikari:
+#      minimum-idle: 5
+#      maximum-pool-size: 10
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/ems_db
     username: root

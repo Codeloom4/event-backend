@@ -79,13 +79,24 @@ CREATE TABLE venues (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: inventories
-CREATE TABLE inventories (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    quantity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Table: inventory
+CREATE TABLE `inventory` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `balance_qty` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_barcode` varchar(255) DEFAULT NULL,
+  `is_refundable` bit(1) NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `order_qty` int NOT NULL,
+  `purchase_price` bigint NOT NULL,
+  `sales_price` bigint NOT NULL,
+  `sales_qty` int NOT NULL,
+  `start_barcode` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_user` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK2r2e8xs9dt2kjmw1scx3roso5` (`created_user`),
+  CONSTRAINT `FK2r2e8xs9dt2kjmw1scx3roso5` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`)
 );
 
 
