@@ -2,9 +2,9 @@ server:
   port: 9999
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/ems_db
-    username: root
-    password: password
+    url: jdbc:mysql://database-2.crecu4e0059n.us-east-2.rds.amazonaws.com:3306/ems_db
+    username: admin
+    password: A1997kash
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5
