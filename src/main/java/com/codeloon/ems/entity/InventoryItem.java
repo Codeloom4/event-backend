@@ -27,10 +27,10 @@ public class InventoryItem {
     @Column(name = "is_refundable", nullable = false)
     private Boolean isRefundable;
 
-    @Column(name = "purchase_price",nullable = false)
+    @Column(name = "average_price")
     private Long avgPrice;
 
-    @Column(name = "order_qty", nullable = false)
+    @Column(name = "order_qty")
     private Integer quantity;
 
     @Column(name = "updated_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
