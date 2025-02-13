@@ -1,6 +1,6 @@
 package com.codeloon.ems.service;
 
-import com.codeloon.ems.dto.AuthResponseDto;
+import com.codeloon.ems.model.AuthResponse;
 import com.codeloon.ems.dto.LoginDto;
 import org.springframework.http.ResponseEntity;
 
@@ -18,6 +18,6 @@ public interface AuthService {
      *     <li><b>2</b> - Account issue, user should contact admin.</li>
      * </ul>
      */
-    ResponseEntity<AuthResponseDto> login(LoginDto loginDto);
+    ResponseEntity<AuthResponse> login(LoginDto loginDto);
 
 }

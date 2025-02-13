@@ -1,9 +1,13 @@
 package com.codeloon.ems.service;
 
+import com.codeloon.ems.dto.ResetDto;
 import com.codeloon.ems.dto.UserDto;
+import com.codeloon.ems.entity.PasswordHistory;
 import com.codeloon.ems.entity.Role;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.entity.UserPersonalData;
+import com.codeloon.ems.model.UserBean;
+import com.codeloon.ems.repository.PasswordHistoryRepository;
 import com.codeloon.ems.repository.RolesRepository;
 import com.codeloon.ems.repository.UserPersonalDataRepository;
 import com.codeloon.ems.repository.UserRepository;
@@ -36,16 +40,18 @@ public class UserServiceImpl implements UserService {
     private final RolesRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserPersonalDataRepository personalDataRepository;
+    private final PasswordEncoder encoder;
+    private final PasswordHistoryRepository passwordHistoryRepository;
     private final EntityManager entityManager;
 
     @Override
-    public List<UserDto> getAllUsers() {
-        List<UserDto> userBeans = new ArrayList<>();
+    public List<UserBean> getAllUsers() {
+        List<UserBean> userBeans = new ArrayList<>();
         try {
             List<User> users = userRepository.findAll();
-            UserDto userBean = null;
+            UserBean userBean = null;
             for (User user : users) {
-                userBean = new UserDto();
+                userBean = new UserBean();
                 BeanUtils.copyProperties(user, userBean);
                 userBeans.add(userBean);
             }
@@ -66,6 +72,12 @@ public class UserServiceImpl implements UserService {
             Optional<User> user = userRepository.findByUsername(userDto.getUsername());
             if (user.isEmpty()) {
                 customerId = UserUtils.generateCustomUUID(userRole, userDto.getUsername());
+
+                // If role is customer.
+                if (userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT)) {
+                    userDto.getRoles().add(DataVarList.ROLE_CLIENT);
+                }
+
                 User userEntity = User.builder()
                         .id(customerId)
                         .username(userDto.getUsername())
@@ -75,7 +87,7 @@ public class UserServiceImpl implements UserService {
                         .accountNonExpired(true)
                         .credentialsNonExpired(true)
                         .accountNonLocked(true)
-                        .forcePasswordChange(!userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT))
+                        .forcePasswordChange(userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT) ? true : false)
                         .createdAt(LocalDateTime.now())
                         .build();
 
@@ -84,6 +96,7 @@ public class UserServiceImpl implements UserService {
                                 .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
                         .collect(Collectors.toSet()));
 
+                //save user
                 User savedUserEntity = userRepository.save(userEntity);
                 entityManager.flush();  // Ensure it's persisted before using it in UserPersonalData
 
@@ -95,8 +108,14 @@ public class UserServiceImpl implements UserService {
                         .address(userDto.getAddress())
                         .createdAt(LocalDateTime.now())
                         .build();
-
                 personalDataRepository.saveAndFlush(personalData);
+
+                //save password history
+                PasswordHistory passwordHistory = PasswordHistory.builder()
+                        .username(userDto.getUsername())
+                        .password(userEntity.getPassword())
+                        .build();
+                passwordHistoryRepository.saveAndFlush(passwordHistory);
 
                 code = ResponseCode.RSP_SUCCESS;
                 msg = "User created successfully.";
@@ -116,6 +135,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ResponseBean updateUser(String userId, UserDto userDto) {
         ResponseBean responseBean = new ResponseBean();
         String msg;
@@ -126,6 +146,7 @@ public class UserServiceImpl implements UserService {
 
             if (userOptional.isPresent()) {
                 User userEntity = userOptional.get();
+                userEntity.setUsername(userDto.getUsername());
                 userEntity.setEmail(userDto.getEmail());
                 userEntity.setEnabled(userDto.getEnabled());
 
@@ -160,6 +181,61 @@ public class UserServiceImpl implements UserService {
         responseBean.setResponseCode(code);
         responseBean.setContent(userDto);
 
+        return responseBean;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public ResponseBean resetPassword(ResetDto resetDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        try {
+            // Check if user exists
+            log.info("user password reset request for userName : {}", resetDto.getUserName());
+            User user = userRepository.findByUsername(resetDto.getUserName()).orElse(null);
+
+            if (user != null) {
+                // Check if old password matches the stored password
+                if (encoder.matches(resetDto.getOldPassword(), user.getPassword())) {
+
+                    // Check if the new password has already been used before
+                    String newEncodedPassword = encoder.encode(resetDto.getPassword());
+                    List<PasswordHistory> passwordHistoryList = passwordHistoryRepository
+                            .findAllByUsernameAndPassword(resetDto.getUserName(), newEncodedPassword);
+
+                    if (passwordHistoryList.isEmpty()) {
+                        // Update the password
+                        user.setPassword(newEncodedPassword);
+                        user.setForcePasswordChange(false);
+                        userRepository.saveAndFlush(user);
+
+                        // Save the new password in password history
+                        PasswordHistory passwordHistory = PasswordHistory.builder()
+                                .username(resetDto.getUserName())
+                                .password(newEncodedPassword)
+                                .build();
+                        passwordHistoryRepository.saveAndFlush(passwordHistory);
+
+                        msg = "User password updated successfully.";
+                        code = ResponseCode.RSP_SUCCESS;
+                    } else {
+                        msg = "Old passwords cannot be reused.";
+                    }
+                } else {
+                    msg = "Incorrect old password.";
+                }
+            } else {
+                msg = "User does not exist.";
+            }
+        } catch (Exception ex) {
+            log.error("Error occurred while resetting user password", ex);
+            msg = "Error occurred while resetting user password.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
         return responseBean;
     }
 

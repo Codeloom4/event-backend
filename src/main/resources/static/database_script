@@ -1,3 +1,5 @@
+CREATE DATABASE ems_db;
+
 -- Table: users
 CREATE TABLE users (
     id VARCHAR(36) PRIMARY KEY,  -- Use VARCHAR(36) to store UUID
@@ -77,13 +79,24 @@ CREATE TABLE venues (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: inventories
-CREATE TABLE inventories (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    quantity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Table: inventory
+CREATE TABLE `inventory` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `balance_qty` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_barcode` varchar(255) DEFAULT NULL,
+  `is_refundable` bit(1) NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `order_qty` int NOT NULL,
+  `purchase_price` bigint NOT NULL,
+  `sales_price` bigint NOT NULL,
+  `sales_qty` int NOT NULL,
+  `start_barcode` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_user` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK2r2e8xs9dt2kjmw1scx3roso5` (`created_user`),
+  CONSTRAINT `FK2r2e8xs9dt2kjmw1scx3roso5` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`)
 );
 
 
@@ -136,16 +149,6 @@ CREATE TABLE order_customizations (
 
 -- Table: payments
 CREATE TABLE payments (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    order_id BIGINT NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    payment_status ENUM('PENDING', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'PENDING',
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-);
-
-
-CREATE TABLE payments (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(38,2) NOT NULL,
     currency VARCHAR(255) NOT NULL,
@@ -154,3 +157,21 @@ CREATE TABLE payments (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
 ) ENGINE=InnoDB;
+
+-- Table: Inventory
+CREATE TABLE Inventory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_name VARCHAR(255) NOT NULL,
+    is_refundable BOOLEAN NOT NULL,
+    purchase_price DECIMAL(20,2) NOT NULL,
+    sales_price DECIMAL(10,2) NOT NULL,
+    order_qty INT NOT NULL DEFAULT 0,
+    sales_qty INT NOT NULL DEFAULT 0,
+    balance_qty INT GENERATED ALWAYS AS (order_qty - sales_qty) STORED,
+    start_Barcode VARCHAR(100) UNIQUE,
+    end_Barcode VARCHAR(100) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_user VARCHAR(100) NOT NULL,
+    FOREIGN KEY (created_user) REFERENCES users(id) ON DELETE CASCADE
+);

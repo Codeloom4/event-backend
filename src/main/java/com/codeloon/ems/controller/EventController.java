@@ -19,6 +19,7 @@ public class EventController {
 
     private final EventService eventService;
 
+    //TODO open same endpoint in Home controller.
     @GetMapping
     public ResponseEntity<List<EventBean>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
