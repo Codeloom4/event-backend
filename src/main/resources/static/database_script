@@ -143,3 +143,14 @@ CREATE TABLE payments (
     payment_status ENUM('PENDING', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'PENDING',
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE payments (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(38,2) NOT NULL,
+    currency VARCHAR(255) NOT NULL,
+    payment_method VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+) ENGINE=InnoDB;
