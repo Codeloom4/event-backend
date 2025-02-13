@@ -67,8 +67,14 @@ public class PaymentController {
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadFile(@PathVariable Long id) {
         Resource file = paymentService.downloadFile(id);
+        // Extract the original filename and extension
+        String originalFilename = file.getFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+
+        // Rename the file to include the ID
+        String newFilename = "Payment_" + id + extension;
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + newFilename + "\"")
                 .body(file);
     }
 }
