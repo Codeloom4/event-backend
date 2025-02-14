@@ -9,7 +9,6 @@ spring:
     hikari:
       minimum-idle: 5
       maximum-pool-size: 10
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -32,3 +31,10 @@ logging:
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
+
+
+file:
+  upload:
+    windows: C:/ems/uploads/
+    linux: /opt/ems/uploads/
+
