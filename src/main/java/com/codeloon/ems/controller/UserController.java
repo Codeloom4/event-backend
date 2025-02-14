@@ -5,6 +5,7 @@ import com.codeloon.ems.model.UserBean;
 import com.codeloon.ems.service.UserService;
 import com.codeloon.ems.util.DataVarList;
 import com.codeloon.ems.util.ResponseBean;
+import com.codeloon.ems.util.ResponseCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,21 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> getAllUser() {
-        List<UserBean> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        ResponseEntity<?> responseEntity;
+        ResponseBean responseBean = new ResponseBean();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        try {
+            List<UserBean> users = userService.getAllUsers();
+            responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
+            responseBean.setResponseMsg("");
+            responseBean.setContent(users);
+            httpStatus = HttpStatus.OK;
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving user list.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
     @GetMapping("/{username}")
