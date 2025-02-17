@@ -14,6 +14,24 @@ spring:
       ddl-auto: none
     show-sql: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: infopartycrafters25@gmail.com
+    password: "mkra lfaw rfep vuoo"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        transport:
+          protocol: smtp
+
+
+
+
 # Cross-Origin Resource Sharing configurations
 cors:
   uris:
@@ -25,6 +43,22 @@ cors:
     - PUT
     - DELETE
     - OPTIONS
+
+ems:
+  companyName : "Party Crafters PVT LTD"
+  support:
+    email : infopartycrafters25@gmail.com
+    contact: 0110220299
+
+#  spring.mail.host=smtp.gmail.com
+#  spring.mail.port=587
+#  spring.mail.username=<your-gmail-address@gmail.com>
+#  spring.mail.password=<app-password-obtained-from-your-google-account>
+#  spring.mail.properties.mail.smtp.auth=true
+#  spring.mail.properties.mail.transport.protocol=smtp
+#  spring.mail.properties.mail.smtp.starttls.enable=true
+#  spring.mail.properties.mail.smtp.starttls.required=true
+
 
 logging:
   level:

@@ -114,6 +114,17 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable String userId) {
-        return ResponseEntity.ok("User deleted successfully");
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = userService.deleteUser(userId);
+            httpStatus = HttpStatus.OK;
+        } catch (Exception ex) {
+            log.error("Error occurred while saving new client user.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 }
