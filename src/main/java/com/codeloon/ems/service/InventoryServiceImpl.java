@@ -104,7 +104,7 @@ public class InventoryServiceImpl implements InventoryService {
             InventoryItem inventoryItem = getInventoryItem.get();
 
             Inventory inventoryEntity = Inventory.builder()
-                    .id(2L)
+                    .id(inventory.getId())
                     .itemName(inventory.getItemName())
                     .itemId(inventoryItem)
                     .startBarcode(startingBcode)
