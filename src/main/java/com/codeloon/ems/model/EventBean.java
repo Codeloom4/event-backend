@@ -14,8 +14,6 @@ public class EventBean {
 
     private String eventType;
 
-    private String eventName;
-
     private String description;
 
     private LocalDateTime createdAt;
