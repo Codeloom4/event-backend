@@ -1,6 +1,5 @@
 package com.codeloon.ems.controller;
 
-
 import com.codeloon.ems.model.TransportCostBean;
 import com.codeloon.ems.service.TransportCostService;
 import com.codeloon.ems.util.ResponseBean;
@@ -40,6 +39,11 @@ public class TransportCostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseBean> deleteTransportCost(@PathVariable Long id) {
         return ResponseEntity.ok(transportCostService.deleteTransportCost(id));
+    }
+
+    @GetMapping("/districts")
+    public ResponseEntity<ResponseBean> getAllDistricts() {
+        return ResponseEntity.ok(transportCostService.getAllDistricts());
     }
 }
 
