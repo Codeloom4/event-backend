@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TransportCostDto {
     private Long id;
-    private String district;
+    private Long districtId;
     private Double deliveryFee;
 }
 

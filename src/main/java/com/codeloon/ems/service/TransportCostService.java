@@ -1,6 +1,5 @@
 package com.codeloon.ems.service;
 
-
 import com.codeloon.ems.model.TransportCostBean;
 import com.codeloon.ems.util.ResponseBean;
 
@@ -12,5 +11,6 @@ public interface TransportCostService {
     ResponseBean createTransportCost(TransportCostBean transportCostBean);
     ResponseBean updateTransportCost(Long transportCostId, TransportCostBean transportCostBean);
     ResponseBean deleteTransportCost(Long transportCostId);
+    ResponseBean getAllDistricts();
 }
 
