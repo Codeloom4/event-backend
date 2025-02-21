@@ -5,6 +5,7 @@ import com.codeloon.ems.dto.EventDto;
 import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.service.EventService;
 import com.codeloon.ems.util.ResponseBean;
+import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +24,30 @@ public class EventController {
 
 
     @GetMapping
-    public ResponseEntity<List<EventBean>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
+    public ResponseEntity<?> getAllEvents() {
+        ResponseEntity<?> responseEntity;
+        ResponseBean responseBean = new ResponseBean();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        try {
+            List<EventBean> events = eventService.getAllEvents();
+            responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
+            responseBean.setResponseMsg("events retrieved successfully.");
+            responseBean.setContent(events);
+            httpStatus = HttpStatus.OK;
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving event list.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+
     }
 
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> getEventById(@PathVariable Long id) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -47,6 +65,7 @@ public class EventController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> createEvent(@RequestBody EventBean eventBean) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -64,13 +83,8 @@ public class EventController {
     }
 
 
-
-
-
-
-
-
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody EventBean eventBean) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -88,6 +102,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<ResponseBean> deleteEvent(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.deleteEvent(id));
     }
