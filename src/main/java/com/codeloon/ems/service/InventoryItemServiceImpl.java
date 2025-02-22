@@ -42,6 +42,10 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     InventoryItemBean temp = new InventoryItemBean();
                     temp.setId(data.getId());
                     temp.setItemName(data.getItemName());
+                    temp.setQuantity(data.getQuantity());
+                    temp.setIsRefundable(data.getIsRefundable());
+                    temp.setAvgPrice(data.getAvgPrice());
+                    temp.setUpdatedAt(LocalDateTime.now());
 
                     inventoryItemBeanList.add(temp);
                 });
@@ -79,7 +83,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             code = ResponseCode.RSP_SUCCESS;
             msg = "Item created successfully.";
             log.info("Item created  successfully. Item ID : {}, item Name : {}", inventoryItemEntity.getId(),
-                    inventoryItemEntity.getItemName());//
+                    inventoryItemEntity.getItemName());
 
         }catch (Exception ex) {
             log.error("Error occurred while creating item", ex);
@@ -87,7 +91,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         } finally {
             responseBean.setResponseMsg(msg);
             responseBean.setResponseCode(code);
-            responseBean.setContent(inventoryItemDto);
+            responseBean.setContent(null);
         }
         return responseBean;
     }
