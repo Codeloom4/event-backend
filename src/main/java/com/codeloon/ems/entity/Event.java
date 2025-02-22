@@ -19,9 +19,6 @@ public class Event {
     @Column(nullable = false)
     private String eventType;
 
-    @Column(nullable = false)
-    private String eventName;
-
     @Column(columnDefinition = "TEXT")
     private String description;
 

@@ -9,13 +9,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class TransportCostBean {
-
     private Long id;
-
-    private String district;
-
+    private Long districtId;
+    private String districtName;
     private Double deliveryFee;
-
     private LocalDateTime createdAt;
 }
 

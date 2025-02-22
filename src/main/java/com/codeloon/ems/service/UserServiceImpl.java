@@ -6,6 +6,7 @@ import com.codeloon.ems.entity.PasswordHistory;
 import com.codeloon.ems.entity.Role;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.entity.UserPersonalData;
+import com.codeloon.ems.model.EmailRequestBean;
 import com.codeloon.ems.model.UserBean;
 import com.codeloon.ems.repository.PasswordHistoryRepository;
 import com.codeloon.ems.repository.RolesRepository;
@@ -19,6 +20,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,6 +45,15 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder encoder;
     private final PasswordHistoryRepository passwordHistoryRepository;
     private final EntityManager entityManager;
+    private final EmailSenderService emailSenderService;
+
+
+    @Value("${ems.support.email}")
+    private String support_email;
+    @Value("${ems.support.contact}")
+    private String support_contact;
+    @Value("${ems.companyName}")
+    private String companyName;
 
     @Override
     public List<UserBean> getAllUsers() {
@@ -116,6 +127,11 @@ public class UserServiceImpl implements UserService {
                         .password(userEntity.getPassword())
                         .build();
                 passwordHistoryRepository.saveAndFlush(passwordHistory);
+
+                //send user creation email notification
+                if (!userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT)) {
+                    emailSenderService.sendPlainTextEmail(formCredentialEmail(userDto));
+                }
 
                 code = ResponseCode.RSP_SUCCESS;
                 msg = "User created successfully.";
@@ -239,6 +255,38 @@ public class UserServiceImpl implements UserService {
         return responseBean;
     }
 
+    @Override
+    public ResponseBean deleteUser(String userId) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg;
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            UserPersonalData personalData = personalDataRepository.findById(userId).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
+
+            if (personalData != null) {
+
+                personalDataRepository.delete(personalData);
+                userRepository.delete(user);
+
+                msg = "User deleted successfully.";
+                code = ResponseCode.RSP_SUCCESS;
+            } else {
+                msg = "User does not exist.";
+            }
+        } catch (Exception ex) {
+            log.error("Error occurred while deleting user: {}", ex.getMessage(), ex);
+            msg = "An error occurred while deleting user details.";
+        }
+
+        responseBean.setResponseMsg(msg);
+        responseBean.setResponseCode(code);
+        responseBean.setContent(null);
+
+        return responseBean;
+    }
+
 
     @Override
     public ResponseBean findByUsername(String userName) {
@@ -322,6 +370,35 @@ public class UserServiceImpl implements UserService {
         responseBean.setResponseMsg(msg);
         responseBean.setResponseCode(code);
         return responseBean;
+    }
+
+    private EmailRequestBean formCredentialEmail(UserDto userDto) {
+        StringBuilder emailBody = new StringBuilder();
+
+        emailBody.append("Dear ").append(userDto.getUsername()).append(",\n\n")
+                .append("Welcome to ").append(companyName).append("! We are excited to have you on board.\n\n")
+                .append("Your account has been successfully created. Below are your login credentials:\n\n")
+                .append("🔹 Username: ").append(userDto.getUsername()).append("\n")
+                .append("🔹 Temporary Password: ").append(userDto.getPassword()).append("\n\n")
+                .append("To ensure the security of your account, please log in and change your password immediately.\n\n")
+                .append("How to Log In:\n")
+                .append("1. Visit: ").append("http://localhost:5000/ems/reset").append("\n")
+                .append("2. Enter your username and temporary password.\n")
+                .append("3. Follow the on-screen instructions to set a new password.\n\n")
+                .append("If you have any questions or need assistance, feel free to contact our support team at ")
+                .append(support_email).append(".\n\n")
+                .append("We look forward to working with you!\n\n")
+                .append("Best regards,\n")
+                .append(companyName).append(" Team\n")
+                .append(support_contact);
+
+        String subject = " Welcome to " + companyName + " – Your Account Details ";
+
+        return EmailRequestBean.builder()
+                .to(userDto.getEmail())
+                .subject(subject)
+                .text(emailBody.toString())
+                .build();
     }
 
 }
