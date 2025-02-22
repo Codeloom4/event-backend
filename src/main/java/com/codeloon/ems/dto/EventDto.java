@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EventDto {
-    private Long id;
-    private String eventType;
+    private String eventType; // Primary Key
     private String description;
 }
-
