@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/reports/low-stock")
+@RequestMapping("/ems/reports/low-stock")
 @RequiredArgsConstructor
 public class LowStockReportController {
 
