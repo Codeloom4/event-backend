@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface InventoryItemService {
 
-    //List<InventoryItemBean> getAllInventoryItems();
-
     ResponseBean getAllInventoryItems();
 
     ResponseBean createItem(InventoryItemDto inventoryItemDto);
