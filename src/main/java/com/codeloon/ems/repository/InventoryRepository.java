@@ -12,4 +12,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Query("select i from Inventory i where lower(i.itemName) like lower(concat('%', ?1, '%') ) ")
     Page<Object[]> searchInventoryByName(String name, Pageable pageable);
 
+    @Query("SELECT COALESCE(MAX(y.id), 0) FROM Inventory y")
+    Long findMaxId();
+
 }
