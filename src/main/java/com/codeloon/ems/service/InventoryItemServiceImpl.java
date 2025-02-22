@@ -4,6 +4,7 @@ import com.codeloon.ems.dto.InventoryItemDto;
 import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
+import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.UserRepository;
@@ -27,9 +28,12 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final UserRepository userRepository;
 
     @Override
-    public List<InventoryItemBean> getAllInventoryItems() {
+    public ResponseBean getAllInventoryItems() {
+        ResponseBean responseBean = new ResponseBean();
         List<InventoryItemBean> inventoryItemBeanList = new ArrayList<>();
         List<InventoryItem> inventories = new ArrayList<>();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
         try {
 
             inventories = inventoryItemRepository.findAll();
@@ -42,10 +46,17 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     inventoryItemBeanList.add(temp);
                 });
             }
+            code = ResponseCode.RSP_SUCCESS;
+            msg = "Success";
         } catch (Exception e) {
             throw new RuntimeException(e);
+
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(inventoryItemBeanList);
         }
-        return inventoryItemBeanList;
+        return responseBean;
     }
 
     @Override
