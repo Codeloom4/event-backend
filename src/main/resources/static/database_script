@@ -175,3 +175,32 @@ CREATE TABLE Inventory (
     created_user VARCHAR(100) NOT NULL,
     FOREIGN KEY (created_user) REFERENCES users(id) ON DELETE CASCADE
 );
+
+
+INSERT INTO districts (district_name) VALUES
+('Ampara'),
+('Anuradhapura'),
+('Badulla'),
+('Batticaloa'),
+('Colombo'),
+('Galle'),
+('Gampaha'),
+('Hambantota'),
+('Jaffna'),
+('Kalutara'),
+('Kandy'),
+('Kegalle'),
+('Kilinochchi'),
+('Kurunegala'),
+('Mannar'),
+('Matale'),
+('Matara'),
+('Monaragala'),
+('Mullaitivu'),
+('Nuwara Eliya'),
+('Polonnaruwa'),
+('Puttalam'),
+('Ratnapura'),
+('Trincomalee'),
+('Vavuniya');
+
