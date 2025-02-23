@@ -23,14 +23,37 @@ public class InventoryItemController {
 
     private final InventoryItemService inventoryItemService;
 
-    @GetMapping
-    public ResponseEntity<List<InventoryItemBean>> getAllEvents() {
-        return ResponseEntity.ok(inventoryItemService.getAllInventoryItems());
+    @GetMapping("/getall")
+    public ResponseEntity<?> getAllItems() {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+
+        try {
+            responseBean = inventoryItemService.getAllInventoryItems();
+            httpStatus = HttpStatus.OK;
+        }catch (Exception ex){
+            log.error("Error occurred while retrieving inventory Item.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
     @PostMapping
-    public ResponseEntity<ResponseBean> createItem(@RequestBody InventoryItemDto inventoryItemDto) {
-        return ResponseEntity.ok(inventoryItemService.createItem(inventoryItemDto));
+    public ResponseEntity<?> createItem(@RequestBody InventoryItemDto inventoryItemDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = inventoryItemService.createItem(inventoryItemDto);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while adding new inventory Item.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
     @PutMapping

@@ -23,10 +23,24 @@ import java.util.List;
 public class InventoryController {
     private final InventoryService inventoryService;
 
-    @GetMapping
+    @GetMapping("/getall")
     public ResponseEntity<?> getAllInventory() {
-        List<InventoryDto> inventory = inventoryService.getAllInventory();
-        return ResponseEntity.ok(inventory);
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        DataTableBean dataTableBean = new DataTableBean();
+        try {
+            dataTableBean = inventoryService.getAllInventory();
+            httpStatus = HttpStatus.OK;
+            responseBean.setContent(dataTableBean);
+            responseBean.setResponseMsg(dataTableBean.getMsg());
+            responseBean.setResponseCode(dataTableBean.getCode());
+        }catch (Exception ex){
+            log.error("Error occurred while retrieving inventory list.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
     @GetMapping("/{name}")
@@ -37,7 +51,7 @@ public class InventoryController {
         ResponseBean responseBean = new ResponseBean();
         try {
             DataTableBean dataTableBean = inventoryService.getInventoryByName(name, page, size);
-            httpStatus = HttpStatus.CREATED;
+            httpStatus = HttpStatus.OK;
             responseBean.setContent(dataTableBean);
         } catch (Exception ex) {
             log.error("Error occurred while retrieving inventory.{} ", ex.getMessage());
@@ -47,7 +61,7 @@ public class InventoryController {
         return responseEntity;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createInventory(@RequestBody InventoryDto inventory) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;

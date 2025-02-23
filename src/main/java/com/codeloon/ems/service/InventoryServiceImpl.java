@@ -1,10 +1,13 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.InventoryDto;
+import com.codeloon.ems.entity.Event;
 import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.model.DataTableBean;
+import com.codeloon.ems.model.EventBean;
+import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.InventoryRepository;
 import com.codeloon.ems.repository.UserRepository;
@@ -18,9 +21,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,9 +39,11 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryItemRepository inventoryItemRepository;
 
     @Override
-    public List<InventoryDto> getAllInventory() {
-        List<InventoryDto> inventoryDtoList = new ArrayList<>();
+    public DataTableBean getAllInventory() {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> inventoryDtoList = new ArrayList<>();
 
+        String code = ResponseCode.RSP_ERROR;
         try {
             List<Inventory> inventoryList = inventoryRepository.findAll();
             inventoryList.forEach(inventory -> {
@@ -47,8 +54,12 @@ public class InventoryServiceImpl implements InventoryService {
 
         } catch (Exception ex) {
             log.error("Error occurred while retrieving all inventory details", ex);
+        } finally {
+            dataTableBean.setMsg("Success");
+            dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
+            dataTableBean.setList(inventoryDtoList);
         }
-        return inventoryDtoList;
+        return dataTableBean;
     }
 
     @Override
@@ -101,34 +112,34 @@ public class InventoryServiceImpl implements InventoryService {
 
             Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
             Optional<InventoryItem> getInventoryItem = inventoryItemRepository.findById(inventory.getItemId());
-            InventoryItem inventoryItem = getInventoryItem.get();
+            if (getInventoryItem.isPresent()){
+                InventoryItem inventoryItem = getInventoryItem.get();
 
-            Inventory inventoryEntity = Inventory.builder()
-                    .id(2L)
-                    .itemName(inventory.getItemName())
-                    .itemId(inventoryItem)
-                    .startBarcode(startingBcode)
-                    .endBarcode(endingBcode)
-                    .isRefundable(inventory.getIsRefundable())
-                    .purchasePrice(inventory.getPurchasePrice())
-                    .salesPrice(inventory.getSalesPrice())
-                    .orderQuantity(inventory.getOrderQuantity())
-                    .salesQuantity(inventory.getSalesQuantity())
-                    .createdAt(LocalDateTime.now())
-                    .createdUser(getSystemUser.get())
-                    .balanceQuantity(inventory.getOrderQuantity())
-                    .totalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()))
-                    .build();
+                Inventory inventory1 = new Inventory();
 
-            inventoryRepository.saveAndFlush(inventoryEntity);
-            inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventoryEntity.getSalesPrice())/2);
-            inventoryItem.setQuantity(inventoryItem.getQuantity() + inventoryEntity.getOrderQuantity());
-            inventoryItemRepository.saveAndFlush(inventoryItem);
+                inventory1 = this.convertToEntity(inventory);
 
-            code = ResponseCode.RSP_SUCCESS;
-            msg = "Inventory created successfully.";
-            log.info("Inventory created  successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
-                    inventoryEntity.getItemName());
+                inventory1.setEndBarcode(startingBcode);
+                inventory1.setStartBarcode(endingBcode);
+                inventory1.setCreatedAt(LocalDateTime.now());
+                inventory1.setCreatedUser(getSystemUser.get().getUsername());
+                inventory1.setBalanceQuantity(inventory.getOrderQuantity());
+                inventory1.setTotalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()));
+
+                inventoryRepository.saveAndFlush(inventory1);
+                inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventory1.getSalesPrice())/2);
+                inventoryItem.setQuantity(inventoryItem.getQuantity() + inventory1.getOrderQuantity());
+                inventoryItemRepository.saveAndFlush(inventoryItem);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Inventory created successfully.";
+                log.info("Inventory created  successfully. Inventory ID : {}, Inv Name : {}", inventory1.getId(),
+                        inventory1.getItemName());
+            }else {
+                code = ResponseCode.RSP_ERROR;
+                msg = "Invalid item id";
+                log.info("Inventory created  failed due to invalid item id");
+            }
 
         }catch (Exception ex) {
             log.error("Error occurred while adding inventory", ex);
@@ -136,7 +147,7 @@ public class InventoryServiceImpl implements InventoryService {
         } finally {
             responseBean.setResponseMsg(msg);
             responseBean.setResponseCode(code);
-            responseBean.setContent(inventory);
+            responseBean.setContent(null);
         }
         return responseBean;
     }
@@ -162,7 +173,7 @@ public class InventoryServiceImpl implements InventoryService {
                         .orderQuantity(inventory.getOrderQuantity())
                         .salesQuantity(inventory.getSalesQuantity())
                         .createdAt(LocalDateTime.now())
-                        .createdUser(getSystemUser.get())
+                        .createdUser(getSystemUser.get().getUsername())
                         .build();
 
                 inventoryRepository.saveAndFlush(inventoryEntity);
@@ -242,5 +253,16 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
 
+    private InventoryDto convertToDto(Inventory inventory) {
+        InventoryDto inventoryDto = new InventoryDto();
+        BeanUtils.copyProperties(inventory, inventoryDto);
+        return inventoryDto;
+    }
+
+    private Inventory convertToEntity(InventoryDto inventoryDto) {
+        Inventory inventory = new Inventory();
+        BeanUtils.copyProperties(inventoryDto, inventory);
+        return inventory;
+    }
 
 }

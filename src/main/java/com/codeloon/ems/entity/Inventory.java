@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 @Table(name = "Inventory")
 
 public class Inventory {
+//    @Id
+//    @Column(name = "id", updatable = false, nullable = false, length = 50)
+//    private Long id;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +27,12 @@ public class Inventory {
     @Column(name = "item_name", nullable = false)
     private String itemName;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "item_Id", referencedColumnName = "id", nullable = false)
-    private InventoryItem itemId;
+//    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinColumn(name = "item_Id", referencedColumnName = "id", nullable = false)
+//    private InventoryItem itemId;
+
+    @Column(name = "item_Id",nullable = false)
+    private Long itemId;
 
     @Column(name = "is_refundable", nullable = false)
     private Boolean isRefundable;
@@ -60,7 +67,10 @@ public class Inventory {
     @Column(name = "updated_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
-    private User createdUser;
+//    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
+//    private User createdUser;
+
+    @Column(name = "created_user")
+    private String createdUser;
 }

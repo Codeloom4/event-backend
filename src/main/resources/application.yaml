@@ -72,3 +72,6 @@ file:
     windows: C:/ems/uploads/
     linux: /opt/ems/uploads/
 
+inventory:
+  low-stock-threshold: 32
+
