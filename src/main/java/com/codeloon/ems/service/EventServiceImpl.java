@@ -30,10 +30,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public ResponseBean findEventById(Long eventId) {
+    public ResponseBean findEventById(String eventType) {
         ResponseBean responseBean = new ResponseBean();
         try {
-            Optional<Event> eventOptional = eventRepository.findById(eventId);
+            Optional<Event> eventOptional = eventRepository.findById(eventType);
             if (eventOptional.isPresent()) {
                 EventBean eventBean = convertToBean(eventOptional.get());
                 responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
@@ -70,13 +70,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public ResponseBean updateEvent(Long eventId, EventBean eventBean) {
+    public ResponseBean updateEvent(String eventType, EventBean eventBean) {
         ResponseBean responseBean = new ResponseBean();
         try {
-            Optional<Event> eventOptional = eventRepository.findById(eventId);
+            Optional<Event> eventOptional = eventRepository.findById(eventType);
             if (eventOptional.isPresent()) {
                 Event event = eventOptional.get();
-                BeanUtils.copyProperties(eventBean, event, "id", "createdAt");
+                BeanUtils.copyProperties(eventBean, event, "eventType", "createdAt");
                 Event updatedEvent = eventRepository.save(event);
                 responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
                 responseBean.setResponseMsg("Event updated successfully.");
@@ -94,11 +94,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public ResponseBean deleteEvent(Long eventId) {
+    public ResponseBean deleteEvent(String eventType) {
         ResponseBean responseBean = new ResponseBean();
         try {
-            if (eventRepository.existsById(eventId)) {
-                eventRepository.deleteById(eventId);
+            if (eventRepository.existsById(eventType)) {
+                eventRepository.deleteById(eventType);
                 responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
                 responseBean.setResponseMsg("Event deleted successfully.");
             } else {
@@ -125,4 +125,3 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 }
-

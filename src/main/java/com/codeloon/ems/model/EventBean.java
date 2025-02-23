@@ -9,13 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class EventBean {
-
-    private Long id;
-
-    private String eventType;
-
+    private String eventType; // Primary Key
     private String description;
-
     private LocalDateTime createdAt;
 }
-

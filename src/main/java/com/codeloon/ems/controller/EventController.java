@@ -22,7 +22,6 @@ public class EventController {
 
     private final EventService eventService;
 
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> getAllEvents() {
@@ -41,19 +40,16 @@ public class EventController {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
-
     }
 
-
-
-    @GetMapping("/{id}")
+    @GetMapping("/{eventType}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<?> getEventById(@PathVariable Long id) {
+    public ResponseEntity<?> getEventById(@PathVariable String eventType) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            responseBean = eventService.findEventById(id);
+            responseBean = eventService.findEventById(eventType);
             httpStatus = HttpStatus.OK;
         } catch (Exception ex) {
             log.error("Error occurred while getting Event Type by ID.{} ", ex.getMessage());
@@ -61,7 +57,6 @@ public class EventController {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
-
     }
 
     @PostMapping
@@ -70,7 +65,7 @@ public class EventController {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
-                try {
+        try {
             responseBean = eventService.createEvent(eventBean);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
@@ -79,18 +74,16 @@ public class EventController {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
-
     }
 
-
-    @PutMapping("/{id}")
+    @PutMapping("/{eventType}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody EventBean eventBean) {
+    public ResponseEntity<?> updateEvent(@PathVariable String eventType, @RequestBody EventBean eventBean) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            responseBean = eventService.updateEvent(id, eventBean);
+            responseBean = eventService.updateEvent(eventType, eventBean);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while saving new Event Type.{} ", ex.getMessage());
@@ -98,13 +91,11 @@ public class EventController {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
-
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{eventType}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<ResponseBean> deleteEvent(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.deleteEvent(id));
+    public ResponseEntity<ResponseBean> deleteEvent(@PathVariable String eventType) {
+        return ResponseEntity.ok(eventService.deleteEvent(eventType));
     }
 }
-

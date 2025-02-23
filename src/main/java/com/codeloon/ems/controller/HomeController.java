@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/ems/public")
+@RequestMapping("/api/public")
 @RequiredArgsConstructor
 public class HomeController {
 
@@ -27,7 +27,7 @@ public class HomeController {
         return "Hello World";
     }
 
-    @GetMapping("/events")
+    @GetMapping("/services")
     public ResponseEntity<?> getAllEvents() {
         ResponseEntity<?> responseEntity;
         ResponseBean responseBean = new ResponseBean();
