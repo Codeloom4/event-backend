@@ -27,7 +27,7 @@ public class HomeController {
         return "Hello World";
     }
 
-    @GetMapping("/events")
+    @GetMapping("/services")
     public ResponseEntity<?> getAllEvents() {
         ResponseEntity<?> responseEntity;
         ResponseBean responseBean = new ResponseBean();
