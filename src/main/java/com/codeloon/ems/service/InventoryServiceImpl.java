@@ -41,7 +41,8 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public DataTableBean getAllInventory() {
         DataTableBean dataTableBean = new DataTableBean();
-        List<InventoryDto> inventoryDtoList = new ArrayList<>();
+        List<Object> inventoryDtoList = new ArrayList<>();
+
         String code = ResponseCode.RSP_ERROR;
         try {
             List<Inventory> inventoryList = inventoryRepository.findAll();
@@ -56,7 +57,7 @@ public class InventoryServiceImpl implements InventoryService {
         } finally {
             dataTableBean.setMsg("Success");
             dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
-            dataTableBean.setList(Collections.singletonList(inventoryDtoList));
+            dataTableBean.setList(inventoryDtoList);
         }
         return dataTableBean;
     }
