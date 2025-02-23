@@ -8,7 +8,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5
-      maximum-pool-size: 10
+      maximum-pool-size: 100
   jpa:
     hibernate:
       ddl-auto: none
