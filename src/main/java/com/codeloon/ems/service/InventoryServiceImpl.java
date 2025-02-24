@@ -41,7 +41,8 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public DataTableBean getAllInventory() {
         DataTableBean dataTableBean = new DataTableBean();
-        List<InventoryDto> inventoryDtoList = new ArrayList<>();
+        List<Object> inventoryDtoList = new ArrayList<>();
+
         String code = ResponseCode.RSP_ERROR;
         try {
             List<Inventory> inventoryList = inventoryRepository.findAll();
@@ -56,7 +57,7 @@ public class InventoryServiceImpl implements InventoryService {
         } finally {
             dataTableBean.setMsg("Success");
             dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
-            dataTableBean.setList(Collections.singletonList(inventoryDtoList));
+            dataTableBean.setList(inventoryDtoList);
         }
         return dataTableBean;
     }
@@ -121,7 +122,7 @@ public class InventoryServiceImpl implements InventoryService {
                 inventory1.setEndBarcode(startingBcode);
                 inventory1.setStartBarcode(endingBcode);
                 inventory1.setCreatedAt(LocalDateTime.now());
-                inventory1.setCreatedUser(getSystemUser.get().getUsername());
+                inventory1.setCreatedUser(getSystemUser.get());
                 inventory1.setBalanceQuantity(inventory.getOrderQuantity());
                 inventory1.setTotalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()));
 
@@ -172,7 +173,7 @@ public class InventoryServiceImpl implements InventoryService {
                         .orderQuantity(inventory.getOrderQuantity())
                         .salesQuantity(inventory.getSalesQuantity())
                         .createdAt(LocalDateTime.now())
-                        .createdUser(getSystemUser.get().getUsername())
+                        .createdUser(getSystemUser.get())
                         .build();
 
                 inventoryRepository.saveAndFlush(inventoryEntity);

@@ -8,17 +8,17 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5
-      maximum-pool-size: 10
+      maximum-pool-size: 100
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
 
   mail:
     host: smtp.gmail.com
     port: 587
     username: infopartycrafters25@gmail.com
-    password: "mkra lfaw rfep vuoo"
+    password: "...."
     properties:
       mail:
         smtp:

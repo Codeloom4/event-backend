@@ -38,7 +38,7 @@ public class InventoryController {
         }catch (Exception ex){
             log.error("Error occurred while retrieving inventory list.{} ", ex.getMessage());
         }finally {
-            responseEntity = new ResponseEntity<>(dataTableBean, httpStatus);
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
     }
