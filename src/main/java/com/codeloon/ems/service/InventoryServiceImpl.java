@@ -122,7 +122,7 @@ public class InventoryServiceImpl implements InventoryService {
                 inventory1.setEndBarcode(startingBcode);
                 inventory1.setStartBarcode(endingBcode);
                 inventory1.setCreatedAt(LocalDateTime.now());
-                inventory1.setCreatedUser(getSystemUser.get().getUsername());
+                inventory1.setCreatedUser(getSystemUser.get());
                 inventory1.setBalanceQuantity(inventory.getOrderQuantity());
                 inventory1.setTotalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()));
 
@@ -173,7 +173,7 @@ public class InventoryServiceImpl implements InventoryService {
                         .orderQuantity(inventory.getOrderQuantity())
                         .salesQuantity(inventory.getSalesQuantity())
                         .createdAt(LocalDateTime.now())
-                        .createdUser(getSystemUser.get().getUsername())
+                        .createdUser(getSystemUser.get())
                         .build();
 
                 inventoryRepository.saveAndFlush(inventoryEntity);

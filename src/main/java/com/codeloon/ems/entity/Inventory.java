@@ -67,10 +67,10 @@ public class Inventory {
     @Column(name = "updated_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-//    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
-//    private User createdUser;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
+    private User createdUser;
 
-    @Column(name = "created_user")
-    private String createdUser;
+//    @Column(name = "created_user")
+//    private String createdUser;
 }
