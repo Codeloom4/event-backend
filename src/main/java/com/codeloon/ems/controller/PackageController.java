@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class PackageController {
     private final PackageService packageService;
 
-    @PostMapping
+    @GetMapping("/access")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> access() {
         ResponseEntity<?> responseEntity;
