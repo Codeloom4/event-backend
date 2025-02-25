@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
         return this.buildResponse(token, userRole, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
     }
 
-    private AuthResponse validateUserCredentialsStatus(String userName, String userRole, String token) {
+    private AuthResponse validateUserCredentialsStatus(String userName, String token, String userRole) {
         try {
             User user = userRepository.findByUsername(userName).orElse(null);
             if (user != null) {
