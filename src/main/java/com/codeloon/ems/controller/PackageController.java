@@ -87,7 +87,7 @@ public class PackageController {
         return responseEntity;
     }
 
-    @PostMapping
+    @PostMapping("/item")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> createPackageItem(@Valid @RequestBody PackageItemDto packItem) {
         ResponseEntity<?> responseEntity;
