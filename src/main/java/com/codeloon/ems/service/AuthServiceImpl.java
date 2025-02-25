@@ -1,11 +1,13 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.configuration.authentication.JwtTokenProvider;
-import com.codeloon.ems.model.AuthResponse;
 import com.codeloon.ems.dto.LoginDto;
+import com.codeloon.ems.entity.User;
+import com.codeloon.ems.model.AuthResponse;
+import com.codeloon.ems.repository.UserRepository;
 import com.codeloon.ems.util.DataVarList;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -17,12 +19,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
     public ResponseEntity<AuthResponse> login(LoginDto loginDto) {
         String token = "";
@@ -48,10 +52,40 @@ public class AuthServiceImpl implements AuthService {
             // 04 - Return the token to controller
             return handleAuthenticationException(e);
         }
+        AuthResponse credentialsExpResponse = validateUserCredentialsStatus(loginDto.getUsername(), token, userRole);
+        if (credentialsExpResponse != null) {
+            return new ResponseEntity<>(credentialsExpResponse, HttpStatus.OK);
+        }
         // 05 - Return the token to controller
         return this.buildResponse(token, userRole, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
     }
 
+    private AuthResponse validateUserCredentialsStatus(String userName, String userRole, String token) {
+        try {
+            User user = userRepository.findByUsername(userName).orElse(null);
+            if (user != null) {
+                boolean requiresPasswordReset = !user.getCredentialsNonExpired() || user.getForcePasswordChange();
+                if (requiresPasswordReset) {
+                    String errorMessage = !user.getCredentialsNonExpired() ?
+                            DataVarList.FAILED_AUTH_CRED_EXPIRED :
+                            DataVarList.FAILED_AUTH_FIRST_LOGIN;
+
+                    String errorCode = DataVarList.AUTH_FAILED_RESET_PASSWORD;
+                    log.warn(errorMessage);
+                    return AuthResponse.builder()
+                            .accessCode(errorCode)
+                            .accessToken(token)
+                            .accessMsg(errorMessage)
+                            .userRole(userRole)
+                            .build();
+                }
+            }
+
+        } catch (Exception exception) {
+            log.error("Error validating user login.", exception);
+        }
+        return null;
+    }
 
     private ResponseEntity<AuthResponse> buildResponse(String token, String userRole, String authMsg, String authStatus, HttpStatus httpStatus) {
         AuthResponse authResponseDto = AuthResponse.builder()
@@ -76,13 +110,6 @@ public class AuthServiceImpl implements AuthService {
             httpStatus = HttpStatus.FORBIDDEN;
         } else if (e instanceof AccountExpiredException) {
             accessMsg = DataVarList.FAILED_AUTH_ACC_EXPIRED;
-            httpStatus = HttpStatus.FORBIDDEN;
-        } else if (e instanceof CredentialsExpiredException) {
-            CredentialsExpiredException cee = (CredentialsExpiredException) e;
-            accessMsg = !cee.getMessage().toLowerCase().contains("before")
-                    ? DataVarList.FAILED_AUTH_CRED_EXPIRED
-                    : DataVarList.FAILED_AUTH_FIRST_LOGIN;
-            accessCode = DataVarList.AUTH_FAILED_RESET_PASSWORD;
             httpStatus = HttpStatus.FORBIDDEN;
         } else if (e instanceof BadCredentialsException) {
             accessMsg = DataVarList.FAILED_AUTH_ACC_INVALIED;

@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(customCorsConfiguration))
                 .authorizeHttpRequests((authorize) -> {
                     authorize.requestMatchers(
-                            "/api/auth/**",
+                            "/api/auth/login",
                             "/api/public/**",
                             "/ems/user/register").permitAll();
                     authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
