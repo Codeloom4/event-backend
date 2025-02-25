@@ -99,6 +99,11 @@ CREATE TABLE `inventory` (
   CONSTRAINT `FK2r2e8xs9dt2kjmw1scx3roso5` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`)
 );
 
+INSERT INTO `ems_db`.`package_type`
+(`code`,`description`) VALUES
+ ('B','Bronze'),
+ ('S','Silver'),
+ ('G','Gold');
 
 -- Table: packages
 CREATE TABLE packages (

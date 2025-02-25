@@ -1,15 +1,13 @@
 package com.codeloon.ems.service;
 
+import com.codeloon.ems.dto.EventDto;
 import com.codeloon.ems.dto.PackageDto;
 import com.codeloon.ems.dto.PackageItemDto;
-import com.codeloon.ems.entity.Event;
+import com.codeloon.ems.entity.*;
 import com.codeloon.ems.entity.Package;
-import com.codeloon.ems.entity.PackageItem;
-import com.codeloon.ems.entity.User;
-import com.codeloon.ems.repository.EventRepository;
-import com.codeloon.ems.repository.PackageItemRepository;
-import com.codeloon.ems.repository.PackageRepository;
-import com.codeloon.ems.repository.UserRepository;
+import com.codeloon.ems.model.PackageMgtAccessBean;
+import com.codeloon.ems.model.PackageTypeBean;
+import com.codeloon.ems.repository.*;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.AllArgsConstructor;
@@ -18,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,6 +32,38 @@ public class PackageServiceImpl implements PackageService {
 
     private final PackageItemRepository packageItemRepository;
 
+    private final PackageTypeRepository packageTypeRepository;
+
+    @Override
+    public ResponseBean access() {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = null;
+        String code = ResponseCode.RSP_ERROR;
+        try {
+            // Fetch Event and User entities
+            List<EventDto> events = eventRepository.findAll()
+                    .stream()
+                    .map(event -> new EventDto(event.getEventType(), event.getDescription()))
+                    .collect(Collectors.toList());
+
+            List<PackageTypeBean> packageTypes = packageTypeRepository.findAll()
+                    .stream()
+                    .map(pt -> new PackageTypeBean(pt.getCode(), pt.getDescription()))
+                    .collect(Collectors.toList());
+
+            // Populate PackageMgtAccessBean
+            responseBean.setContent(new PackageMgtAccessBean(events, packageTypes));
+            code = ResponseCode.RSP_SUCCESS;
+        } catch (Exception ex) {
+            log.error("Error occurred while creating package: {}", ex.getMessage(), ex);
+            msg = "Error occurred while creating package.";
+        }
+
+        responseBean.setResponseMsg(msg);
+        responseBean.setResponseCode(code);
+        return responseBean;
+    }
+
     @Override
     @Transactional
     public ResponseBean createPackage(PackageDto pack) {
@@ -44,11 +76,14 @@ public class PackageServiceImpl implements PackageService {
                     .orElseThrow(() -> new RuntimeException("Event not found"));
             User createdUser = userRepository.findByUsername(pack.getCreatedUser())
                     .orElseThrow(() -> new RuntimeException("User not found"));
+            PackageType packageType = packageTypeRepository.findById(pack.getType())
+                    .orElseThrow(()->new RuntimeException("Package type not found"));
 
             // Convert DTO to Entity
             Package newPackage = Package.builder()
                     .id(pack.getId())
                     .name(pack.getName())
+                    .package_type(packageType)
                     .event(event)
                     .description(pack.getDescription())
                     .createdUser(createdUser)
@@ -83,9 +118,12 @@ public class PackageServiceImpl implements PackageService {
                     .orElseThrow(() -> new RuntimeException("Event not found"));
             User createdUser = userRepository.findById(pack.getCreatedUser())
                     .orElseThrow(() -> new RuntimeException("User not found"));
+            PackageType packageType = packageTypeRepository.findById(pack.getType())
+                    .orElseThrow(()->new RuntimeException("Package type not found"));
 
             // Update the package details
             existingPackage.setName(pack.getName());
+            existingPackage.setPackage_type(packageType);
             existingPackage.setEvent(event);
             existingPackage.setDescription(pack.getDescription());
             existingPackage.setCreatedUser(createdUser);

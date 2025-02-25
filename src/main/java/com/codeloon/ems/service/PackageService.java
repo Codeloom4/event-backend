@@ -5,6 +5,8 @@ import com.codeloon.ems.dto.PackageItemDto;
 import com.codeloon.ems.util.ResponseBean;
 
 public interface PackageService {
+
+    ResponseBean access();
     ResponseBean createPackage(PackageDto pack);
 
     ResponseBean updatePackage(PackageDto pack);

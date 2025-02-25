@@ -25,6 +25,10 @@ public class Package {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "package_type", referencedColumnName = "code", nullable = false)
+    private PackageType package_type;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eventtype", referencedColumnName = "eventtype", nullable = false)
     private Event event;
 

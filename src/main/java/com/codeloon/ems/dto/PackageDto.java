@@ -24,6 +24,9 @@ public class PackageDto {
     @NotBlank(message = "Package name is required")
     private String name;
 
+    @NotBlank(message = "Package type is required")
+    private String type;
+
     @NotBlank(message = "Event type is required")
     private String eventType;
 
