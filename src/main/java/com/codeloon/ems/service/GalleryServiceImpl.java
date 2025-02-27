@@ -42,6 +42,7 @@ public class GalleryServiceImpl implements GalleryService {
                 // Generate a unique file name
                 String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
                 Path filePath = Paths.get(uploadDirectory, groupName, fileName);
+                String relativeImagePath = groupName + "/" + fileName;
 
                 // Create the directory if it doesn't exist
                 Files.createDirectories(filePath.getParent());
@@ -53,7 +54,7 @@ public class GalleryServiceImpl implements GalleryService {
                 Gallery gallery = Gallery.builder()
                         .eventType(eventType)
                         .groupName(groupName)
-                        .imagePath(filePath.toString())
+                        .imagePath(relativeImagePath)
                         .createdAt(LocalDateTime.now())
                         .build();
                 galleryRepository.save(gallery);
@@ -128,19 +129,25 @@ public class GalleryServiceImpl implements GalleryService {
     public ResponseBean getAllImages() {
         ResponseBean responseBean = new ResponseBean();
         try {
-            List<Gallery> galleries = galleryRepository.findAll();
+//            List<Gallery> galleries = galleryRepository.findAll();
+            List<GalleryDto> galleryDtos = galleryRepository.findAllWithEventDescription();
 
             // Map Gallery entities to GalleryDto objects
-            List<GalleryDto> galleryDtos = galleries.stream()
-                    .map(gallery -> GalleryDto.builder()
-                            .id(gallery.getId())
-                            .eventType(gallery.getEventType())
-                            .groupName(gallery.getGroupName())
-                            .imageUrl("http://localhost:9999/uploads/" + gallery.getImagePath()) // Construct image URL
-                            .createdAt(gallery.getCreatedAt())
-                            .build()
-                    )
-                    .collect(Collectors.toList());
+//            List<GalleryDto> galleryDtos = galleries.stream()
+//                    .map(gallery -> GalleryDto.builder()
+//                            .id(gallery.getId())
+//                            .eventType(gallery.getEventType())
+//                            .groupName(gallery.getGroupName())
+//                            .imageUrl("http://localhost:9999/uploads/" + gallery.getImagePath()) // Construct image URL
+//                            .createdAt(gallery.getCreatedAt())
+//                            .build()
+//                    )
+//                    .collect(Collectors.toList());
+
+            // Construct image URLs
+            galleryDtos.forEach(galleryDto -> {
+                galleryDto.setImageUrl("http://localhost:9999/uploads/" + galleryDto.getImageUrl());
+            });
 
             responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
             responseBean.setResponseMsg("All images retrieved successfully.");
@@ -152,4 +159,90 @@ public class GalleryServiceImpl implements GalleryService {
         }
         return responseBean;
     }
+
+    @Override
+    public ResponseBean deleteGroup(String groupName) {
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            List<Gallery> galleries = galleryRepository.findByGroupName(groupName);
+            if (galleries.isEmpty()) {
+                responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+                responseBean.setResponseMsg("Group not found.");
+                return responseBean;
+            }
+
+            // Delete images from the server
+            for (Gallery gallery : galleries) {
+                Path filePath = Paths.get(uploadDirectory, gallery.getImagePath());
+                Files.deleteIfExists(filePath);
+            }
+
+            // Delete images from the database
+            galleryRepository.deleteByGroupName(groupName);
+
+            responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
+            responseBean.setResponseMsg("Group deleted successfully.");
+        } catch (Exception ex) {
+            log.error("Error occurred while deleting group: {}", ex.getMessage());
+            responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+            responseBean.setResponseMsg("Failed to delete group.");
+        }
+        return responseBean;
+    }
+
+    @Override
+    public ResponseBean updateGroup(String groupName, List<MultipartFile> images) {
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            List<Gallery> existingGalleries = galleryRepository.findByGroupName(groupName);
+            if (existingGalleries.isEmpty()) {
+                responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+                responseBean.setResponseMsg("Group not found.");
+                return responseBean;
+            }
+
+            // Delete existing images from the server
+//            for (Gallery gallery : existingGalleries) {
+//                Path filePath = Paths.get(uploadDirectory, gallery.getImagePath());
+//                Files.deleteIfExists(filePath);
+//            }
+
+            // Delete existing images from the database
+//            galleryRepository.deleteByGroupName(groupName);
+
+            // Upload new images
+            List<GalleryDto> uploadedImages = new ArrayList<>();
+            for (MultipartFile file : images) {
+                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                Path filePath = Paths.get(uploadDirectory, groupName, fileName);
+                String relativeImagePath = groupName + "/" + fileName;
+
+                Files.createDirectories(filePath.getParent());
+                Files.copy(file.getInputStream(), filePath);
+
+                Gallery gallery = Gallery.builder()
+                        .eventType(existingGalleries.get(0).getEventType()) // Use the same event type
+                        .groupName(groupName)
+                        .imagePath(relativeImagePath)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+                galleryRepository.save(gallery);
+
+                GalleryDto galleryDto = new GalleryDto();
+                BeanUtils.copyProperties(gallery, galleryDto);
+                uploadedImages.add(galleryDto);
+            }
+
+            responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
+            responseBean.setResponseMsg("Group updated successfully.");
+            responseBean.setContent(uploadedImages);
+        } catch (Exception ex) {
+            log.error("Error occurred while updating group: {}", ex.getMessage());
+            responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+            responseBean.setResponseMsg("Failed to update group.");
+        }
+        return responseBean;
+    }
+
+
 }

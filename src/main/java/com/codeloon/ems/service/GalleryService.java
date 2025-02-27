@@ -11,5 +11,7 @@ public interface GalleryService {
     ResponseBean getImagesByEventType(String eventType);
     ResponseBean deleteImage(Integer id);
     ResponseBean updateGroupName(Integer id, String groupName);
+    ResponseBean updateGroup(String groupName, List<MultipartFile> images);
+    ResponseBean deleteGroup(String groupName);
     ResponseBean getAllImages();
 }

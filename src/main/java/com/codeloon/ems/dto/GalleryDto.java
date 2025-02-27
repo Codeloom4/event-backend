@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class GalleryDto {
     private Integer id;
     private String eventType;
+    private String eventDescription;
     private String groupName;
     private String imageUrl; // Add this field
     private LocalDateTime createdAt;
