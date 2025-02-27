@@ -9,9 +9,4 @@ import java.time.LocalDateTime;
 public class InventoryItemBean {
     private Long id;
     private String itemName;
-    private Boolean isRefundable;
-    private Long avgPrice;
-    private Integer quantity;
-    private LocalDateTime updatedAt;
-    private String createdUser;
 }

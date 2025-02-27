@@ -21,4 +21,5 @@ public class InventoryItemDto {
     private Integer quantity;
     private LocalDateTime updatedAt;
     private String createdUser;
+    private Integer minOrderQty;
 }

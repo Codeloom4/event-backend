@@ -1,5 +1,6 @@
 package com.codeloon.ems.service;
 
+import com.codeloon.ems.dto.InventoryDto;
 import com.codeloon.ems.dto.InventoryItemDto;
 import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
@@ -12,6 +13,10 @@ import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,10 +47,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     InventoryItemBean temp = new InventoryItemBean();
                     temp.setId(data.getId());
                     temp.setItemName(data.getItemName());
-                    temp.setQuantity(data.getQuantity());
-                    temp.setIsRefundable(data.getIsRefundable());
-                    temp.setAvgPrice(data.getAvgPrice());
-                    temp.setUpdatedAt(LocalDateTime.now());
 
                     inventoryItemBeanList.add(temp);
                 });
@@ -63,6 +64,36 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return responseBean;
     }
 
+
+    @Override
+    public DataTableBean getItemsList() {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> inventoryDtoList = new ArrayList<>();
+        int page = 0;
+        int size = 10;
+        String code = ResponseCode.RSP_ERROR;
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            Page<InventoryItem> inventoryList = inventoryItemRepository.findAll(pageable);
+            inventoryList.forEach(inventory -> {
+                InventoryItemDto inventoryItemDto = new InventoryItemDto();
+                BeanUtils.copyProperties(inventory, inventoryItemDto);
+                inventoryDtoList.add(inventoryItemDto);
+            });
+
+            dataTableBean.setPagecount(inventoryList.getTotalPages());
+            dataTableBean.setCount(inventoryList.getTotalElements());
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving all item list", ex);
+        } finally {
+            dataTableBean.setMsg("Success");
+            dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
+            dataTableBean.setList(inventoryDtoList);
+
+        }
+        return dataTableBean;
+    }
+
     @Override
     public ResponseBean createItem(InventoryItemDto inventoryItemDto) {
         ResponseBean responseBean = new ResponseBean();
@@ -76,6 +107,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     .isRefundable(inventoryItemDto.getIsRefundable())
                     .updatedAt(LocalDateTime.now())
                     .createdUser(inventoryItemDto.getCreatedUser())
+                    .minOrderQty(inventoryItemDto.getMinOrderQty())
                     .build();
 
             inventoryItemRepository.saveAndFlush(inventoryItemEntity);

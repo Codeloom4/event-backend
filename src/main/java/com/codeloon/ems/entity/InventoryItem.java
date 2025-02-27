@@ -38,4 +38,7 @@ public class InventoryItem {
 
     @Column(name = "created_user", nullable = false)
     private String createdUser;
+
+    @Column(name = "min_order_qty")
+    private Integer minOrderQty;
 }

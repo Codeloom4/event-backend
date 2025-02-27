@@ -42,22 +42,26 @@ public class InventoryServiceImpl implements InventoryService {
     public DataTableBean getAllInventory() {
         DataTableBean dataTableBean = new DataTableBean();
         List<Object> inventoryDtoList = new ArrayList<>();
-
+        int page = 0;
+        int size = 10;
         String code = ResponseCode.RSP_ERROR;
+        Pageable pageable = PageRequest.of(page, size);
         try {
-            List<Inventory> inventoryList = inventoryRepository.findAll();
+            Page<Inventory> inventoryList = inventoryRepository.findAll(pageable);
             inventoryList.forEach(inventory -> {
                 InventoryDto inventoryDto = new InventoryDto();
                 BeanUtils.copyProperties(inventory, inventoryDto);
                 inventoryDtoList.add(inventoryDto);
             });
-
+            dataTableBean.setPagecount(inventoryList.getTotalPages());
+            dataTableBean.setCount(inventoryList.getTotalElements());
         } catch (Exception ex) {
             log.error("Error occurred while retrieving all inventory details", ex);
         } finally {
             dataTableBean.setMsg("Success");
             dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
             dataTableBean.setList(inventoryDtoList);
+
         }
         return dataTableBean;
     }
