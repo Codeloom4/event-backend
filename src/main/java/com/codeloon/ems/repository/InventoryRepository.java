@@ -15,4 +15,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Query("SELECT COALESCE(MAX(y.id), 0) FROM Inventory y")
     Long findMaxId();
 
+    Page<Inventory> findAll(Pageable pageable);
+
 }
