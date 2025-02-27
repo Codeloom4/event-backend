@@ -9,6 +9,15 @@ spring:
     hikari:
       minimum-idle: 5
       maximum-pool-size: 100
+
+#    url: jdbc:mysql://127.0.0.1:3306/ems_db
+#    username: root
+#    password: password
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    hikari:
+#      minimum-idle: 5
+#      maximum-pool-size: 10
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,7 +27,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: infopartycrafters25@gmail.com
-    password: "...."
+    password: "nuyw bshy mlyh tjez"
     properties:
       mail:
         smtp:
@@ -75,3 +84,6 @@ file:
 inventory:
   low-stock-threshold: 32
 
+image:
+  upload:
+    directory: C:/ems/gallery/

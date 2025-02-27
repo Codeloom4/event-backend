@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
 
                 //send user creation email notification
                 if (!userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT)) {
-                    emailSenderService.sendPlainTextEmail(formCredentialEmail(userDto));
+                    //emailSenderService.sendPlainTextEmail(formCredentialEmail(userDto));
                 }
 
                 code = ResponseCode.RSP_SUCCESS;
