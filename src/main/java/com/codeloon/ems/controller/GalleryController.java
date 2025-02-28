@@ -56,4 +56,23 @@ public class GalleryController {
         ResponseBean responseBean = galleryService.getAllImages();
         return new ResponseEntity<>(responseBean, HttpStatus.OK);
     }
+
+
+    @PutMapping("/group/{groupName}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
+    public ResponseEntity<ResponseBean> updateGroup(
+            @PathVariable String groupName,
+            @RequestParam List<MultipartFile> images) {
+        ResponseBean responseBean = galleryService.updateGroup(groupName, images);
+        return new ResponseEntity<>(responseBean, HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/group/{groupName}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
+    public ResponseEntity<ResponseBean> deleteGroup(@PathVariable String groupName) {
+        ResponseBean responseBean = galleryService.deleteGroup(groupName);
+        return new ResponseEntity<>(responseBean, HttpStatus.OK);
+    }
+
 }

@@ -38,6 +38,10 @@ spring:
         transport:
           protocol: smtp
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 
 
@@ -87,3 +91,4 @@ inventory:
 image:
   upload:
     directory: C:/ems/gallery/
+

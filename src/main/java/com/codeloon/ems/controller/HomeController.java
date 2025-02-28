@@ -4,6 +4,7 @@ import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.service.EventService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
+import com.codeloon.ems.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.List;
 public class HomeController {
 
     private final EventService eventService;
+    private final GalleryService galleryService;
 
     @GetMapping("/")
     public String getHome() {
@@ -53,5 +55,32 @@ public class HomeController {
 
     // @GetMapping("/package-types")
     // @GetMapping("/about")
+
+
+    // New endpoint to get gallery images with event descriptions
+    @GetMapping("/gallery")
+    public ResponseEntity<?> getGalleryImages() {
+        ResponseEntity<?> responseEntity;
+        ResponseBean responseBean = new ResponseBean();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        try {
+            // Use the existing GalleryService method to fetch gallery data
+            ResponseBean galleryResponse = galleryService.getAllImages();
+            responseBean.setResponseCode(galleryResponse.getResponseCode());
+            responseBean.setResponseMsg(galleryResponse.getResponseMsg());
+            responseBean.setContent(galleryResponse.getContent());
+            httpStatus = HttpStatus.OK;
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving gallery images: {}", ex.getMessage());
+            responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+            responseBean.setResponseMsg("Error occurred while retrieving gallery images.");
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+
+
 }
 

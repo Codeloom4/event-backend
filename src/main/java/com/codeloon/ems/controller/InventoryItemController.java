@@ -2,6 +2,7 @@ package com.codeloon.ems.controller;
 
 import com.codeloon.ems.dto.InventoryDto;
 import com.codeloon.ems.dto.InventoryItemDto;
+import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.service.InventoryItemService;
@@ -23,7 +24,7 @@ public class InventoryItemController {
 
     private final InventoryItemService inventoryItemService;
 
-    @GetMapping("/getall")
+    @GetMapping("/itemdropdown")
     public ResponseEntity<?> getAllItems() {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -64,6 +65,27 @@ public class InventoryItemController {
     @DeleteMapping("/{itemId}")
     public ResponseEntity<?> deleteItem(@PathVariable Long itemId) {
         return ResponseEntity.ok(inventoryItemService.deleteItem(itemId));
+    }
+
+
+    @GetMapping("/getall")
+    public ResponseEntity<?> getAllInventory() {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        DataTableBean dataTableBean = new DataTableBean();
+        try {
+            dataTableBean = inventoryItemService.getItemsList();
+            httpStatus = HttpStatus.OK;
+            responseBean.setContent(dataTableBean);
+            responseBean.setResponseMsg(dataTableBean.getMsg());
+            responseBean.setResponseCode(dataTableBean.getCode());
+        }catch (Exception ex){
+            log.error("Error occurred while retrieving inventory list.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
 }
