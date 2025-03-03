@@ -111,8 +111,8 @@ public class InventoryServiceImpl implements InventoryService {
         String code = ResponseCode.RSP_ERROR;
 
         try {
-            String startingBcode = ""; //TODO generate Starting Barcode
-            String endingBcode = "";  //TODO generate ending Barcode
+            Long startingBcode = 0L;
+            Long endingBcode = 0L;
 
             Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
             Optional<InventoryItem> getInventoryItem = inventoryItemRepository.findById(inventory.getItemId());
@@ -123,12 +123,20 @@ public class InventoryServiceImpl implements InventoryService {
 
                 inventory1 = this.convertToEntity(inventory);
 
-                inventory1.setEndBarcode(startingBcode);
-                inventory1.setStartBarcode(endingBcode);
                 inventory1.setCreatedAt(LocalDateTime.now());
                 inventory1.setCreatedUser(getSystemUser.get());
                 inventory1.setBalanceQuantity(inventory.getOrderQuantity());
                 inventory1.setTotalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()));
+
+                //Inventory getLastInventory = inventoryRepository.findTopByOrderByIdDesc();
+
+                Long lastBarcode = inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() != 0 ?
+                        inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() : 1000000000L;
+
+                startingBcode = lastBarcode + 1;
+                endingBcode = startingBcode + inventory.getOrderQuantity() - 1;
+                inventory1.setEndBarcode(endingBcode);
+                inventory1.setStartBarcode(startingBcode);
 
                 inventoryRepository.saveAndFlush(inventory1);
                 inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventory1.getSalesPrice())/2);
