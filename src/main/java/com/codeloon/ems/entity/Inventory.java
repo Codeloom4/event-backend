@@ -16,10 +16,6 @@ import java.time.LocalDateTime;
 @Table(name = "Inventory")
 
 public class Inventory {
-//    @Id
-//    @Column(name = "id", updatable = false, nullable = false, length = 50)
-//    private Long id;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -56,10 +52,10 @@ public class Inventory {
     private Double totalAmount;
 
     @Column(name = "start_Barcode")
-    private String startBarcode;
+    private Long startBarcode;
 
     @Column(name = "end_Barcode")
-    private String endBarcode;
+    private Long endBarcode;
 
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;

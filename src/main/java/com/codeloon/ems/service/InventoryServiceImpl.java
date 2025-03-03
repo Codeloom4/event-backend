@@ -1,6 +1,7 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.InventoryDto;
+import com.codeloon.ems.dto.SystemBeanDto;
 import com.codeloon.ems.entity.Event;
 import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
@@ -16,6 +17,7 @@ import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +39,9 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
     private final UserRepository userRepository;
     private final InventoryItemRepository inventoryItemRepository;
+
+    @Autowired
+    private SystemBeanDto systemBeanDto;
 
     @Override
     public DataTableBean getAllInventory() {
@@ -111,10 +116,10 @@ public class InventoryServiceImpl implements InventoryService {
         String code = ResponseCode.RSP_ERROR;
 
         try {
-            String startingBcode = ""; //TODO generate Starting Barcode
-            String endingBcode = "";  //TODO generate ending Barcode
+            Long startingBcode = 0L;
+            Long endingBcode = 0L;
 
-            Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+            Optional<User> getSystemUser = userRepository.findByUsername(systemBeanDto.getSysUser());
             Optional<InventoryItem> getInventoryItem = inventoryItemRepository.findById(inventory.getItemId());
             if (getInventoryItem.isPresent()){
                 InventoryItem inventoryItem = getInventoryItem.get();
@@ -123,12 +128,20 @@ public class InventoryServiceImpl implements InventoryService {
 
                 inventory1 = this.convertToEntity(inventory);
 
-                inventory1.setEndBarcode(startingBcode);
-                inventory1.setStartBarcode(endingBcode);
                 inventory1.setCreatedAt(LocalDateTime.now());
                 inventory1.setCreatedUser(getSystemUser.get());
                 inventory1.setBalanceQuantity(inventory.getOrderQuantity());
                 inventory1.setTotalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()));
+
+                //Inventory getLastInventory = inventoryRepository.findTopByOrderByIdDesc();
+
+                Long lastBarcode = inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() != 0 ?
+                        inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() : 1000000000L;
+
+                startingBcode = lastBarcode + 1;
+                endingBcode = startingBcode + inventory.getOrderQuantity() - 1;
+                inventory1.setEndBarcode(endingBcode);
+                inventory1.setStartBarcode(startingBcode);
 
                 inventoryRepository.saveAndFlush(inventory1);
                 inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventory1.getSalesPrice())/2);

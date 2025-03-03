@@ -17,4 +17,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     Page<Inventory> findAll(Pageable pageable);
 
+    Inventory findTopByOrderByIdDesc();
+
 }
