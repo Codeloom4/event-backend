@@ -1,9 +1,11 @@
 package com.codeloon.ems.configuration.authentication;
 
+import com.codeloon.ems.dto.SystemBeanDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +23,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final UserDetailsService userDetailsService;
+
+    @Autowired
+    private SystemBeanDto systemBeanDto;
 
     //Constructor
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, CustomerUserDetailsService userDetailsService) {
@@ -43,6 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)){
             // get username from token
             String username = jwtTokenProvider.getUsername(token);
+            systemBeanDto.setSysUser(username);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

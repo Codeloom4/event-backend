@@ -2,6 +2,7 @@ package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.InventoryDto;
 import com.codeloon.ems.dto.InventoryItemDto;
+import com.codeloon.ems.dto.SystemBeanDto;
 import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
@@ -14,6 +15,7 @@ import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
+
+    @Autowired
+    private SystemBeanDto systemBeanDto;
 
     @Override
     public ResponseBean getAllInventoryItems() {
@@ -106,7 +111,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     .itemName(inventoryItemDto.getItemName())
                     .isRefundable(inventoryItemDto.getIsRefundable())
                     .updatedAt(LocalDateTime.now())
-                    .createdUser(inventoryItemDto.getCreatedUser())
+                    .createdUser(systemBeanDto.getSysUser())
                     .minOrderQty(inventoryItemDto.getMinOrderQty())
                     .build();
 
