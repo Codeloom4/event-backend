@@ -85,6 +85,11 @@ file:
     windows: C:/ems/uploads/
     linux: /opt/ems/uploads/
 
+
+grouping:
+  windows: C:/ems/grouping/
+  linux: /opt/ems/grouping/
+
 inventory:
   low-stock-threshold: 32
 

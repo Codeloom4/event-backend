@@ -209,3 +209,15 @@ INSERT INTO districts (district_name) VALUES
 ('Trincomalee'),
 ('Vavuniya');
 
+CREATE TABLE groupings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    event_type VARCHAR(255) NOT NULL,
+    event_name VARCHAR(255) NOT NULL,
+    total_participants INT NOT NULL,
+    number_of_groups INT,
+    grouping_method VARCHAR(50) NOT NULL,
+    file_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
