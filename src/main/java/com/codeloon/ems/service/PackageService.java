@@ -7,6 +7,7 @@ import com.codeloon.ems.util.ResponseBean;
 public interface PackageService {
 
     ResponseBean access();
+
     ResponseBean createPackage(PackageDto pack);
 
     ResponseBean updatePackage(PackageDto pack);
@@ -15,4 +16,10 @@ public interface PackageService {
 
     ResponseBean createPackageItem(PackageItemDto packageItemDto);
 
+    ResponseBean getPackagesByEventType(String event);
+
+    ResponseBean updatePackageItem(String packageId, PackageItemDto packItem);
+
+    ResponseBean deletePackageItem(String itemCode, String packageId);
+    ResponseBean getPackageItems(String packageId);
 }

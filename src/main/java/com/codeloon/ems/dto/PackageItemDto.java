@@ -1,6 +1,8 @@
 package com.codeloon.ems.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +20,15 @@ public class PackageItemDto {
     private String package_id;
 
     @NotBlank(message = "Item is required")
-    private String itemName;
+    private String itemCode;
 
-    @NotBlank(message = "Selling price is required")
-    private Double sellPrice;
+    @NotNull(message = "Bulk price is required")
+    @Positive(message = "Bulk price must be greater than zero")
+    private Double bulkPrice;
+
+    @NotNull(message = "Quantity is required")
+    @Positive(message = "Quantity must be greater than zero")
+    private Integer quantity;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

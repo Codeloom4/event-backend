@@ -24,11 +24,11 @@ public class Package {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "package_type", referencedColumnName = "code", nullable = false)
     private PackageType package_type;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "eventtype", referencedColumnName = "eventtype", nullable = false)
     private Event event;
 
@@ -41,7 +41,7 @@ public class Package {
     @Column(name = "updated_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
     private User createdUser;
 

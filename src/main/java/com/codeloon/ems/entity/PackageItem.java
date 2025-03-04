@@ -28,8 +28,11 @@ public class PackageItem {
     @Column(name = "itemName")
     private String itemName;
 
-    @Column(name = "sellPrice")
-    private Double sellPrice;
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "bulkPrice")
+    private Double bulkPrice;
 
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
@@ -37,7 +40,7 @@ public class PackageItem {
     @Column(name = "updated_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
     private User createdUser;
 
