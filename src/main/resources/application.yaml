@@ -27,7 +27,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: infopartycrafters25@gmail.com
-    password: "---"
+    password: "nuyw bshy mlyh tjez"
     properties:
       mail:
         smtp:
@@ -38,6 +38,10 @@ spring:
         transport:
           protocol: smtp
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 
 
@@ -83,4 +87,8 @@ file:
 
 inventory:
   low-stock-threshold: 32
+
+image:
+  upload:
+    directory: C:/ems/gallery/
 
