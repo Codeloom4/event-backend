@@ -179,19 +179,15 @@ public class InventoryServiceImpl implements InventoryService {
 
             Optional<Inventory> inventoryOptional = inventoryRepository.findById(InventoryId);
             if(inventoryOptional.isPresent()){
-                Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+                Optional<User> getSystemUser = userRepository.findByUsername(systemBeanDto.getSysUser());
                 Inventory inventoryEntity = inventoryOptional.get();
 
-                inventoryEntity = Inventory.builder()
-                        .itemName(inventory.getItemName())
-                        .isRefundable(inventory.getIsRefundable())
-                        .purchasePrice(inventory.getPurchasePrice())
-                        .salesPrice(inventory.getSalesPrice())
-                        .orderQuantity(inventory.getOrderQuantity())
-                        .salesQuantity(inventory.getSalesQuantity())
-                        .createdAt(LocalDateTime.now())
-                        .createdUser(getSystemUser.get())
-                        .build();
+                inventoryEntity.setPurchasePrice(inventory.getPurchasePrice());
+                inventoryEntity.setSalesPrice(inventory.getSalesPrice());
+                inventoryEntity.setOrderQuantity(inventory.getOrderQuantity());
+                inventoryEntity.setSalesQuantity(inventory.getSalesQuantity());
+                inventoryEntity.setCreatedAt(LocalDateTime.now());
+                inventoryEntity.setCreatedUser(getSystemUser.get());
 
                 inventoryRepository.saveAndFlush(inventoryEntity);
 

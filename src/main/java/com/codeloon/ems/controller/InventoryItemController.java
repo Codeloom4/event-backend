@@ -57,9 +57,26 @@ public class InventoryItemController {
         return responseEntity;
     }
 
-    @PutMapping
-    public ResponseEntity<?> updateItem(@RequestBody InventoryItemDto inventoryItem) {
-        return ResponseEntity.ok(inventoryItemService.updateItem(inventoryItem));
+//    @PutMapping("/{itemId}")
+//    public ResponseEntity<?> updateItem(@PathVariable Long itemId, @RequestBody InventoryItemDto inventoryItem) {
+//        return ResponseEntity.ok(inventoryItemService.updateItem(inventoryItem));
+//    }
+
+    @PutMapping("/{itemId}")
+    public ResponseEntity<?> updateItem(@PathVariable Long itemId, @RequestBody InventoryItemDto inventoryItem) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+
+            responseBean = inventoryItemService.updateItem(itemId, inventoryItem);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while saving new Event Type.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
     @DeleteMapping("/{itemId}")

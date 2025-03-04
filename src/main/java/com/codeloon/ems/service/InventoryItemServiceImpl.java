@@ -134,26 +134,23 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Override
-    public ResponseBean updateItem(InventoryItemDto inventoryItemDto) {
+    public ResponseBean updateItem(Long itemId, InventoryItemDto inventoryItemDto) {
         ResponseBean responseBean = new ResponseBean();
         String msg = "";
         String code = ResponseCode.RSP_ERROR;
 
         try {
 
-            Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository.findById(inventoryItemDto.getId());
+            Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository.findById(itemId);
             if(inventoryItemOptional.isPresent()){
                 Optional<User> getSystemUser = userRepository.findByUsername(inventoryItemDto.getCreatedUser());
                 InventoryItem inventoryItemEntity = inventoryItemOptional.get();
 
-                inventoryItemEntity = InventoryItem.builder()
-                        .itemName(inventoryItemDto.getItemName())
-                        .isRefundable(inventoryItemDto.getIsRefundable())
-                        .updatedAt(inventoryItemDto.getUpdatedAt())
-                        .createdUser(inventoryItemDto.getCreatedUser())
-                        .avgPrice(inventoryItemDto.getAvgPrice())
-                        .quantity(inventoryItemDto.getQuantity())
-                        .build();
+                inventoryItemEntity.setItemName(inventoryItemDto.getItemName());
+                inventoryItemEntity.setIsRefundable(inventoryItemDto.getIsRefundable());
+                inventoryItemEntity.setUpdatedAt(LocalDateTime.now());
+                inventoryItemEntity.setCreatedUser(systemBeanDto.getSysUser());
+                inventoryItemEntity.setMinOrderQty(inventoryItemDto.getMinOrderQty());
 
                 inventoryItemRepository.saveAndFlush(inventoryItemEntity);
 
@@ -172,7 +169,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         } finally {
             responseBean.setResponseMsg(msg);
             responseBean.setResponseCode(code);
-            responseBean.setContent(inventoryItemDto);
+            responseBean.setContent(null);
         }
         return responseBean;
     }
