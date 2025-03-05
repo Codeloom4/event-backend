@@ -1,10 +1,11 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.configuration.authentication.JwtTokenProvider;
 import com.codeloon.ems.dto.LoginDto;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.model.AuthResponse;
 import com.codeloon.ems.repository.UserRepository;
+import com.codeloon.ems.service.AuthService;
 import com.codeloon.ems.util.DataVarList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

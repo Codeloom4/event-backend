@@ -30,6 +30,8 @@ public class PackageItemDto {
     @Positive(message = "Quantity must be greater than zero")
     private Integer quantity;
 
+
+    private String itemName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdUser;

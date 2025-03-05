@@ -1,4 +1,4 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.InventoryDto;
 import com.codeloon.ems.dto.SystemBeanDto;
@@ -12,6 +12,7 @@ import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.InventoryRepository;
 import com.codeloon.ems.repository.UserRepository;
+import com.codeloon.ems.service.InventoryService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;

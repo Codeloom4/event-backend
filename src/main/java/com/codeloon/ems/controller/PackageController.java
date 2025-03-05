@@ -189,7 +189,7 @@ public class PackageController {
         }
         return responseEntity;
     }
-    @PostMapping("/images/{packageId}")
+    @GetMapping("/images/{packageId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> getImages(@PathVariable String packageId) {
         ResponseEntity<?> responseEntity;

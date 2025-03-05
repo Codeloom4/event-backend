@@ -1,6 +1,6 @@
 package com.codeloon.ems.configuration.authentication;
 
-import com.codeloon.ems.service.CustomUserDetails;
+import com.codeloon.ems.service.impl.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -16,6 +16,9 @@ public interface PackageItemRepository extends JpaRepository<PackageItem, String
     @Query("select p from PackageItem p where p.package_id.id = ?1 and p.itemName = ?2 ")
     Optional<PackageItem> findByPackageIdAndItemName(String packageId, String itemCode);
 
+    @Query("select p from PackageItem p where p.package_id.id = ?1 and p.itemCode = ?2 ")
+    Optional<PackageItem> findByPackageIdAndItemCode(String packageId, String itemCode);
+
     @Query("select p from PackageItem p where p.package_id.id = ?1 ")
     List<PackageItem> findByPackageId(String packageId);
     @Modifying
@@ -24,7 +27,7 @@ public interface PackageItemRepository extends JpaRepository<PackageItem, String
     void deleteByPackageId(String packageId);
     @Modifying
     @Transactional
-    @Query("delete from PackageItem p where p.package_id.id = ?1 and p.itemName = ?2 ")
-    void deleteByPackageIdAndItemName(String packageId, String itemCode);
+    @Query("delete from PackageItem p where p.package_id.id = ?1 and p.itemCode = ?2 ")
+    void deleteByPackageIdAndItemCode(String packageId, String itemCode);
 
 }

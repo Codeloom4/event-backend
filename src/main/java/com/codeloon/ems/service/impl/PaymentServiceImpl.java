@@ -1,8 +1,9 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.PaymentDto;
 import com.codeloon.ems.entity.Payment;
 import com.codeloon.ems.repository.PaymentRepository;
+import com.codeloon.ems.service.PaymentService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;

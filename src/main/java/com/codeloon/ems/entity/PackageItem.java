@@ -25,6 +25,9 @@ public class PackageItem {
     @JoinColumn(name = "package_id", referencedColumnName = "id", nullable = false)
     private Package package_id; // Renamed to avoid confusion with the column name
 
+    @Column(name = "itemCode")
+    private String itemCode;
+
     @Column(name = "itemName")
     private String itemName;
 

@@ -19,4 +19,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
     Optional<InventoryItem> findInventoryItemByItemName(String name);
     Page<InventoryItem> findAll(Pageable pageable);
 
+
+    Optional<InventoryItem> findInventoryItemById(Long id);
+
 }

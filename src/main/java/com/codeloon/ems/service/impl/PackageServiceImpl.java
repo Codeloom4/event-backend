@@ -1,4 +1,4 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.EventDto;
 import com.codeloon.ems.dto.PackageDto;
@@ -9,11 +9,12 @@ import com.codeloon.ems.entity.*;
 import com.codeloon.ems.model.PackageMgtAccessBean;
 import com.codeloon.ems.model.PackageTypeBean;
 import com.codeloon.ems.repository.*;
+import com.codeloon.ems.service.ImageUploadService;
+import com.codeloon.ems.service.PackageService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -38,9 +39,9 @@ public class PackageServiceImpl implements PackageService {
 
     private final PackageTypeRepository packageTypeRepository;
 
-    private final InventoryItemRepository  inventoryItemRepository;
+    private final InventoryItemRepository inventoryItemRepository;
 
-    private  final  ImageUploadService imageUploadService;
+    private final ImageUploadService imageUploadService;
 
     @Override
     public ResponseBean access() {
@@ -200,19 +201,20 @@ public class PackageServiceImpl implements PackageService {
             User createdUser = userRepository.findByUsername(packageItemDto.getCreatedUser())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            InventoryItem inventoryItem = inventoryItemRepository.findInventoryItemByItemName(packageItemDto.getItemCode())
+            InventoryItem inventoryItem = inventoryItemRepository.findInventoryItemById(Long.valueOf(packageItemDto.getItemCode()))
                     .orElseThrow(() -> new RuntimeException("Inventory item not found"));
 
 
-            if(ObjectUtils.isEmpty(inventoryItem)){
+            if (ObjectUtils.isEmpty(inventoryItem)) {
                 msg = "Inventory not found";
-            }else if(inventoryItem.getQuantity() < packageItemDto.getQuantity()){
+            } else if (inventoryItem.getQuantity() < packageItemDto.getQuantity()) {
                 msg = "Inventory Quantity Exceeds";
-            }else {
+            } else {
                 // Convert DTO to Entity
                 PackageItem packageItem = PackageItem.builder()
                         .package_id(packageEntity) // Associate with the Package
-                        .itemName(packageItemDto.getItemCode())
+                        .itemName(packageItemDto.getItemName())
+                        .itemCode(packageItemDto.getItemCode())
                         .bulkPrice(packageItemDto.getBulkPrice())
                         .quantity(packageItemDto.getQuantity())
                         .createdUser(createdUser)
@@ -252,14 +254,14 @@ public class PackageServiceImpl implements PackageService {
 
             if (!existingPackages.isEmpty()) {
                 List<PackageInfoDTO> packageInfoDTOS = new ArrayList<>();
-                for(Package p : existingPackages) {
+                for (Package p : existingPackages) {
                     PackageInfoDTO dto = getPackageInfoDTO(p);
                     packageInfoDTOS.add(dto);
                 }
                 responseBean.setContent(packageInfoDTOS);
                 code = ResponseCode.RSP_SUCCESS;
                 msg = "Packages retrieval success";
-            } else{
+            } else {
                 code = ResponseCode.RSP_SUCCESS;
                 msg = "No Packages for selected event";
             }
@@ -284,7 +286,7 @@ public class PackageServiceImpl implements PackageService {
 
         try {
             // Fetch the existing PackageItem by packageId and itemCode
-            PackageItem packageItem = packageItemRepository.findByPackageIdAndItemName(packageId, packageItemDto.getItemCode())
+            PackageItem packageItem = packageItemRepository.findByPackageIdAndItemCode(packageId, packageItemDto.getItemCode())
                     .orElseThrow(() -> new RuntimeException("Package item not found"));
 
             // Fetch the associated Package
@@ -296,7 +298,7 @@ public class PackageServiceImpl implements PackageService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             // Fetch the Inventory Item
-            InventoryItem inventoryItem = inventoryItemRepository.findInventoryItemByItemName(packageItemDto.getItemCode())
+            InventoryItem inventoryItem = inventoryItemRepository.findInventoryItemById(Long.valueOf(packageItemDto.getItemCode()))
                     .orElseThrow(() -> new RuntimeException("Inventory item not found"));
 
             if (ObjectUtils.isEmpty(inventoryItem)) {
@@ -307,6 +309,7 @@ public class PackageServiceImpl implements PackageService {
                 // Update the PackageItem entity
                 packageItem.setPackage_id(packageEntity);
                 packageItem.setItemName(packageItemDto.getItemCode());
+                packageItem.setItemName(packageItemDto.getItemName());
                 packageItem.setBulkPrice(packageItemDto.getBulkPrice());
                 packageItem.setQuantity(packageItemDto.getQuantity());
                 packageItem.setCreatedUser(updatedUser);
@@ -335,12 +338,12 @@ public class PackageServiceImpl implements PackageService {
         String code = ResponseCode.RSP_ERROR;
         try {
             // Fetch the existing PackageItem by packageId and itemCode
-            PackageItem packageItem = packageItemRepository.findByPackageIdAndItemName(packageId, itemCode).orElse(null);
+            PackageItem packageItem = packageItemRepository.findByPackageIdAndItemCode(packageId, itemCode).orElse(null);
 
             if (packageItem == null) {
                 msg = "Package item not found";
-            }else{
-                packageItemRepository.deleteByPackageIdAndItemName(packageId, itemCode);
+            } else {
+                packageItemRepository.deleteByPackageIdAndItemCode(packageId, itemCode);
                 msg = "Package item deleted successfully";
                 code = ResponseCode.RSP_SUCCESS;
             }
@@ -370,8 +373,9 @@ public class PackageServiceImpl implements PackageService {
                 msg = "No package items found for the given Package ID";
             } else {
 
-                for (PackageItem item : packageItems){
+                for (PackageItem item : packageItems) {
                     PackageItemDto dto = PackageItemDto.builder()
+                            .itemCode(item.getItemCode())
                             .itemCode(item.getItemName())
                             .bulkPrice(item.getBulkPrice())
                             .quantity(item.getQuantity())
