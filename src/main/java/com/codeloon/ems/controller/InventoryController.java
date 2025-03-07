@@ -78,7 +78,7 @@ public class InventoryController {
     }
 
     @PutMapping("/{inventoryId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> updateInventory(@PathVariable Long InventoryId, @RequestBody InventoryDto inventory) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;

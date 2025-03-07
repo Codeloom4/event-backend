@@ -148,12 +148,14 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 InventoryItem inventoryItemEntity = inventoryItemOptional.get();
 
                 inventoryItemEntity = InventoryItem.builder()
+                        .id(inventoryItemOptional.get().getId())
                         .itemName(inventoryItemDto.getItemName())
                         .isRefundable(inventoryItemDto.getIsRefundable())
-                        .updatedAt(inventoryItemDto.getUpdatedAt())
-                        .createdUser(inventoryItemDto.getCreatedUser())
-                        .avgPrice(inventoryItemDto.getAvgPrice())
-                        .quantity(inventoryItemDto.getQuantity())
+                        .minOrderQty(inventoryItemDto.getMinOrderQty())
+                        .updatedAt(LocalDateTime.now())
+                        .createdUser(inventoryItemOptional.get().getCreatedUser())
+                        .avgPrice(inventoryItemOptional.get().getAvgPrice())
+                        .quantity(inventoryItemOptional.get().getQuantity())
                         .build();
 
                 inventoryItemRepository.saveAndFlush(inventoryItemEntity);

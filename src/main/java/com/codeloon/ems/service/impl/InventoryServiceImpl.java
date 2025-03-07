@@ -80,7 +80,8 @@ public class InventoryServiceImpl implements InventoryService {
 
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("itemName").ascending());
-            Page<Object[]> inventoryList = inventoryRepository.searchInventoryByName(itemName, pageable);
+//            Page<Object[]> inventoryList = inventoryRepository.searchInventoryByName(itemName, pageable);
+            Page<Inventory> inventoryList = inventoryRepository.findByItemNameContaining(itemName, pageable);
 
             if(!inventoryList.isEmpty()){
                 List<Object> inventoryDataList = this.mapSearchData(inventoryList);
@@ -249,21 +250,21 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
 
-    private List<Object> mapSearchData(Page<Object[]> dataList) {
+    private List<Object> mapSearchData(Page<Inventory> dataList) {
         List<Object> advanceSearchDataBeanList = new ArrayList<>();
         dataList.forEach(data -> {
             InventoryDto searchDataBean = new InventoryDto();
 
-            searchDataBean.setId((Long) data[0]);
-            searchDataBean.setItemName((String) data[1]);
-            searchDataBean.setIsRefundable((Boolean) data[2]);
-            searchDataBean.setPurchasePrice((Long) data[3]);
-            searchDataBean.setSalesPrice((Long) data[4]);
-            searchDataBean.setOrderQuantity((Integer) data[5]);
-            searchDataBean.setSalesQuantity((Integer) data[6]);
-            searchDataBean.setBalanceQuantity((Integer) data[7]);
-            searchDataBean.setStartBarcode((String) data[8]);
-            searchDataBean.setEndBarcode((String) data[9]);
+            searchDataBean.setId(data.getId());
+            searchDataBean.setItemName(data.getItemName());
+            searchDataBean.setIsRefundable(data.getIsRefundable());
+            searchDataBean.setPurchasePrice(data.getPurchasePrice());
+            searchDataBean.setSalesPrice(data.getSalesPrice());
+            searchDataBean.setOrderQuantity(data.getOrderQuantity());
+            searchDataBean.setSalesQuantity(data.getSalesQuantity());
+            searchDataBean.setBalanceQuantity(data.getBalanceQuantity());
+            searchDataBean.setStartBarcode(String.valueOf(data.getStartBarcode()));
+            searchDataBean.setEndBarcode(String.valueOf(data.getEndBarcode()));
 
             advanceSearchDataBeanList.add(searchDataBean);
         });
