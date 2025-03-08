@@ -1,8 +1,9 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.GalleryDto;
 import com.codeloon.ems.entity.Gallery;
 import com.codeloon.ems.repository.GalleryRepository;
+import com.codeloon.ems.service.GalleryService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;

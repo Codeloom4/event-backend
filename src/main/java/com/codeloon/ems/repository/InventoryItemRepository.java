@@ -10,12 +10,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, Long> {
     @Query (value = "SELECT a.id, a.itemName FROM InventoryItem a")
     List<InventoryItemBean> findAllInventoryItems();
-
+    Optional<InventoryItem> findInventoryItemByItemName(String name);
     Page<InventoryItem> findAll(Pageable pageable);
+
+
+    Optional<InventoryItem> findInventoryItemById(Long id);
 
 }

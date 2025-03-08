@@ -1,4 +1,4 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.ResetDto;
 import com.codeloon.ems.dto.UserDto;
@@ -12,6 +12,8 @@ import com.codeloon.ems.repository.PasswordHistoryRepository;
 import com.codeloon.ems.repository.RolesRepository;
 import com.codeloon.ems.repository.UserPersonalDataRepository;
 import com.codeloon.ems.repository.UserRepository;
+import com.codeloon.ems.service.EmailSenderService;
+import com.codeloon.ems.service.UserService;
 import com.codeloon.ems.util.DataVarList;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;

@@ -1,4 +1,4 @@
-package com.codeloon.ems.config;
+package com.codeloon.ems.configuration.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

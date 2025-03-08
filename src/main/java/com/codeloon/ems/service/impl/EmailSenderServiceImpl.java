@@ -1,6 +1,7 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.model.EmailRequestBean;
+import com.codeloon.ems.service.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
