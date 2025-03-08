@@ -8,6 +8,7 @@ import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.EventBean;
+import com.codeloon.ems.model.InventoryBean;
 import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.InventoryRepository;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Slf4j
 @Service
@@ -52,11 +55,19 @@ public class InventoryServiceImpl implements InventoryService {
         int size = 10;
         String code = ResponseCode.RSP_ERROR;
         Pageable pageable = PageRequest.of(page, size);
+
         try {
             Page<Inventory> inventoryList = inventoryRepository.findAll(pageable);
             inventoryList.forEach(inventory -> {
-                InventoryDto inventoryDto = new InventoryDto();
+                InventoryBean inventoryDto = new InventoryBean();
+                List<Long> barcodeList = new ArrayList<>();
                 BeanUtils.copyProperties(inventory, inventoryDto);
+
+                if(inventoryDto.getIsRefundable()){
+                    barcodeList = this.generateBarcodeRange(inventory.getStartBarcode(), inventory.getEndBarcode());
+                    inventoryDto.setBarcodeList(barcodeList);
+                }
+
                 inventoryDtoList.add(inventoryDto);
             });
             dataTableBean.setPagecount(inventoryList.getTotalPages());
@@ -259,8 +270,8 @@ public class InventoryServiceImpl implements InventoryService {
             searchDataBean.setOrderQuantity(data.getOrderQuantity());
             searchDataBean.setSalesQuantity(data.getSalesQuantity());
             searchDataBean.setBalanceQuantity(data.getBalanceQuantity());
-            searchDataBean.setStartBarcode(String.valueOf(data.getStartBarcode()));
-            searchDataBean.setEndBarcode(String.valueOf(data.getEndBarcode()));
+            searchDataBean.setStartBarcode(data.getStartBarcode());
+            searchDataBean.setEndBarcode(data.getEndBarcode());
 
             advanceSearchDataBeanList.add(searchDataBean);
         });
@@ -278,6 +289,16 @@ public class InventoryServiceImpl implements InventoryService {
         Inventory inventory = new Inventory();
         BeanUtils.copyProperties(inventoryDto, inventory);
         return inventory;
+    }
+
+    public static List<Long> generateBarcodeRange(Long startBarcode, Long endBarcode) {
+        if (startBarcode == null || endBarcode == null) {
+            return List.of();
+        }
+
+        return LongStream.rangeClosed(startBarcode, endBarcode)
+                .boxed()
+                .collect(Collectors.toList());
     }
 
 }
