@@ -1,4 +1,4 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.InventoryDto;
 import com.codeloon.ems.dto.InventoryItemDto;
@@ -114,6 +114,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     .updatedAt(LocalDateTime.now())
                     .createdUser(systemBeanDto.getSysUser())
                     .minOrderQty(inventoryItemDto.getMinOrderQty())
+                    .avgPrice(0L)
+                    .quantity(0)
                     .build();
 
             inventoryItemRepository.saveAndFlush(inventoryItemEntity);
