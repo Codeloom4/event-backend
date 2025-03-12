@@ -53,6 +53,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     InventoryItemBean temp = new InventoryItemBean();
                     temp.setId(data.getId());
                     temp.setItemName(data.getItemName());
+                    temp.setCategory(data.getCategory());
 
                     inventoryItemBeanList.add(temp);
                 });
@@ -66,6 +67,28 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             responseBean.setResponseMsg(msg);
             responseBean.setResponseCode(code);
             responseBean.setContent(inventoryItemBeanList);
+        }
+        return responseBean;
+    }
+
+    @Override
+    public ResponseBean getAllItemsByCategory(String category) {
+        ResponseBean responseBean = new ResponseBean();
+        List<InventoryItem> itemData = new ArrayList<>();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        try {
+
+            itemData = inventoryItemRepository.findInventoryItemsByCategory(category);
+            code = ResponseCode.RSP_SUCCESS;
+            msg = "Success";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(itemData);
         }
         return responseBean;
     }
@@ -101,7 +124,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Override
-    public ResponseBean createItem(InventoryItemDto inventoryItemDto) {
+    public ResponseBean createInventoryItem(InventoryItemDto inventoryItemDto) {
         ResponseBean responseBean = new ResponseBean();
         String msg = "";
         String code = ResponseCode.RSP_ERROR;
@@ -207,5 +230,115 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             responseBean.setContent(null);
         }
         return responseBean;
+    }
+
+    @Override
+    public ResponseBean createOtherItems(InventoryItemDto inventoryItemDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+
+            InventoryItem inventoryItemEntity = InventoryItem.builder()
+                    .itemName(inventoryItemDto.getItemName())
+                    .isRefundable(inventoryItemDto.getIsRefundable())
+                    .updatedAt(LocalDateTime.now())
+                    .createdUser(systemBeanDto.getSysUser())
+                    .minOrderQty(0)
+                    .avgPrice(inventoryItemDto.getAvgPrice())
+                    .quantity(0)
+                    .category(inventoryItemDto.getCategory())
+                    .description(inventoryItemDto.getDescription())
+                    .build();
+
+            inventoryItemRepository.saveAndFlush(inventoryItemEntity);
+
+            code = ResponseCode.RSP_SUCCESS;
+            msg = "Item created successfully.";
+            log.info("Item created  successfully. Item ID : {}, item Name : {}", inventoryItemEntity.getId(),
+                    inventoryItemEntity.getItemName());
+
+        }catch (Exception ex) {
+            log.error("Error occurred while creating item", ex);
+            msg = "Error occurred while creating item.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
+    }
+
+    @Override
+    public ResponseBean updateOtherItem(Long itemId, InventoryItemDto inventoryItemDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+
+            Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository.findById(itemId);
+            if(inventoryItemOptional.isPresent()){
+                Optional<User> getSystemUser = userRepository.findByUsername(inventoryItemDto.getCreatedUser());
+                InventoryItem inventoryItemEntity = inventoryItemOptional.get();
+
+                inventoryItemEntity.setItemName(inventoryItemDto.getItemName());
+                inventoryItemEntity.setIsRefundable(inventoryItemDto.getIsRefundable());
+                inventoryItemEntity.setUpdatedAt(LocalDateTime.now());
+                inventoryItemEntity.setCreatedUser(systemBeanDto.getSysUser());
+                inventoryItemEntity.setAvgPrice(inventoryItemDto.getAvgPrice());
+                inventoryItemEntity.setDescription(inventoryItemDto.getDescription());
+                inventoryItemEntity.setCategory(inventoryItemDto.getCategory());
+
+                inventoryItemRepository.saveAndFlush(inventoryItemEntity);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Inventory item updated successfully.";
+                log.info("Inventory item updated successfully. Inventory Item ID : {}, Inventory Item Name : {}", inventoryItemEntity.getId(),
+                        inventoryItemEntity.getItemName());
+            }else {
+                log.error("Invalid inventory id");
+                msg = "Invalid inventory id.";
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating inventory item", ex);
+            msg = "Error occurred while updating inventory item.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
+    }
+
+    @Override
+    public DataTableBean getOtherItemList(String category) {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> inventoryDtoList = new ArrayList<>();
+        int page = 0;
+        int size = 10;
+        String code = ResponseCode.RSP_ERROR;
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            Page<InventoryItem> inventoryList = inventoryItemRepository.findAllByCategory(category, pageable);
+            inventoryList.forEach(inventory -> {
+                InventoryItemDto inventoryItemDto = new InventoryItemDto();
+                BeanUtils.copyProperties(inventory, inventoryItemDto);
+                inventoryDtoList.add(inventoryItemDto);
+            });
+
+            dataTableBean.setPagecount(inventoryList.getTotalPages());
+            dataTableBean.setCount(inventoryList.getTotalElements());
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving all item list", ex);
+        } finally {
+            dataTableBean.setMsg("Success");
+            dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
+            dataTableBean.setList(inventoryDtoList);
+
+        }
+        return dataTableBean;
     }
 }

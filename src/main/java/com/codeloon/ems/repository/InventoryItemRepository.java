@@ -22,4 +22,9 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
 
     Optional<InventoryItem> findInventoryItemById(Long id);
 
+    @Query(value = "select i from InventoryItem i where i.category = ?1")
+    List<InventoryItem> findInventoryItemsByCategory(String category);
+
+    Page<InventoryItem> findAllByCategory(String category, Pageable pageable);
+
 }

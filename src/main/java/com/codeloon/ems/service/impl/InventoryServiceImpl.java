@@ -293,7 +293,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     public static List<Long> generateBarcodeRange(Long startBarcode, Long endBarcode) {
         if (startBarcode == null || endBarcode == null) {
-            return List.of();
+            return null;
         }
 
         return LongStream.rangeClosed(startBarcode, endBarcode)
