@@ -9,4 +9,5 @@ import java.time.LocalDateTime;
 public class InventoryItemBean {
     private Long id;
     private String itemName;
+    private String category;
 }

@@ -42,13 +42,13 @@ public class Inventory {
     @Column(name = "order_qty", nullable = false)
     private Integer orderQuantity;
 
-    @Column(name = "sales_qty", nullable = false)
+    @Column(name = "sales_qty")
     private Integer salesQuantity;
 
-    @Column(name = "balance_qty", nullable = false)
+    @Column(name = "balance_qty")
     private Integer balanceQuantity;
 
-    @Column(name = "total_amount", nullable = false)
+    @Column(name = "total_amount")
     private Double totalAmount;
 
     @Column(name = "start_Barcode")

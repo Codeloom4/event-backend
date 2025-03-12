@@ -41,13 +41,30 @@ public class InventoryItemController {
         return responseEntity;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createItem(@RequestBody InventoryItemDto inventoryItemDto) {
+    @GetMapping("/allitemcategory/{category}")
+    public ResponseEntity<?> getAllItemsByCategory(@PathVariable String category) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+
+        try {
+            responseBean = inventoryItemService.getAllItemsByCategory(category);
+            httpStatus = HttpStatus.OK;
+        }catch (Exception ex){
+            log.error("Error occurred while retrieving inventory Item.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createInventoryItem(@RequestBody InventoryItemDto inventoryItemDto) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            responseBean = inventoryItemService.createItem(inventoryItemDto);
+            responseBean = inventoryItemService.createInventoryItem(inventoryItemDto);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while adding new inventory Item.{} ", ex.getMessage());
@@ -57,9 +74,21 @@ public class InventoryItemController {
         return responseEntity;
     }
 
-    @PutMapping
-    public ResponseEntity<?> updateItem(@RequestBody InventoryItemDto inventoryItem) {
-        return ResponseEntity.ok(inventoryItemService.updateItem(inventoryItem));
+    @PutMapping("/{itemId}")
+    public ResponseEntity<?> updateItem(@PathVariable Long itemId, @RequestBody InventoryItemDto inventoryItem) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+
+            responseBean = inventoryItemService.updateItem(itemId, inventoryItem);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while saving new Event Type.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
     }
 
     @DeleteMapping("/{itemId}")
@@ -82,6 +111,59 @@ public class InventoryItemController {
             responseBean.setResponseCode(dataTableBean.getCode());
         }catch (Exception ex){
             log.error("Error occurred while retrieving inventory list.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+    @PostMapping("/createother")
+    public ResponseEntity<?> createOtherItems(@RequestBody InventoryItemDto inventoryItemDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = inventoryItemService.createOtherItems(inventoryItemDto);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while adding new Item.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+    @PutMapping("updateotheritem/{itemId}")
+    public ResponseEntity<?> updateOtherItem(@PathVariable Long itemId, @RequestBody InventoryItemDto inventoryItem) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+
+            responseBean = inventoryItemService.updateOtherItem(itemId, inventoryItem);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating other item.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+    @GetMapping("/getitems/{category}")
+    public ResponseEntity<?> getOtherItemList(@PathVariable String category) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        DataTableBean dataTableBean = new DataTableBean();
+        try {
+            dataTableBean = inventoryItemService.getOtherItemList(category);
+            httpStatus = HttpStatus.OK;
+            responseBean.setContent(dataTableBean);
+            responseBean.setResponseMsg(dataTableBean.getMsg());
+            responseBean.setResponseCode(dataTableBean.getCode());
+        }catch (Exception ex){
+            log.error("Error occurred while retrieving item list.{} ", ex.getMessage());
         }finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }

@@ -78,13 +78,12 @@ public class InventoryController {
     }
 
     @PutMapping("/{inventoryId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<?> updateInventory(@PathVariable Long InventoryId, @RequestBody InventoryDto inventory) {
+    public ResponseEntity<?> updateInventory(@PathVariable Long inventoryId, @RequestBody InventoryDto inventory) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            responseBean = inventoryService.updateInventory(InventoryId, inventory);
+            responseBean = inventoryService.updateInventory(inventoryId, inventory);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while saving inventory.{} ", ex.getMessage());

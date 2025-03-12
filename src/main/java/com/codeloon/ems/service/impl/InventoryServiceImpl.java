@@ -8,6 +8,7 @@ import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.EventBean;
+import com.codeloon.ems.model.InventoryBean;
 import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.InventoryRepository;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Slf4j
 @Service
@@ -52,11 +55,19 @@ public class InventoryServiceImpl implements InventoryService {
         int size = 10;
         String code = ResponseCode.RSP_ERROR;
         Pageable pageable = PageRequest.of(page, size);
+
         try {
             Page<Inventory> inventoryList = inventoryRepository.findAll(pageable);
             inventoryList.forEach(inventory -> {
-                InventoryDto inventoryDto = new InventoryDto();
+                InventoryBean inventoryDto = new InventoryBean();
+                List<Long> barcodeList = new ArrayList<>();
                 BeanUtils.copyProperties(inventory, inventoryDto);
+
+                if(inventoryDto.getIsRefundable()){
+                    barcodeList = this.generateBarcodeRange(inventory.getStartBarcode(), inventory.getEndBarcode());
+                    inventoryDto.setBarcodeList(barcodeList);
+                }
+
                 inventoryDtoList.add(inventoryDto);
             });
             dataTableBean.setPagecount(inventoryList.getTotalPages());
@@ -80,7 +91,8 @@ public class InventoryServiceImpl implements InventoryService {
 
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("itemName").ascending());
-            Page<Object[]> inventoryList = inventoryRepository.searchInventoryByName(itemName, pageable);
+//            Page<Object[]> inventoryList = inventoryRepository.searchInventoryByName(itemName, pageable);
+            Page<Inventory> inventoryList = inventoryRepository.findByItemNameContaining(itemName, pageable);
 
             if(!inventoryList.isEmpty()){
                 List<Object> inventoryDataList = this.mapSearchData(inventoryList);
@@ -180,19 +192,15 @@ public class InventoryServiceImpl implements InventoryService {
 
             Optional<Inventory> inventoryOptional = inventoryRepository.findById(InventoryId);
             if(inventoryOptional.isPresent()){
-                Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+                Optional<User> getSystemUser = userRepository.findByUsername(systemBeanDto.getSysUser());
                 Inventory inventoryEntity = inventoryOptional.get();
 
-                inventoryEntity = Inventory.builder()
-                        .itemName(inventory.getItemName())
-                        .isRefundable(inventory.getIsRefundable())
-                        .purchasePrice(inventory.getPurchasePrice())
-                        .salesPrice(inventory.getSalesPrice())
-                        .orderQuantity(inventory.getOrderQuantity())
-                        .salesQuantity(inventory.getSalesQuantity())
-                        .createdAt(LocalDateTime.now())
-                        .createdUser(getSystemUser.get())
-                        .build();
+                inventoryEntity.setPurchasePrice(inventory.getPurchasePrice());
+                inventoryEntity.setSalesPrice(inventory.getSalesPrice());
+                inventoryEntity.setOrderQuantity(inventory.getOrderQuantity());
+                inventoryEntity.setSalesQuantity(inventory.getSalesQuantity());
+                inventoryEntity.setCreatedAt(LocalDateTime.now());
+                inventoryEntity.setCreatedUser(getSystemUser.get());
 
                 inventoryRepository.saveAndFlush(inventoryEntity);
 
@@ -249,21 +257,21 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
 
-    private List<Object> mapSearchData(Page<Object[]> dataList) {
+    private List<Object> mapSearchData(Page<Inventory> dataList) {
         List<Object> advanceSearchDataBeanList = new ArrayList<>();
         dataList.forEach(data -> {
             InventoryDto searchDataBean = new InventoryDto();
 
-            searchDataBean.setId((Long) data[0]);
-            searchDataBean.setItemName((String) data[1]);
-            searchDataBean.setIsRefundable((Boolean) data[2]);
-            searchDataBean.setPurchasePrice((Long) data[3]);
-            searchDataBean.setSalesPrice((Long) data[4]);
-            searchDataBean.setOrderQuantity((Integer) data[5]);
-            searchDataBean.setSalesQuantity((Integer) data[6]);
-            searchDataBean.setBalanceQuantity((Integer) data[7]);
-            searchDataBean.setStartBarcode((String) data[8]);
-            searchDataBean.setEndBarcode((String) data[9]);
+            searchDataBean.setId(data.getId());
+            searchDataBean.setItemName(data.getItemName());
+            searchDataBean.setIsRefundable(data.getIsRefundable());
+            searchDataBean.setPurchasePrice(data.getPurchasePrice());
+            searchDataBean.setSalesPrice(data.getSalesPrice());
+            searchDataBean.setOrderQuantity(data.getOrderQuantity());
+            searchDataBean.setSalesQuantity(data.getSalesQuantity());
+            searchDataBean.setBalanceQuantity(data.getBalanceQuantity());
+            searchDataBean.setStartBarcode(data.getStartBarcode());
+            searchDataBean.setEndBarcode(data.getEndBarcode());
 
             advanceSearchDataBeanList.add(searchDataBean);
         });
@@ -281,6 +289,16 @@ public class InventoryServiceImpl implements InventoryService {
         Inventory inventory = new Inventory();
         BeanUtils.copyProperties(inventoryDto, inventory);
         return inventory;
+    }
+
+    public static List<Long> generateBarcodeRange(Long startBarcode, Long endBarcode) {
+        if (startBarcode == null || endBarcode == null) {
+            return null;
+        }
+
+        return LongStream.rangeClosed(startBarcode, endBarcode)
+                .boxed()
+                .collect(Collectors.toList());
     }
 
 }
