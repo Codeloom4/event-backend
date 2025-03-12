@@ -41,7 +41,7 @@ public class InventoryItemController {
         return responseEntity;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createItem(@RequestBody InventoryItemDto inventoryItemDto) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;

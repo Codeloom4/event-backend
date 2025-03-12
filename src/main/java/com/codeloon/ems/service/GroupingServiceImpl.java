@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -209,7 +210,8 @@ public class GroupingServiceImpl implements GroupingService {
             }
 
             // Read the CSV file
-            List<Participant> participants = readCsvFile(grouping.getFilePath());
+            // Read the CSV file with grouping method validation
+            List<Participant> participants = readCsvFile(grouping.getFilePath(), grouping.getGroupingMethod());
 
             // Perform grouping based on the grouping method
             List<Group> groups = performGrouping(participants, grouping.getGroupingMethod(), grouping.getNumberOfGroups());
@@ -230,17 +232,46 @@ public class GroupingServiceImpl implements GroupingService {
 
 
 
-    private List<Participant> readCsvFile(String filePath) throws IOException {
+    private List<Participant> readCsvFile(String filePath, String groupingMethod) throws IOException {
         List<Participant> participants = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
-                if (values.length != 3) {
-                    throw new IOException("Invalid CSV format: Expected 3 columns (Name, Age, Job Role).");
+
+                // Validate columns based on grouping method
+                switch (groupingMethod) {
+                    case "By Family":
+                        if (values.length != 1) {
+                            throw new IOException("Invalid CSV format for 'By Family': Expected 1 column (Name).");
+                        }
+                        participants.add(new Participant(values[0].trim(), 0, "")); // Age and Job Role are not required
+                        break;
+
+                    case "By Age Range":
+                        if (values.length != 2) {
+                            throw new IOException("Invalid CSV format for 'By Age Range': Expected 2 columns (Name, Age).");
+                        }
+                        participants.add(new Participant(values[0].trim(), Integer.parseInt(values[1].trim()), ""));
+                        break;
+
+                    case "By Job Role":
+                        if (values.length != 2) {
+                            throw new IOException("Invalid CSV format for 'By Job Role': Expected 2 columns (Name, Job Role).");
+                        }
+                        participants.add(new Participant(values[0].trim(), 0, values[1].trim())); // Age is not required
+                        break;
+
+                    case "Random":
+                        if (values.length != 1) {
+                            throw new IOException("Invalid CSV format for 'Random': Expected 1 column (Name).");
+                        }
+                        participants.add(new Participant(values[0].trim(), 0, "")); // Age and Job Role are not required
+                        break;
+
+                    default:
+                        throw new IOException("Invalid grouping method: " + groupingMethod);
                 }
-                // Create a Participant object and add it to the list
-                participants.add(new Participant(values[0].trim(), Integer.parseInt(values[1].trim()), values[2].trim()));
             }
         }
         return participants;
@@ -248,46 +279,40 @@ public class GroupingServiceImpl implements GroupingService {
 
 
     private List<Group> performGrouping(List<Participant> participants, String groupingMethod, Integer numberOfGroups) {
-        List<Group> groups = new ArrayList<>();
-
-        // If numberOfGroups is null, calculate it based on the number of participants
-        if (numberOfGroups == null) {
-            numberOfGroups = (int) Math.ceil((double) participants.size() / 5); // Default to 5 participants per group
+        // Step 1: Separate participants into lists based on the grouping method
+        Map<String, List<Participant>> categoryMap;
+        switch (groupingMethod) {
+            case "By Family":
+                categoryMap = groupParticipantsByFamily(participants);
+                break;
+            case "By Job Role":
+                categoryMap = groupParticipantsByJobRole(participants);
+                break;
+            case "By Age Range":
+                categoryMap = groupParticipantsByAgeRange(participants);
+                break;
+            case "Random":
+                categoryMap = new HashMap<>();
+                categoryMap.put("All", participants); // Treat all participants as one category
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid grouping method: " + groupingMethod);
         }
 
-        // Initialize groups
+        // Step 2: Calculate the number of groups if not specified
+        if (numberOfGroups == null) {
+            int totalParticipants = participants.size();
+            numberOfGroups = (int) Math.ceil((double) totalParticipants / 5); // Default to 5 participants per group
+        }
+
+        // Step 3: Create groups
+        List<Group> groups = new ArrayList<>();
         for (int i = 0; i < numberOfGroups; i++) {
             groups.add(new Group("Group " + (i + 1)));
         }
 
-        // Perform grouping based on the grouping method
-        switch (groupingMethod) {
-            case "Random":
-                Collections.shuffle(participants); // Shuffle participants randomly
-                distributeParticipants(participants, groups);
-                break;
-
-            case "By Age Range":
-                // Group participants by age range
-                Map<String, List<Participant>> ageRangeMap = groupParticipantsByAgeRange(participants);
-                distributeParticipantsByCategory(ageRangeMap, groups);
-                break;
-
-            case "By Family":
-                // Group participants by family (surname)
-                Map<String, List<Participant>> familyMap = groupParticipantsByFamily(participants);
-                distributeParticipantsByCategory(familyMap, groups);
-                break;
-
-            case "By Job Role":
-                // Group participants by job role
-                Map<String, List<Participant>> jobRoleMap = groupParticipantsByJobRole(participants);
-                distributeParticipantsByCategory(jobRoleMap, groups);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Invalid grouping method: " + groupingMethod);
-        }
+        // Step 4: Distribute participants into groups
+        distributeParticipantsByCategory(categoryMap, groups);
 
         return groups;
     }
@@ -314,11 +339,10 @@ public class GroupingServiceImpl implements GroupingService {
         }
         return ageRangeMap;
     }
-    // Helper method to group participants by family (surname)
     private Map<String, List<Participant>> groupParticipantsByFamily(List<Participant> participants) {
         Map<String, List<Participant>> familyMap = new HashMap<>();
         for (Participant participant : participants) {
-            String surname = participant.getName().split(" ")[1]; // Extract surname
+            String surname = participant.getName().split(" ")[0]; // Extract surname
             familyMap.computeIfAbsent(surname, k -> new ArrayList<>()).add(participant);
         }
         return familyMap;
@@ -333,20 +357,68 @@ public class GroupingServiceImpl implements GroupingService {
         }
         return jobRoleMap;
     }
-    private void distributeParticipantsByCategory(Map<String, List<Participant>> categoryMap, List<Group> groups) {
-        // First, distribute participants from each category into groups
-        for (List<Participant> categoryParticipants : categoryMap.values()) {
-            distributeParticipants(categoryParticipants, groups);
-        }
+//    private void distributeParticipantsByCategory(Map<String, List<Participant>> categoryMap, List<Group> groups) {
+//        // First, distribute participants from each category into groups
+//        for (List<Participant> categoryParticipants : categoryMap.values()) {
+//            distributeParticipants(categoryParticipants, groups);
+//        }
+//
+//        // If there are any remaining participants (e.g., uneven distribution), mix them into the groups
+//        List<Participant> remainingParticipants = new ArrayList<>();
+//        for (List<Participant> categoryParticipants : categoryMap.values()) {
+//            remainingParticipants.addAll(categoryParticipants);
+//        }
+//        distributeParticipants(remainingParticipants, groups);
+//    }
+//    // Helper method to distribute participants into groups (round-robin)
+//
 
-        // If there are any remaining participants (e.g., uneven distribution), mix them into the groups
-        List<Participant> remainingParticipants = new ArrayList<>();
-        for (List<Participant> categoryParticipants : categoryMap.values()) {
-            remainingParticipants.addAll(categoryParticipants);
+    private void distributeParticipantsByCategory(Map<String, List<Participant>> categoryMap, List<Group> groups) {
+        // Sort categories by the number of participants (descending order)
+        List<Map.Entry<String, List<Participant>>> sortedCategories = new ArrayList<>(categoryMap.entrySet());
+        sortedCategories.sort((entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()));
+
+        int groupIndex = 0; // Track the current group
+        int groupSize = (int) Math.ceil((double) getTotalParticipants(categoryMap) / groups.size()); // Calculate group size
+
+        // Distribute participants into groups
+        for (Map.Entry<String, List<Participant>> entry : sortedCategories) {
+            List<Participant> categoryParticipants = new ArrayList<>(entry.getValue()); // Copy the list to avoid modifying the original
+
+            while (!categoryParticipants.isEmpty()) {
+                // Get the current group
+                Group currentGroup = groups.get(groupIndex);
+
+                // Check if all participants from this category can fit into the current group
+                if (currentGroup.getParticipants().size() + categoryParticipants.size() <= groupSize) {
+                    // Add all participants from this category to the current group
+                    currentGroup.getParticipants().addAll(categoryParticipants);
+                    categoryParticipants.clear(); // Clear the list as all participants have been added
+                } else {
+                    // Add as many participants as possible to the current group
+                    int remainingSpace = groupSize - currentGroup.getParticipants().size();
+                    for (int i = 0; i < remainingSpace; i++) {
+                        currentGroup.addParticipant(categoryParticipants.remove(0));
+                    }
+
+                    // Move to the next group
+                    groupIndex++;
+                    if (groupIndex >= groups.size()) {
+                        break; // All groups are full
+                    }
+                }
+            }
         }
-        distributeParticipants(remainingParticipants, groups);
     }
-    // Helper method to distribute participants into groups (round-robin)
+    // Helper method to calculate the total number of participants
+    private int getTotalParticipants(Map<String, List<Participant>> categoryMap) {
+        int total = 0;
+        for (List<Participant> participants : categoryMap.values()) {
+            total += participants.size();
+        }
+        return total;
+    }
+
     private void distributeParticipants(List<Participant> participants, List<Group> groups) {
         int groupIndex = 0;
         for (Participant participant : participants) {
@@ -443,27 +515,37 @@ public class GroupingServiceImpl implements GroupingService {
         contentStream.stroke(); // Draw the line
         yPosition -= 40;
 
-        // Add event details
+
+// Add event details
         contentStream.beginText(); // Start a new text block
         contentStream.setFont(font, fontSize);
         contentStream.newLineAtOffset(margin, yPosition);
-        contentStream.showText("Event Name: " + grouping.getEventName());
+        contentStream.showText("Event Name: " + (grouping.getEventName() != null ? grouping.getEventName() : "--"));
         yPosition -= 20;
 
         contentStream.newLineAtOffset(0, -20);
-        contentStream.showText("Created By: " + grouping.getUsername());
+        contentStream.showText("Created By: " + (grouping.getUsername() != null ? grouping.getUsername() : "--"));
         yPosition -= 20;
 
         contentStream.newLineAtOffset(0, -20);
-        contentStream.showText("Created At: " + grouping.getCreatedAt().toString());
+        String formattedDate = "--";
+        if (grouping.getCreatedAt() != null) {
+            // Parse the date string into a LocalDateTime object
+            LocalDateTime createdAt = LocalDateTime.parse(grouping.getCreatedAt().toString());
+            // Define the desired date format
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+            // Format the date
+            formattedDate = createdAt.format(formatter);
+        }
+        contentStream.showText("Created At: " + formattedDate);
         yPosition -= 20;
 
         contentStream.newLineAtOffset(0, -20);
-        contentStream.showText("Number of Groups: " + grouping.getNumberOfGroups());
+        contentStream.showText("Number of Groups: " + (grouping.getNumberOfGroups() != null ? grouping.getNumberOfGroups() : "--"));
         yPosition -= 20;
 
         contentStream.newLineAtOffset(0, -20);
-        contentStream.showText("Grouping Method: " + grouping.getGroupingMethod());
+        contentStream.showText("Grouping Method: " + (grouping.getGroupingMethod() != null ? grouping.getGroupingMethod() : "--"));
         yPosition -= 20;
 
         contentStream.endText(); // End the text block
@@ -497,7 +579,16 @@ public class GroupingServiceImpl implements GroupingService {
 
         // List participants in the group
         for (Participant participant : group.getParticipants()) {
-            String participantDetails = participant.getName() + " (" + participant.getAge() + ", " + participant.getJobRole() + ")";
+            String participantDetails = participant.getName() ;
+            // Add age if not null
+            if (participant.getAge() != 0) {
+                participantDetails += "         " + participant.getAge();
+            }
+
+            // Add job if not null
+            if (participant.getJobRole() != null) {
+                participantDetails += "         " + participant.getJobRole();
+            }
             contentStream.beginText();
             contentStream.setFont(font, fontSize - 2);
             contentStream.newLineAtOffset(margin + 150, yPosition);
