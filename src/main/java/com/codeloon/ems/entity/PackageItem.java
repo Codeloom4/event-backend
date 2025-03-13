@@ -37,6 +37,9 @@ public class PackageItem {
     @Column(name = "bulkPrice")
     private Double bulkPrice;
 
+    @Column(name = "sell_price")
+    private Double sellPrice;
+
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
