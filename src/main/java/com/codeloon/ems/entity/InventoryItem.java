@@ -41,4 +41,10 @@ public class InventoryItem {
 
     @Column(name = "min_order_qty")
     private Integer minOrderQty;
+
+    @Column(name = "category", nullable = false)
+    private String category;
+
+    @Column(name = "description", nullable = false)
+    private String description;
 }

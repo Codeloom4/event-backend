@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.message.StringFormattedMessage;
 
 import java.time.LocalDateTime;
 
@@ -22,4 +23,6 @@ public class InventoryItemDto {
     private LocalDateTime updatedAt;
     private String createdUser;
     private Integer minOrderQty;
+    private String category;
+    private String description;
 }
