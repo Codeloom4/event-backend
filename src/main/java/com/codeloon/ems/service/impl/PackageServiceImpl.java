@@ -215,6 +215,7 @@ public class PackageServiceImpl implements PackageService {
                         .package_id(packageEntity) // Associate with the Package
                         .itemName(packageItemDto.getItemName())
                         .itemCode(packageItemDto.getItemCode())
+                        .itemCategory(packageItemDto.getItemCategory())
                         .bulkPrice(packageItemDto.getBulkPrice())
                         .quantity(packageItemDto.getQuantity())
                         .createdUser(createdUser)
@@ -310,6 +311,7 @@ public class PackageServiceImpl implements PackageService {
                 packageItem.setPackage_id(packageEntity);
                 packageItem.setItemName(packageItemDto.getItemCode());
                 packageItem.setItemName(packageItemDto.getItemName());
+                packageItem.setItemCategory(packageItemDto.getItemCategory());
                 packageItem.setBulkPrice(packageItemDto.getBulkPrice());
                 packageItem.setQuantity(packageItemDto.getQuantity());
                 packageItem.setCreatedUser(updatedUser);
@@ -379,6 +381,7 @@ public class PackageServiceImpl implements PackageService {
                             .itemCode(item.getItemName())
                             .bulkPrice(item.getBulkPrice())
                             .quantity(item.getQuantity())
+                            .itemCategory(item.getItemCategory())
                             .createdUser(item.getCreatedUser().getUsername())
                             .updatedAt(item.getUpdatedAt())
                             .package_id(item.getPackage_id().getId())

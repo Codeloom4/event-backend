@@ -31,6 +31,9 @@ public class PackageItem {
     @Column(name = "itemName")
     private String itemName;
 
+    @Column(name = "itemCategory")
+    private String itemCategory;
+
     @Column(name = "quantity")
     private Integer quantity;
 
