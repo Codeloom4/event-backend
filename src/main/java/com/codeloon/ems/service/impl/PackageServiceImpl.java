@@ -342,6 +342,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @Transactional
     public ResponseBean deletePackageItem(String itemCode, String packageId) {
         ResponseBean responseBean = new ResponseBean();
         String msg = null;
@@ -421,6 +422,7 @@ public class PackageServiceImpl implements PackageService {
         dto.setDescription(p.getDescription());
         dto.setName(p.getName());
         dto.setId(p.getId());
+        dto.setPackagePrice(p.getPackagePrice());
         dto.setCreatedUser(p.getCreatedUser().getUsername());
         return dto;
     }
