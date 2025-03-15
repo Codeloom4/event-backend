@@ -242,7 +242,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
             InventoryItem inventoryItemEntity = InventoryItem.builder()
                     .itemName(inventoryItemDto.getItemName())
-                    .isRefundable(inventoryItemDto.getIsRefundable())
                     .updatedAt(LocalDateTime.now())
                     .createdUser(systemBeanDto.getSysUser())
                     .minOrderQty(0)
@@ -284,7 +283,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 InventoryItem inventoryItemEntity = inventoryItemOptional.get();
 
                 inventoryItemEntity.setItemName(inventoryItemDto.getItemName());
-                inventoryItemEntity.setIsRefundable(inventoryItemDto.getIsRefundable());
+                //inventoryItemEntity.setIsRefundable(inventoryItemDto.getIsRefundable());
                 inventoryItemEntity.setUpdatedAt(LocalDateTime.now());
                 inventoryItemEntity.setCreatedUser(systemBeanDto.getSysUser());
                 inventoryItemEntity.setAvgPrice(inventoryItemDto.getAvgPrice());

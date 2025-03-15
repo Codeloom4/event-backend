@@ -94,6 +94,7 @@ public class PackageServiceImpl implements PackageService {
                     .name(pack.getName())
                     .package_type(packageType)
                     .event(event)
+                    .packagePrice(0.0)
                     .description(pack.getDescription())
                     .createdUser(createdUser)
                     .build();
@@ -215,6 +216,7 @@ public class PackageServiceImpl implements PackageService {
                         .package_id(packageEntity) // Associate with the Package
                         .itemName(packageItemDto.getItemName())
                         .itemCode(packageItemDto.getItemCode())
+                        .itemCategory(packageItemDto.getItemCategory())
                         .bulkPrice(packageItemDto.getBulkPrice())
                         .quantity(packageItemDto.getQuantity())
                         .createdUser(createdUser)
@@ -225,9 +227,13 @@ public class PackageServiceImpl implements PackageService {
                 // Save the PackageItem
                 packageItemRepository.save(packageItem);
 
+                // Update package total price.
+                updatePackagePrice(packageEntity, packageItemDto.getPackage_id());
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Item added successfully";
             }
-            code = ResponseCode.RSP_SUCCESS;
-            msg = "Item added successfully";
+
         } catch (Exception ex) {
             log.error("Error occurred while creating package item: {}", ex.getMessage(), ex);
             msg = "Error occurred while creating package item";
@@ -310,13 +316,17 @@ public class PackageServiceImpl implements PackageService {
                 packageItem.setPackage_id(packageEntity);
                 packageItem.setItemName(packageItemDto.getItemCode());
                 packageItem.setItemName(packageItemDto.getItemName());
+                packageItem.setItemCategory(packageItemDto.getItemCategory());
                 packageItem.setBulkPrice(packageItemDto.getBulkPrice());
                 packageItem.setQuantity(packageItemDto.getQuantity());
                 packageItem.setCreatedUser(updatedUser);
                 packageItem.setUpdatedAt(LocalDateTime.now());
 
                 // Save the updated PackageItem
-                packageItemRepository.save(packageItem);
+                packageItemRepository.saveAndFlush(packageItem);
+
+                // Update package total price.
+                updatePackagePrice(packageEntity, packageItemDto.getPackage_id());
 
                 msg = "Package item updated successfully";
                 code = ResponseCode.RSP_SUCCESS;
@@ -332,6 +342,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @Transactional
     public ResponseBean deletePackageItem(String itemCode, String packageId) {
         ResponseBean responseBean = new ResponseBean();
         String msg = null;
@@ -379,6 +390,7 @@ public class PackageServiceImpl implements PackageService {
                             .itemCode(item.getItemName())
                             .bulkPrice(item.getBulkPrice())
                             .quantity(item.getQuantity())
+                            .itemCategory(item.getItemCategory())
                             .createdUser(item.getCreatedUser().getUsername())
                             .updatedAt(item.getUpdatedAt())
                             .package_id(item.getPackage_id().getId())
@@ -410,7 +422,19 @@ public class PackageServiceImpl implements PackageService {
         dto.setDescription(p.getDescription());
         dto.setName(p.getName());
         dto.setId(p.getId());
+        dto.setPackagePrice(p.getPackagePrice());
         dto.setCreatedUser(p.getCreatedUser().getUsername());
         return dto;
     }
+
+    private void updatePackagePrice(Package packageEntity, String packageId) {
+        List<PackageItem> items = packageItemRepository.findByPackageId(packageId);
+        Double packagePrice = items.stream()
+                .mapToDouble(PackageItem::getBulkPrice)
+                .sum();
+
+        packageEntity.setPackagePrice(packagePrice);
+        packageRepository.saveAndFlush(packageEntity);
+    }
+
 }

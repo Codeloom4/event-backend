@@ -1,6 +1,5 @@
 package com.codeloon.ems.repository;
 
-import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.model.InventoryItemBean;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
     List<InventoryItemBean> findAllInventoryItems();
     Optional<InventoryItem> findInventoryItemByItemName(String name);
     Page<InventoryItem> findAll(Pageable pageable);
-
 
     Optional<InventoryItem> findInventoryItemById(Long id);
 

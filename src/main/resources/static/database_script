@@ -221,3 +221,43 @@ CREATE TABLE groupings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Status Table create
+
+CREATE TABLE status (
+    code VARCHAR(20) PRIMARY KEY,
+    description VARCHAR(100) NOT NULL,
+    type VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE order_request (
+    order_id VARCHAR(50) PRIMARY KEY,
+    package_id VARCHAR(50) NOT NULL,
+    cus_note TEXT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    event_date DATE NOT NULL,
+    requested_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cus_username VARCHAR(20) NULL,
+    lastupdated_datetime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    order_status VARCHAR(20) NULL,
+    payment_status VARCHAR(20) NULL,
+    remark TEXT NULL,
+    approved_user VARCHAR(20),
+    FOREIGN KEY (package_id) REFERENCES package(id),
+    FOREIGN KEY (order_status) REFERENCES status(code),
+    FOREIGN KEY (payment_status) REFERENCES status(code)
+);
+
+CREATE TABLE order_request_detail (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id VARCHAR(50) NOT NULL,
+    item_id BIGINT NULL,
+    item_name VARCHAR(255) NULL,
+    unit_price DECIMAL(10,2) NULL,
+    quantity INT NULL,
+    bulk_price DECIMAL(10,2) NULL,
+    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cus_id VARCHAR(50) NULL,
+    FOREIGN KEY (order_id) REFERENCES order_request(order_id),
+    FOREIGN KEY (item_id) REFERENCES inventory_item(id)
+);
