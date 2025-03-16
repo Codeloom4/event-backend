@@ -16,4 +16,6 @@ public class OrderItemListBean {
     private Integer quantity;
     private Double sellPrice;
     private Double bulkPrice;
+    private String category;
+    private String itemDes;
 }

@@ -170,4 +170,25 @@ public class InventoryItemController {
         return responseEntity;
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> SearchItems(@RequestBody InventoryItemDto inventoryItemDto, @RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "10") int size) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        DataTableBean dataTableBean = new DataTableBean();
+        try {
+            dataTableBean = inventoryItemService.SearchItems(inventoryItemDto,page, size);
+            httpStatus = HttpStatus.OK;
+            responseBean.setContent(dataTableBean);
+            responseBean.setResponseMsg(dataTableBean.getMsg());
+            responseBean.setResponseCode(dataTableBean.getCode());
+        }catch (Exception ex){
+            log.error("Error occurred while searching item list.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
 }
