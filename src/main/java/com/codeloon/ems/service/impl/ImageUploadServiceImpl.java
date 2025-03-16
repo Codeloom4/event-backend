@@ -166,7 +166,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
             Path path = Paths.get(packageDir.getAbsolutePath(), fileName);
             Files.write(path, file.getBytes());
 
-            return path.toString();
+            return packageId + File.separator + fileName;
         } catch (IOException e) {
             log.error("Error uploading file", e);
             return null;
