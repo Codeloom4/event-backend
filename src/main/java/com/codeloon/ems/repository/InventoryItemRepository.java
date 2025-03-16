@@ -27,4 +27,10 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
 
     Page<InventoryItem> findAllByCategory(String category, Pageable pageable);
 
+    Page<InventoryItem> findByItemNameAndIsRefundableContaining(String itemName, Boolean refundable, Pageable pageable);
+
+    Page<InventoryItem> findByItemNameContaining(String itemName, Pageable pageable);
+
+    Page<InventoryItem> findByIsRefundableContaining(Boolean refundable, Pageable pageable);
+
 }

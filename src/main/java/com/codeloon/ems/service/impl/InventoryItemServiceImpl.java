@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -339,5 +340,82 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         }
         return dataTableBean;
+    }
+
+    @Override
+    public DataTableBean SearchItems(InventoryItemDto inventoryItemDto, int page, int size) {
+        DataTableBean dataTableBean = new DataTableBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        Page<InventoryItem> inventoryList = null;
+
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("itemName").ascending());
+
+            if((inventoryItemDto.getItemName() != null && inventoryItemDto.getItemName().isEmpty()) &&
+                    (inventoryItemDto.getIsRefundable() != null)){
+
+                //search from both
+                inventoryList = inventoryItemRepository.findByItemNameAndIsRefundableContaining(inventoryItemDto.getItemName(), inventoryItemDto.getIsRefundable(), pageable);
+
+            } else if((inventoryItemDto.getItemName() != null && inventoryItemDto.getItemName().isEmpty()) &&
+                    (inventoryItemDto.getIsRefundable() != null))  {
+
+                //search only from item name
+                inventoryList = inventoryItemRepository.findByItemNameContaining(inventoryItemDto.getItemName(), pageable);
+
+
+            }else if((inventoryItemDto.getItemName() != null && inventoryItemDto.getItemName().isEmpty()) &&
+                    (inventoryItemDto.getIsRefundable() != null))  {
+
+                //search only from is_refundable
+                inventoryList = inventoryItemRepository.findByIsRefundableContaining(inventoryItemDto.getIsRefundable(), pageable);
+
+            }
+
+            if(!inventoryList.isEmpty()){
+                List<Object> inventoryDataList = this.mapSearchData(inventoryList);
+
+                dataTableBean.setList(inventoryDataList);
+                dataTableBean.setCount(inventoryList.getTotalElements());
+                dataTableBean.setPagecount(inventoryList.getTotalPages());
+
+                msg = "Item searched successfully.";
+                code = ResponseCode.RSP_SUCCESS;
+            }else {
+                dataTableBean.setCount(0);
+                dataTableBean.setPagecount(0);
+
+                log.warn("Item not found");
+                msg = "Item not found: ";
+            }
+
+        } catch (Exception ex) {
+            log.error("Error occurred while searching item : {}", ex.getMessage(), ex);
+            msg = "Error occurred while searching item.";
+        }
+
+        dataTableBean.setMsg(msg);
+        dataTableBean.setCode(code);
+        return dataTableBean;
+    }
+
+    private List<Object> mapSearchData(Page<InventoryItem> dataList) {
+        List<Object> advanceSearchDataBeanList = new ArrayList<>();
+        dataList.forEach(data -> {
+            InventoryItemDto searchDataBean = new InventoryItemDto();
+
+            searchDataBean.setId(data.getId());
+            searchDataBean.setItemName(data.getItemName());
+            searchDataBean.setIsRefundable(data.getIsRefundable());
+            searchDataBean.setAvgPrice(data.getAvgPrice());
+            searchDataBean.setQuantity(data.getQuantity());
+            searchDataBean.setMinOrderQty(data.getMinOrderQty());
+            searchDataBean.setCategory(data.getCategory());
+            searchDataBean.setDescription(data.getDescription());
+
+            advanceSearchDataBeanList.add(searchDataBean);
+        });
+        return advanceSearchDataBeanList;
     }
 }
