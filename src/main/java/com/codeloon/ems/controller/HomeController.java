@@ -2,11 +2,10 @@ package com.codeloon.ems.controller;
 
 import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.service.EventService;
+import com.codeloon.ems.service.GalleryService;
 import com.codeloon.ems.service.PackageService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
-import com.codeloon.ems.service.GalleryService;
-import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -83,23 +82,23 @@ public class HomeController {
         return responseEntity;
     }
 
-    @GetMapping("/allPackages")
-    @PermitAll  // This will allow access without requiring authentication
+    @GetMapping("/all-package")
     public ResponseEntity<?> getAllPackages() {
         ResponseEntity<?> responseEntity;
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         try {
-            responseBean = packageService.allPackageDetails();
-            httpStatus = HttpStatus.OK;  // Changed to OK, as data retrieval is successful
+            responseBean = packageService.getAllPackages();
+            httpStatus = HttpStatus.OK;
         } catch (Exception ex) {
-            log.error("Error occurred while accessing package management: {}", ex.getMessage());
+            log.error("Error occurred while retrieving package data getAllPackages : {}", ex.getMessage());
+            responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+            responseBean.setResponseMsg("Error occurred while retrieving package data .");
         } finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
     }
-
 
 
 }

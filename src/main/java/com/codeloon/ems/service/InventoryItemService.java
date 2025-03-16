@@ -27,5 +27,6 @@ public interface InventoryItemService {
 
     DataTableBean getOtherItemList(String category);
 
+    DataTableBean SearchItems(InventoryItemDto inventoryItemDto, int page, int size);
 
 }

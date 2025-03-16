@@ -6,6 +6,7 @@ import com.codeloon.ems.entity.*;
 import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.model.PackageMgtAccessBean;
 import com.codeloon.ems.model.PackageTypeBean;
+import com.codeloon.ems.model.PackageViewBean;
 import com.codeloon.ems.repository.*;
 import com.codeloon.ems.service.ImageUploadService;
 import com.codeloon.ems.service.PackageService;
@@ -40,6 +41,8 @@ public class PackageServiceImpl implements PackageService {
     private final InventoryItemRepository inventoryItemRepository;
 
     private final ImageUploadService imageUploadService;
+
+    private final PackageSlideRepository packageSlideRepository;
 
     @Override
     public ResponseBean access() {
@@ -427,6 +430,73 @@ public class PackageServiceImpl implements PackageService {
         return responseBean;
     }
 
+
+    public ResponseBean getAllPackages() {
+        ResponseBean responseBean = new ResponseBean();
+        String msg;
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            List<PackageViewBean> packageViewBeanList = new ArrayList<>();
+            List<Package> existingPackages = packageRepository.findAll();
+
+            if (!existingPackages.isEmpty()) {
+                for (Package p : existingPackages) {
+                    PackageViewBean viewBean = new PackageViewBean();
+
+                    // Set package info
+                    viewBean.setPackageInfo(getPackageInfoDTO(p));
+
+                    // Set package slides (images)
+                    List<PackageSlide> images = packageSlideRepository.findByPackageId(p.getId());
+                    List<PackageSlide> updatedImages = images.stream()
+                            .map(image -> {
+                                image.setFilePath("http://localhost:9999/packages/" + image.getFilePath());
+                                return image;
+                            })
+                            .collect(Collectors.toList());
+                    viewBean.setPackageSlides(updatedImages);
+//                    viewBean.setPackageSlides(images);
+
+                    // Set package items metntn ganin
+                    List<PackageItem> packageItems = packageItemRepository.findByPackageId(p.getId());
+                    List<PackageItemDto> packageItemDtos = new ArrayList<>();
+
+                    for (PackageItem item : packageItems) {
+                        PackageItemDto pItem = PackageItemDto.builder()
+                                .itemCode(item.getItemCode())
+                                .itemName(item.getItemName()) // Fixed: Changed from .itemCode(item.getItemName())
+                                .bulkPrice(item.getBulkPrice())
+                                .quantity(item.getQuantity())
+                                .itemCategory(item.getItemCategory())
+                                .createdUser(item.getCreatedUser().getUsername())
+                                .updatedAt(item.getUpdatedAt())
+                                .package_id(item.getPackage_id().getId())
+                                .build();
+                        packageItemDtos.add(pItem);
+                    }
+                    viewBean.setPackageItems(packageItemDtos);
+
+                    packageViewBeanList.add(viewBean);
+                }
+
+                responseBean.setContent(packageViewBeanList);
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Packages retrieval success";
+            } else {
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "No packages found for the selected event";
+            }
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving packages: {}", ex.getMessage(), ex);
+            msg = "Error occurred while retrieving packages";
+        }
+
+        responseBean.setResponseCode(code);
+        responseBean.setResponseMsg(msg);
+        return responseBean;
+    }
+
     private static PackageInfoDTO getPackageInfoDTO(Package p) {
         // Map Package entity to DTO (PackageInfoDTO)
         PackageInfoDTO dto = new PackageInfoDTO();
@@ -454,74 +524,74 @@ public class PackageServiceImpl implements PackageService {
         packageRepository.saveAndFlush(packageEntity);
     }
 
-    @Override
-    public ResponseBean allPackageDetails() {
-        ResponseBean responseBean = new ResponseBean();
-        String msg = null;
-        String code = ResponseCode.RSP_ERROR;
-
-        try {
-            // Fetch all packages
-            List<Package> packages = packageRepository.findAll();
-            log.info("Packages found: {}", packages.size());
-
-            if (packages.isEmpty()) {
-                log.warn("No packages found in the database.");
-                responseBean.setContent(List.of()); // Return an empty list instead of null
-                responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
-                return responseBean;
-            }
-
-            // For each package, fetch associated package items
-            List<PackageWithItemsDto> packageWithItemsList = packages.stream().map(pkg -> {
-                log.info("Fetching items for package ID: {}", pkg.getId());
-
-                List<PackageItem> packageItems = packageItemRepository.findByPackageId(pkg.getId());
-                log.info("Package ID: {}, Items found: {}", pkg.getId(), packageItems.size());
-
-                // Map package items to DTOs
-                List<PackageItemDto> packageItemDtos = packageItems.stream().map(item ->
-                        new PackageItemDto(
-                                pkg.getId(),  // package_id
-                                item.getItemCode(),
-                                item.getBulkPrice(),
-                                item.getQuantity(),
-                                item.getItemName(),
-                                item.getItemCategory(),
-                                item.getCreatedAt(),
-                                item.getUpdatedAt(),
-                                item.getCreatedUser()
-                        )
-                ).collect(Collectors.toList());
-
-                // Map package to DTO
-                PackageDto packageDto = new PackageDto(
-                        pkg.getId(),
-                        pkg.getName(),
-                        pkg.getPackage_type(),
-                        pkg.getEvent(),
-                        pkg.getDescription(),
-                        pkg.getCreatedAt(),
-                        pkg.getUpdatedAt(),
-                        pkg.getCreatedUser()
-                );
-
-                // Return combined DTO
-                return new PackageWithItemsDto(packageDto, packageItemDtos);
-            }).collect(Collectors.toList());
-
-            // Set response data
-            responseBean.setContent(packageWithItemsList);
-            code = ResponseCode.RSP_SUCCESS;
-        } catch (Exception ex) {
-            log.error("Error occurred while accessing package data: {}", ex.getMessage(), ex);
-            msg = "Error occurred while accessing package data.";
-            responseBean.setContent(List.of()); // Ensure empty list is returned instead of null
-        }
-
-        responseBean.setResponseMsg(msg);
-        responseBean.setResponseCode(code);
-        return responseBean;
-    }
+//    @Override
+//    public ResponseBean allPackageDetails() {
+//        ResponseBean responseBean = new ResponseBean();
+//        String msg = null;
+//        String code = ResponseCode.RSP_ERROR;
+//
+//        try {
+//            // Fetch all packages
+//            List<Package> packages = packageRepository.findAll();
+//            log.info("Packages found: {}", packages.size());
+//
+//            if (packages.isEmpty()) {
+//                log.warn("No packages found in the database.");
+//                responseBean.setContent(List.of()); // Return an empty list instead of null
+//                responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
+//                return responseBean;
+//            }
+//
+//            // For each package, fetch associated package items
+//            List<PackageWithItemsDto> packageWithItemsList = packages.stream().map(pkg -> {
+//                log.info("Fetching items for package ID: {}", pkg.getId());
+//
+//                List<PackageItem> packageItems = packageItemRepository.findByPackageId(pkg.getId());
+//                log.info("Package ID: {}, Items found: {}", pkg.getId(), packageItems.size());
+//
+//                // Map package items to DTOs
+//                List<PackageItemDto> packageItemDtos = packageItems.stream().map(item ->
+//                        new PackageItemDto(
+//                                pkg.getId(),  // package_id
+//                                item.getItemCode(),
+//                                item.getBulkPrice(),
+//                                item.getQuantity(),
+//                                item.getItemName(),
+//                                item.getItemCategory(),
+//                                item.getCreatedAt(),
+//                                item.getUpdatedAt(),
+//                                item.getCreatedUser()
+//                        )
+//                ).collect(Collectors.toList());
+//
+//                // Map package to DTO
+//                PackageDto packageDto = new PackageDto(
+//                        pkg.getId(),
+//                        pkg.getName(),
+//                        pkg.getPackage_type(),
+//                        pkg.getEvent(),
+//                        pkg.getDescription(),
+//                        pkg.getCreatedAt(),
+//                        pkg.getUpdatedAt(),
+//                        pkg.getCreatedUser()
+//                );
+//
+//                // Return combined DTO
+//                return new PackageWithItemsDto(packageDto, packageItemDtos);
+//            }).collect(Collectors.toList());
+//
+//            // Set response data
+//            responseBean.setContent(packageWithItemsList);
+//            code = ResponseCode.RSP_SUCCESS;
+//        } catch (Exception ex) {
+//            log.error("Error occurred while accessing package data: {}", ex.getMessage(), ex);
+//            msg = "Error occurred while accessing package data.";
+//            responseBean.setContent(List.of()); // Ensure empty list is returned instead of null
+//        }
+//
+//        responseBean.setResponseMsg(msg);
+//        responseBean.setResponseCode(code);
+//        return responseBean;
+//    }
 
 }
