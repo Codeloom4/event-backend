@@ -8,6 +8,7 @@ import com.codeloon.ems.entity.Package;
 import com.codeloon.ems.entity.*;
 import com.codeloon.ems.model.PackageMgtAccessBean;
 import com.codeloon.ems.model.PackageTypeBean;
+import com.codeloon.ems.model.PackageViewBean;
 import com.codeloon.ems.repository.*;
 import com.codeloon.ems.service.ImageUploadService;
 import com.codeloon.ems.service.PackageService;
@@ -42,6 +43,8 @@ public class PackageServiceImpl implements PackageService {
     private final InventoryItemRepository inventoryItemRepository;
 
     private final ImageUploadService imageUploadService;
+
+    private final PackageSlideRepository packageSlideRepository;
 
     @Override
     public ResponseBean access() {
@@ -409,6 +412,66 @@ public class PackageServiceImpl implements PackageService {
         responseBean.setResponseCode(code);
         responseBean.setResponseMsg(msg);
         responseBean.setContent(packageItemDtos);
+        return responseBean;
+    }
+
+
+    public ResponseBean getAllPackages() {
+        ResponseBean responseBean = new ResponseBean();
+        String msg;
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            List<PackageViewBean> packageViewBeanList = new ArrayList<>();
+            List<Package> existingPackages = packageRepository.findAll();
+
+            if (!existingPackages.isEmpty()) {
+                for (Package p : existingPackages) {
+                    PackageViewBean viewBean = new PackageViewBean();
+
+                    // Set package info
+                    viewBean.setPackageInfo(getPackageInfoDTO(p));
+
+                    // Set package slides (images)
+                    List<PackageSlide> images = packageSlideRepository.findByPackageId(p.getId());
+                    viewBean.setPackageSlides(images);
+
+                    // Set package items
+                    List<PackageItem> packageItems = packageItemRepository.findByPackageId(p.getId());
+                    List<PackageItemDto> packageItemDtos = new ArrayList<>();
+
+                    for (PackageItem item : packageItems) {
+                        PackageItemDto pItem = PackageItemDto.builder()
+                                .itemCode(item.getItemCode())
+                                .itemName(item.getItemName()) // Fixed: Changed from .itemCode(item.getItemName())
+                                .bulkPrice(item.getBulkPrice())
+                                .quantity(item.getQuantity())
+                                .itemCategory(item.getItemCategory())
+                                .createdUser(item.getCreatedUser().getUsername())
+                                .updatedAt(item.getUpdatedAt())
+                                .package_id(item.getPackage_id().getId())
+                                .build();
+                        packageItemDtos.add(pItem);
+                    }
+                    viewBean.setPackageItems(packageItemDtos);
+
+                    packageViewBeanList.add(viewBean);
+                }
+
+                responseBean.setContent(packageViewBeanList);
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Packages retrieval success";
+            } else {
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "No packages found for the selected event";
+            }
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving packages: {}", ex.getMessage(), ex);
+            msg = "Error occurred while retrieving packages";
+        }
+
+        responseBean.setResponseCode(code);
+        responseBean.setResponseMsg(msg);
         return responseBean;
     }
 
