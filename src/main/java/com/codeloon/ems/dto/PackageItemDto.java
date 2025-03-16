@@ -32,6 +32,8 @@ public class PackageItemDto {
 
 
     private String itemName;
+    private String itemCategory;
+    private String itemCategoryName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdUser;

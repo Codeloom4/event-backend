@@ -21,7 +21,7 @@ public class PackageInfoDTO {
     private String eventDescription;
     private String packageType;
     private String packageTypeDescription;
-
+    private Double packagePrice;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdUser;

@@ -35,6 +35,9 @@ public class Package {
     @Column(nullable = false, length = 255)
     private String description;
 
+    @Column(name = "packagePrice")
+    private Double packagePrice;
+
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
