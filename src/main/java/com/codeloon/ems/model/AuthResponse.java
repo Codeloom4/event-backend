@@ -15,5 +15,7 @@ public class AuthResponse {
     private String accessMsg;
     private String accessCode;
     private String userRole;
+    private String id;
+    private String userName;
 
 }

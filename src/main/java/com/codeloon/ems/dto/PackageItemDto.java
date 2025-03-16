@@ -1,5 +1,6 @@
 package com.codeloon.ems.dto;
 
+import com.codeloon.ems.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -37,4 +38,7 @@ public class PackageItemDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdUser;
+
+    public PackageItemDto(String id, String itemCode, Double bulkPrice, Integer quantity, String itemName, String itemCategory, LocalDateTime createdAt, LocalDateTime updatedAt, User createdUser) {
+    }
 }

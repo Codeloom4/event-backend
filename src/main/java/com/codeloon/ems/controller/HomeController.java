@@ -2,9 +2,11 @@ package com.codeloon.ems.controller;
 
 import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.service.EventService;
+import com.codeloon.ems.service.PackageService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import com.codeloon.ems.service.GalleryService;
+import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class HomeController {
 
     private final EventService eventService;
     private final GalleryService galleryService;
+    private final PackageService packageService;
 
     @GetMapping("/")
     public String getHome() {
@@ -74,6 +77,23 @@ public class HomeController {
             log.error("Error occurred while retrieving gallery images: {}", ex.getMessage());
             responseBean.setResponseCode(ResponseCode.RSP_ERROR);
             responseBean.setResponseMsg("Error occurred while retrieving gallery images.");
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+    @GetMapping("/allPackages")
+    @PermitAll  // This will allow access without requiring authentication
+    public ResponseEntity<?> getAllPackages() {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = packageService.allPackageDetails();
+            httpStatus = HttpStatus.OK;  // Changed to OK, as data retrieval is successful
+        } catch (Exception ex) {
+            log.error("Error occurred while accessing package management: {}", ex.getMessage());
         } finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }

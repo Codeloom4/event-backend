@@ -22,4 +22,6 @@ public interface PackageService {
 
     ResponseBean deletePackageItem(String itemCode, String packageId);
     ResponseBean getPackageItems(String packageId);
+
+    ResponseBean allPackageDetails();
 }

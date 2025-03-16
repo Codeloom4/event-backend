@@ -39,7 +39,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
     }
 
     @Override
-    public ResponseBean uploadImages(String packageId, MultipartFile[] files) {
+    public ResponseBean     uploadImages(String packageId, MultipartFile[] files) {
         ResponseBean responseBean = new ResponseBean();
         String msg = null;
         String code = ResponseCode.RSP_ERROR;

@@ -13,4 +13,5 @@ import java.util.List;
 public class PackageMgtAccessBean {
     private List<EventDto> eventList;
     private List<PackageTypeBean> packageTypeBeanList;
+    private List<String> uniqueCategories;
 }

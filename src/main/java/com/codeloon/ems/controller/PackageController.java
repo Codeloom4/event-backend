@@ -5,6 +5,7 @@ import com.codeloon.ems.dto.PackageItemDto;
 import com.codeloon.ems.service.ImageUploadService;
 import com.codeloon.ems.service.PackageService;
 import com.codeloon.ems.util.ResponseBean;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -205,5 +206,7 @@ public class PackageController {
         }
         return responseEntity;
     }
+
+
 
 }

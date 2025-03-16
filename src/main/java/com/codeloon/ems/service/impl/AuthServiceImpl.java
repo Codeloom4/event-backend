@@ -32,33 +32,34 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<AuthResponse> login(LoginDto loginDto) {
         String token = "";
         String userRole = null;
+        User user = null;
         try {
-            // 01 - AuthenticationManager is used to authenticate the user
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDto.getUsername(),
                     loginDto.getPassword()
             ));
 
-            /* 02 - SecurityContextHolder is used to allows the rest of the application to know
-            that the user is authenticated and can use user data from Authentication object */
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // 03 - Generate the token based on username and secret key
             token = jwtTokenProvider.generateToken(authentication);
 
-            //04 - Roles
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             userRole = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
+
+            // Fetch user details from repository
+            user = userRepository.findByUsername(loginDto.getUsername()).orElse(null);
+            if (user == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
         } catch (AuthenticationException e) {
-            // 04 - Return the token to controller
             return handleAuthenticationException(e);
         }
+
         AuthResponse credentialsExpResponse = validateUserCredentialsStatus(loginDto.getUsername(), token, userRole);
         if (credentialsExpResponse != null) {
             return new ResponseEntity<>(credentialsExpResponse, HttpStatus.OK);
         }
-        // 05 - Return the token to controller
-        return this.buildResponse(token, userRole, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
+
+        return this.buildResponse(token, userRole, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK, user);
     }
 
     private AuthResponse validateUserCredentialsStatus(String userName, String token, String userRole) {
@@ -73,7 +74,10 @@ public class AuthServiceImpl implements AuthService {
 
                     String errorCode = DataVarList.AUTH_FAILED_RESET_PASSWORD;
                     log.warn(errorMessage);
+
                     return AuthResponse.builder()
+                            .id(user.getId())  // Ensure user ID is included
+                            .userName(user.getUsername())  // Ensure username is included
                             .accessCode(errorCode)
                             .accessToken(token)
                             .accessMsg(errorMessage)
@@ -81,15 +85,17 @@ public class AuthServiceImpl implements AuthService {
                             .build();
                 }
             }
-
         } catch (Exception exception) {
             log.error("Error validating user login.", exception);
         }
         return null;
     }
 
-    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole, String authMsg, String authStatus, HttpStatus httpStatus) {
+
+    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole, String authMsg, String authStatus, HttpStatus httpStatus, User user) {
         AuthResponse authResponseDto = AuthResponse.builder()
+                .id(user.getId()) // Add user ID
+                .userName(user.getUsername()) // Add username
                 .accessCode(authStatus)
                 .accessToken(token)
                 .accessMsg(authMsg)
@@ -97,6 +103,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         return new ResponseEntity<>(authResponseDto, httpStatus);
     }
+
 
     private ResponseEntity<AuthResponse> handleAuthenticationException(AuthenticationException e) {
         String accessMsg = "";
@@ -116,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
             accessMsg = DataVarList.FAILED_AUTH_ACC_INVALIED;
             httpStatus = HttpStatus.UNAUTHORIZED;
         }
-        return buildResponse("", null, accessMsg, accessCode, httpStatus);
+        return buildResponse("", null, accessMsg, accessCode, httpStatus, null);
     }
 
 }

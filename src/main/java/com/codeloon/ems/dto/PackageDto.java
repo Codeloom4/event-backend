@@ -1,5 +1,8 @@
 package com.codeloon.ems.dto;
 
+import com.codeloon.ems.entity.Event;
+import com.codeloon.ems.entity.PackageType;
+import com.codeloon.ems.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -36,4 +39,7 @@ public class PackageDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdUser;
+
+    public PackageDto(String id, String name, PackageType packageType, Event event, String description, LocalDateTime createdAt, LocalDateTime updatedAt, User createdUser) {
+    }
 }
