@@ -13,5 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
         registry
                 .addResourceHandler("/uploads/**") // URL path to access the files
                 .addResourceLocations("file:C:/ems/gallery/"); // Local file system path
+
+        registry
+                .addResourceHandler("/packages/**") // URL path to access the files
+                .addResourceLocations("file:C:/ems/uploads/"); // Local file system path
     }
 }

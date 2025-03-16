@@ -52,6 +52,7 @@ public class SecurityConfig {
                             "/api/auth/login",
                             "/api/public/**",
                             "/uploads/**",
+                            "/packages/**",
                             "/ems/user/register").permitAll();
                     authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     authorize.anyRequest().authenticated();

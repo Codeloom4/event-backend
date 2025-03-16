@@ -434,9 +434,16 @@ public class PackageServiceImpl implements PackageService {
 
                     // Set package slides (images)
                     List<PackageSlide> images = packageSlideRepository.findByPackageId(p.getId());
-                    viewBean.setPackageSlides(images);
+                    List<PackageSlide> updatedImages = images.stream()
+                            .map(image -> {
+                                image.setFilePath("http://localhost:9999/packages/" + image.getFilePath());
+                                return image;
+                            })
+                            .collect(Collectors.toList());
+                    viewBean.setPackageSlides(updatedImages);
+//                    viewBean.setPackageSlides(images);
 
-                    // Set package items
+                    // Set package items metntn ganin
                     List<PackageItem> packageItems = packageItemRepository.findByPackageId(p.getId());
                     List<PackageItemDto> packageItemDtos = new ArrayList<>();
 
