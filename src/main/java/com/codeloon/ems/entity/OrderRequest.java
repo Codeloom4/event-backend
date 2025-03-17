@@ -37,7 +37,7 @@ public class OrderRequest {
     private LocalDate eventDate;
 
     @Column(name = "requested_date", nullable = false, updatable = false)
-    private LocalDateTime requestedDate = LocalDateTime.now();
+    private LocalDateTime requestedDate;
 
     @Column(name = "cus_username", length = 20)
     private String customerUsername;

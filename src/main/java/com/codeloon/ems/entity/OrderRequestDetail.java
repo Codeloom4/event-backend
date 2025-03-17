@@ -26,11 +26,11 @@ public class OrderRequestDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false)
-    private OrderRequest orderRequest;
+    private OrderRequest orderId;
 
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
-    private InventoryItem inventoryItem;
+    private InventoryItem itemId;
 
     @Column(name = "item_name", length = 255)
     private String itemName;

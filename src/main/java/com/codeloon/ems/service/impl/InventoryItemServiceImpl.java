@@ -352,20 +352,19 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("itemName").ascending());
 
-            if((inventoryItemDto.getItemName() != null && inventoryItemDto.getItemName().isEmpty()) &&
+            if((inventoryItemDto.getItemName() != null && !inventoryItemDto.getItemName().isEmpty()) &&
                     (inventoryItemDto.getIsRefundable() != null)){
 
                 //search from both
                 inventoryList = inventoryItemRepository.findByItemNameAndIsRefundableContaining(inventoryItemDto.getItemName(), inventoryItemDto.getIsRefundable(), pageable);
 
-            } else if((inventoryItemDto.getItemName() != null && inventoryItemDto.getItemName().isEmpty()) &&
-                    (inventoryItemDto.getIsRefundable() != null))  {
+            } else if((inventoryItemDto.getItemName() != null && !inventoryItemDto.getItemName().isEmpty()) &&
+                    (inventoryItemDto.getIsRefundable() == null))  {
 
                 //search only from item name
                 inventoryList = inventoryItemRepository.findByItemNameContaining(inventoryItemDto.getItemName(), pageable);
 
-
-            }else if((inventoryItemDto.getItemName() != null && inventoryItemDto.getItemName().isEmpty()) &&
+            }else if((inventoryItemDto.getItemName() == null || inventoryItemDto.getItemName().isEmpty()) &&
                     (inventoryItemDto.getIsRefundable() != null))  {
 
                 //search only from is_refundable
