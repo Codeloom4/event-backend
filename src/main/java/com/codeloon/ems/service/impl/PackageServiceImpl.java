@@ -9,6 +9,7 @@ import com.codeloon.ems.entity.*;
 import com.codeloon.ems.model.PackageMgtAccessBean;
 import com.codeloon.ems.model.PackageTypeBean;
 import com.codeloon.ems.model.PackageViewBean;
+import com.codeloon.ems.model.PaginatedResponse;
 import com.codeloon.ems.repository.*;
 import com.codeloon.ems.service.ImageUploadService;
 import com.codeloon.ems.service.PackageService;
@@ -16,6 +17,10 @@ import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -77,6 +82,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @CacheEvict(value = "packages", allEntries = true)
     @Transactional
     public ResponseBean createPackage(PackageDto pack) {
         ResponseBean responseBean = new ResponseBean();
@@ -117,6 +123,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @CacheEvict(value = "packages", allEntries = true)
     @Transactional
     public ResponseBean updatePackage(PackageDto pack) {
         ResponseBean responseBean = new ResponseBean();
@@ -158,6 +165,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @CacheEvict(value = "packages", allEntries = true)
     @Transactional
     public ResponseBean deletePackage(String packageId) {
         ResponseBean responseBean = new ResponseBean();
@@ -190,6 +198,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @CacheEvict(value = "packages", allEntries = true)
     @Transactional
     public ResponseBean createPackageItem(PackageItemDto packageItemDto) {
         ResponseBean responseBean = new ResponseBean();
@@ -287,6 +296,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @CacheEvict(value = "packages", allEntries = true)
     @Transactional
     public ResponseBean updatePackageItem(String packageId, PackageItemDto packageItemDto) {
         ResponseBean responseBean = new ResponseBean();
@@ -345,6 +355,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @CacheEvict(value = "packages", allEntries = true)
     @Transactional
     public ResponseBean deletePackageItem(String itemCode, String packageId) {
         ResponseBean responseBean = new ResponseBean();
@@ -414,16 +425,19 @@ public class PackageServiceImpl implements PackageService {
         responseBean.setContent(packageItemDtos);
         return responseBean;
     }
-
-
-    public ResponseBean getAllPackages() {
+    
+    @Cacheable(value = "packages", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
+    public ResponseBean getAllPackages(Pageable pageable) {
         ResponseBean responseBean = new ResponseBean();
         String msg;
         String code = ResponseCode.RSP_ERROR;
 
         try {
             List<PackageViewBean> packageViewBeanList = new ArrayList<>();
-            List<Package> existingPackages = packageRepository.findAll();
+
+            // Fetch paginated packages
+            Page<Package> packagePage = packageRepository.findAll(pageable);
+            List<Package> existingPackages = packagePage.getContent();
 
             if (!existingPackages.isEmpty()) {
                 for (Package p : existingPackages) {
@@ -434,16 +448,23 @@ public class PackageServiceImpl implements PackageService {
 
                     // Set package slides (images)
                     List<PackageSlide> images = packageSlideRepository.findByPackageId(p.getId());
-                    viewBean.setPackageSlides(images);
+                    List<PackageSlide> updatedImages = images.stream()
+                            .map(image -> {
+                                image.setFilePath("http://localhost:9999/packages/" + image.getFilePath());
+                                return image;
+                            })
+                            .collect(Collectors.toList());
+                    viewBean.setPackageSlides(updatedImages);
+//                    viewBean.setPackageSlides(images);
 
-                    // Set package items
+                    // Set package items metntn ganin
                     List<PackageItem> packageItems = packageItemRepository.findByPackageId(p.getId());
                     List<PackageItemDto> packageItemDtos = new ArrayList<>();
 
                     for (PackageItem item : packageItems) {
                         PackageItemDto pItem = PackageItemDto.builder()
                                 .itemCode(item.getItemCode())
-                                .itemName(item.getItemName()) // Fixed: Changed from .itemCode(item.getItemName())
+                                .itemName(item.getItemName())
                                 .bulkPrice(item.getBulkPrice())
                                 .quantity(item.getQuantity())
                                 .itemCategory(item.getItemCategory())
@@ -458,12 +479,20 @@ public class PackageServiceImpl implements PackageService {
                     packageViewBeanList.add(viewBean);
                 }
 
-                responseBean.setContent(packageViewBeanList);
+                // Set paginated content and metadata
+                PaginatedResponse<PackageViewBean> paginatedResponse = new PaginatedResponse<>();
+                paginatedResponse.setContent(packageViewBeanList);
+                paginatedResponse.setTotalPages(packagePage.getTotalPages());
+                paginatedResponse.setTotalElements(packagePage.getTotalElements());
+                paginatedResponse.setPageNumber(packagePage.getNumber());
+                paginatedResponse.setPageSize(packagePage.getSize());
+
+                responseBean.setContent(paginatedResponse);
                 code = ResponseCode.RSP_SUCCESS;
                 msg = "Packages retrieval success";
             } else {
                 code = ResponseCode.RSP_SUCCESS;
-                msg = "No packages found for the selected event";
+                msg = "No packages found";
             }
         } catch (Exception ex) {
             log.error("Error occurred while retrieving packages: {}", ex.getMessage(), ex);
@@ -474,7 +503,6 @@ public class PackageServiceImpl implements PackageService {
         responseBean.setResponseMsg(msg);
         return responseBean;
     }
-
 
     private static PackageInfoDTO getPackageInfoDTO(Package p) {
         PackageInfoDTO dto = new PackageInfoDTO();

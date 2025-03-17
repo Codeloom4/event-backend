@@ -8,6 +8,7 @@ import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,12 +84,12 @@ public class HomeController {
     }
 
     @GetMapping("/all-package")
-    public ResponseEntity<?> getAllPackages() {
+    public ResponseEntity<?> getAllPackages(Pageable pageable) {
         ResponseEntity<?> responseEntity;
         ResponseBean responseBean = new ResponseBean();
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         try {
-            responseBean = packageService.getAllPackages();
+            responseBean = packageService.getAllPackages(pageable);
             httpStatus = HttpStatus.OK;
         } catch (Exception ex) {
             log.error("Error occurred while retrieving package data getAllPackages : {}", ex.getMessage());
