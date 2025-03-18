@@ -349,5 +349,40 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
         return dataBeanList;
     }
 
+    @Override
+    public DataTableBean orderReqListStatus(String status, int page, int size) {
+        DataTableBean dataTableBean = new DataTableBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        Page<OrderRequest> inventoryList = null;
 
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("requestedDate").ascending());
+
+            //search only from item name
+            inventoryList = orderRequestRepository.findAllByOrderStatus(status, pageable);
+
+            if(!inventoryList.isEmpty()){
+                List<Object> orderDataList = this.mapSearchData(inventoryList);
+                dataTableBean.setList(orderDataList);
+                dataTableBean.setCount(inventoryList.getTotalElements());
+                dataTableBean.setPagecount(inventoryList.getTotalPages());
+
+                msg = "List searched successfully.";
+                code = ResponseCode.RSP_SUCCESS;
+            }else {
+                dataTableBean.setCount(0);
+                dataTableBean.setPagecount(0);
+
+                log.warn("List searching not found");
+                msg = "Order List not found: ";
+            }
+        } catch (Exception ex) {
+            log.error("Error occurred while searching order list : {}", ex.getMessage(), ex);
+            msg = "Error occurred while searching order list.";
+        }
+        dataTableBean.setMsg(msg);
+        dataTableBean.setCode(code);
+        return dataTableBean;
+    }
 }

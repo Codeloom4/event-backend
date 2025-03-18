@@ -112,7 +112,29 @@ public class OrderRequestController {
         return responseEntity;
     }
 
-    //TODO View all order req list by order status - for Admin
+
+    //View all order req list by order status - for Admin
+    @GetMapping("/liststatus/{status}")
+    public ResponseEntity<?> orderReqListStatus(@PathVariable String status, @RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(defaultValue = "10") int size) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        DataTableBean dataTableBean = new DataTableBean();
+        try {
+            dataTableBean = orderRequestservice.orderReqListStatus(status,page, size);
+            httpStatus = HttpStatus.OK;
+            responseBean.setContent(dataTableBean);
+            responseBean.setResponseMsg(dataTableBean.getMsg());
+            responseBean.setResponseCode(dataTableBean.getCode());
+        }catch (Exception ex){
+            log.error("Error occurred while searching order list.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
 
     //TODO Order req update (Status update , add Remark or Assign new package according to cus requirements) - for Admin - 7
 

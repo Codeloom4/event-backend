@@ -17,5 +17,7 @@ public interface OrderRequestservice {
 
     ResponseBean viewOrderDetails(String packid);
 
+    DataTableBean orderReqListStatus(String status, int page, int size);
+
 
 }
