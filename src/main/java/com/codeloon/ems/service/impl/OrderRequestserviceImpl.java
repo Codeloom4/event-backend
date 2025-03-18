@@ -256,7 +256,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
 
             Optional<OrderRequest> orderRequest = orderRequestRepository.findById(orderid);
             if(orderRequest.isPresent()){
-                orderRequestDetails = orderRequestDetailRepository.findByOrderRequest(orderRequest.get());
+                orderRequestDetails = orderRequestDetailRepository.findByorderId(orderRequest.get());
 
                 orderDetailsBean.setOrderId(orderRequest.get().getOrderId());
                 orderDetailsBean.setPackageId(orderRequest.get().getPackageId().getId());
