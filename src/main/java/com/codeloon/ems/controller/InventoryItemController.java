@@ -170,7 +170,7 @@ public class InventoryItemController {
         return responseEntity;
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<?> SearchItems(@RequestBody InventoryItemDto inventoryItemDto, @RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "10") int size) {
         ResponseEntity<?> responseEntity;
