@@ -130,6 +130,17 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                     .paymentStatus(payStatus.get())
                     .build();
 
+            orderRequest.setOrderId(orderId);
+            orderRequest.setPackageId(packageData.get());
+            orderRequest.setCustomerNote(orderAccessBean.getCusNote());
+            orderRequest.setTotal(totalCost);
+            orderRequest.setEventDate(orderAccessBean.getEventDate());
+            orderRequest.setRequestedDate(LocalDateTime.now());
+            orderRequest.setCustomerUsername(systemBeanDto.getSysUser());
+            orderRequest.setLastUpdatedDatetime(LocalDateTime.now());
+            orderRequest.setOrderStatus(orderStatus.get());
+            orderRequest.setPaymentStatus(payStatus.get());
+
             for (OrderItemListBean orderData : orderAccessBean.getOrderItemListBeanList()) {
                 OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
                 Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(orderData.getInventoryItemId());

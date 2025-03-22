@@ -1,6 +1,7 @@
 package com.codeloon.ems.controller;
 
 import com.codeloon.ems.dto.InventoryItemDto;
+import com.codeloon.ems.dto.OrderRequestDto;
 import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.OrderAccessBean;
 import com.codeloon.ems.service.OrderRequestservice;
@@ -29,7 +30,7 @@ public class OrderRequestController {
             responseBean = orderRequestservice.accessAndLoad(packid);
             httpStatus = HttpStatus.OK;
         }catch (Exception ex){
-            log.error("Error occurred while retrieving inventory Item.{} ", ex.getMessage());
+            log.error("Error occurred while retrieving order request.{} ", ex.getMessage());
         }finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
@@ -45,7 +46,7 @@ public class OrderRequestController {
             responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
-            log.error("Error occurred while adding new inventory Item.{} ", ex.getMessage());
+            log.error("Error occurred while adding new order request.{} ", ex.getMessage());
         } finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
@@ -66,7 +67,7 @@ public class OrderRequestController {
             responseBean.setResponseMsg(dataTableBean.getMsg());
             responseBean.setResponseCode(dataTableBean.getCode());
         }catch (Exception ex){
-            log.error("Error occurred while searching item list.{} ", ex.getMessage());
+            log.error("Error occurred while searching order list.{} ", ex.getMessage());
         }finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
@@ -87,7 +88,7 @@ public class OrderRequestController {
             responseBean.setResponseMsg(dataTableBean.getMsg());
             responseBean.setResponseCode(dataTableBean.getCode());
         }catch (Exception ex){
-            log.error("Error occurred while searching item list.{} ", ex.getMessage());
+            log.error("Error occurred while searching order list.{} ", ex.getMessage());
         }finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
@@ -105,7 +106,7 @@ public class OrderRequestController {
             responseBean = orderRequestservice.viewOrderDetails(orderid);
             httpStatus = HttpStatus.OK;
         }catch (Exception ex){
-            log.error("Error occurred while retrieving inventory Item.{} ", ex.getMessage());
+            log.error("Error occurred while retrieving order request.{} ", ex.getMessage());
         }finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
@@ -136,10 +137,63 @@ public class OrderRequestController {
     }
 
 
-    //TODO Order req update (Status update , add Remark or Assign new package according to cus requirements) - for Admin - 7
 
-    //TODO Order req update - for customer side
 
-    //TODO Accept / Reject
+
+    //TODO Order Status update (Status and Remark update) - for Admin - 7
+    //Req body {"orderStatus" : "", "remark" : "" }
+    @PostMapping("/adminstattus")
+    public ResponseEntity<?> adminStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            //responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating updating order status.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+
+    //TODO Order req update (Assign new package according to cus requirements) - for admin side
+    //Req body {"packageId" : ""}
+    @PostMapping("/updateorder")
+    public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto orderRequestDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            //responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating order request.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+
+    //TODO Order Status update (Accept / Reject) - for customer side
+    //Req body {"orderStatus" : ""}
+    @PostMapping("/cusstattus")
+    public ResponseEntity<?> cusStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            //responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating updating order status.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
 
 }
