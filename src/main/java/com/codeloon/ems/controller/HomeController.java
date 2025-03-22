@@ -2,11 +2,13 @@ package com.codeloon.ems.controller;
 
 import com.codeloon.ems.model.EventBean;
 import com.codeloon.ems.service.EventService;
+import com.codeloon.ems.service.GalleryService;
+import com.codeloon.ems.service.PackageService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
-import com.codeloon.ems.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,7 @@ public class HomeController {
 
     private final EventService eventService;
     private final GalleryService galleryService;
+    private final PackageService packageService;
 
     @GetMapping("/")
     public String getHome() {
@@ -80,6 +83,23 @@ public class HomeController {
         return responseEntity;
     }
 
+    @GetMapping("/all-package")
+    public ResponseEntity<?> getAllPackages(Pageable pageable) {
+        ResponseEntity<?> responseEntity;
+        ResponseBean responseBean = new ResponseBean();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        try {
+            responseBean = packageService.getAllPackages(pageable);
+            httpStatus = HttpStatus.OK;
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving package data getAllPackages : {}", ex.getMessage());
+            responseBean.setResponseCode(ResponseCode.RSP_ERROR);
+            responseBean.setResponseMsg("Error occurred while retrieving package data .");
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
 
 
 }

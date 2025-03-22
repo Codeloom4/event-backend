@@ -3,6 +3,7 @@ package com.codeloon.ems.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "order_request")
 public class OrderRequest {
     @Id
@@ -35,7 +37,7 @@ public class OrderRequest {
     private LocalDate eventDate;
 
     @Column(name = "requested_date", nullable = false, updatable = false)
-    private LocalDateTime requestedDate = LocalDateTime.now();
+    private LocalDateTime requestedDate;
 
     @Column(name = "cus_username", length = 20)
     private String customerUsername;

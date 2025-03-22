@@ -107,7 +107,7 @@ public class InventoryServiceImpl implements InventoryService {
                 dataTableBean.setCount(0);
                 dataTableBean.setPagecount(0);
 
-                log.warn("Inventory item with iemName '{}' not found", itemName);
+                log.warn("Inventory item with itemName '{}' not found", itemName);
                 msg = "Inventory not found: " + itemName;
             }
 

@@ -3,6 +3,7 @@ package com.codeloon.ems.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "order_request_detail")
 public class OrderRequestDetail {
 
@@ -24,11 +26,11 @@ public class OrderRequestDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false)
-    private OrderRequest orderRequest;
+    private OrderRequest orderId;
 
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
-    private InventoryItem inventoryItem;
+    private InventoryItem itemId;
 
     @Column(name = "item_name", length = 255)
     private String itemName;

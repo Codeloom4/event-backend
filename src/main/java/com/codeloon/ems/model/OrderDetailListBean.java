@@ -4,18 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItemListBean {
-
-    private Long packageItemId;
-    private String packageId;
+public class OrderDetailListBean {
+    private Integer orderDetailId;
+    private String orderId;
     private Long inventoryItemId;
     private String itemName;
+    private BigDecimal unitPrice;
     private Integer quantity;
-    private Double sellPrice;
-    private Double bulkPrice;
-    private String category;
-    private String itemDes;
+    private BigDecimal bulkPrice;
 }
