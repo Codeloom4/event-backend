@@ -412,6 +412,9 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                     orderRequest1.setOrderStatus(statusOptional.get());
                 }
 
+                orderRequest1.setLastUpdatedDatetime(LocalDateTime.now());
+                orderRequest1.setApprovedUser(systemBeanDto.getSysUser());
+
                 orderRequestRepository.saveAndFlush(orderRequest1);
 
                 code = ResponseCode.RSP_SUCCESS;
@@ -444,43 +447,47 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
         OrderRequest orderRequest = new OrderRequest();
         List<OrderRequestDetail> orderRequestDetail = new ArrayList<>();
         BigDecimal totalCost = BigDecimal.valueOf(0);
+        List<PackageItem>  packageItems = new ArrayList<>();
 
         try {
             Optional<Status> orderStatus = statusRepository.findById(DataVarList.ORD_PENDING);
             Optional<Status> payStatus = statusRepository.findById(DataVarList.UNPAID);
             Optional<Package> packageData = packageRepository.findById(orderRequestDto.getPackageId());
             Optional<OrderRequest> orderRequest1 = orderRequestRepository.findById(orderRequestDto.getOrderId());
+            Optional<Status> statusOptional = statusRepository.findById(DataVarList.ORD_APPROVED);
+            packageItems = packageItemRepository.findByPackageId(orderRequestDto.getPackageId());
+
+            orderRequestDetail = orderRequestDetailRepository.findByorderId(orderRequest1.get());
+            orderRequestDetailRepository.deleteAll(orderRequestDetail);
 
             if(orderRequest1.isPresent()){
                 orderRequest = orderRequest1.get();
 
                 orderRequest.setPackageId(packageData.get());
                 orderRequest.setLastUpdatedDatetime(LocalDateTime.now());
+                orderRequest.setTotal(BigDecimal.valueOf(packageData.get().getPackagePrice()));
+                orderRequest.setApprovedUser(systemBeanDto.getSysUser());
+                orderRequest.setOrderStatus(statusOptional.get());
             }
 
-//            for (OrderItemListBean orderData : orderAccessBean.getOrderItemListBeanList()) {
-//                OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
-//                Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(orderData.getInventoryItemId());
-//                BigDecimal bulkPrice = orderRequestDetail1.getUnitPrice().multiply(BigDecimal.valueOf(orderRequestDetail1.getQuantity()));
-//
-//                totalCost = totalCost.add(bulkPrice);
-//
-//                orderRequestDetail1.setOrderId(orderRequest);
-//                orderRequestDetail1.setItemId(inventoryItem.get());
-//                orderRequestDetail1.setItemName(inventoryItem.get().getItemName());
-//                orderRequestDetail1.setUnitPrice(BigDecimal.valueOf(orderData.getSellPrice()));
-//                orderRequestDetail1.setQuantity(orderData.getQuantity());
-//                orderRequestDetail1.setBulkPrice(bulkPrice);
-//                orderRequestDetail1.setCreatedDatetime(LocalDateTime.now());
-//                orderRequestDetail1.setCustomerId(systemBeanDto.getSysUser());
-//
-//                orderRequestDetail.add(orderRequestDetail1);
-//            };
-//
-//            orderRequest.setTotal(totalCost);
-//
-//            orderRequestRepository.saveAndFlush(orderRequest);
-//            orderRequestDetailRepository.saveAll(orderRequestDetail);
+            for (PackageItem packageItem : packageItems) {
+                OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
+                Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(Long.valueOf(packageItem.getItemCode()));
+
+                orderRequestDetail1.setOrderId(orderRequest);
+                orderRequestDetail1.setItemId(inventoryItem.get());
+                orderRequestDetail1.setItemName(inventoryItem.get().getItemName());
+                orderRequestDetail1.setUnitPrice(BigDecimal.valueOf(packageItem.getSellPrice()));
+                orderRequestDetail1.setQuantity(packageItem.getQuantity());
+                orderRequestDetail1.setBulkPrice(BigDecimal.valueOf(packageItem.getBulkPrice()));
+                orderRequestDetail1.setCreatedDatetime(LocalDateTime.now());
+                orderRequestDetail1.setCustomerId(systemBeanDto.getSysUser());
+
+                orderRequestDetail.add(orderRequestDetail1);
+            };
+
+            orderRequestRepository.saveAndFlush(orderRequest);
+            orderRequestDetailRepository.saveAll(orderRequestDetail);
 
             code = ResponseCode.RSP_SUCCESS;
             msg = "Order req created successfully.";

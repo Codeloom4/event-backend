@@ -157,7 +157,7 @@ public class OrderRequestController {
 
 
     //Order req update (Assign new package according to cus requirements) - for admin side
-    //Req body {"packageId" : "", "orderStatus" : "A" or "R"}
+    //Req body {"packageId" : "", "orderId":"", "orderStatus" : "A" or "R"}
     @PostMapping("/updateorder")
     public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto orderRequestDto) {
         ResponseEntity<?> responseEntity;
