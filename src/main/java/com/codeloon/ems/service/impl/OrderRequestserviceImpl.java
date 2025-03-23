@@ -268,11 +268,14 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                 orderDetailsBean.setTotal_amount(orderRequest.get().getTotal());
                 orderDetailsBean.setEventDate(orderRequest.get().getEventDate());
                 orderDetailsBean.setRequestedDate(orderRequest.get().getRequestedDate());
-                orderDetailsBean.setCusId(orderRequest.get().getCustomerUsername().getId());
+                orderDetailsBean.setCusId(orderRequest.get().getCustomerUsername().getUsername());
                 orderDetailsBean.setOrderStatus(orderRequest.get().getOrderStatus().getCode());
                 orderDetailsBean.setOrderStatusDes(orderRequest.get().getOrderStatus().getDescription());
                 orderDetailsBean.setAdminRemark(orderRequest.get().getRemark());
                 orderDetailsBean.setApprovedUser(orderRequest.get().getApprovedUser());
+                orderDetailsBean.setPaymentStatus(orderRequest.get().getPaymentStatus().getCode());
+                orderDetailsBean.setPaymentStatusDes(orderRequest.get().getPaymentStatus().getDescription());
+                orderDetailsBean.setRefundableStatus(orderRequest.get().getRefStatus());
 
                 if(!orderRequestDetails.isEmpty()) {
 
@@ -285,6 +288,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                         orderItemListBean.setQuantity(packItem.getQuantity());
                         orderItemListBean.setUnitPrice(packItem.getUnitPrice());
                         orderItemListBean.setBulkPrice(packItem.getBulkPrice());
+                        orderItemListBean.setItemCategory(packItem.getItemId().getCategory());
 
                         orderDetailListBeanList.add(orderItemListBean);
 

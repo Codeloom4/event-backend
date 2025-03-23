@@ -23,7 +23,11 @@ public class OrderDetailsBean {
     private String cusId;
     private String orderStatus;
     private String orderStatusDes;
+
     private String paymentStatus;
+    private String paymentStatusDes;
+    private String refundableStatus;
+
     private String adminRemark;
     private String approvedUser;
     private List<OrderDetailListBean> orderDetailListBeanList;
