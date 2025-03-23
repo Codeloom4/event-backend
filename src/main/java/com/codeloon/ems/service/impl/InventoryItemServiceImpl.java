@@ -138,6 +138,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     .updatedAt(LocalDateTime.now())
                     .createdUser(systemBeanDto.getSysUser())
                     .minOrderQty(inventoryItemDto.getMinOrderQty())
+                    .category("Inventory")
                     .avgPrice(0L)
                     .quantity(0)
                     .build();
