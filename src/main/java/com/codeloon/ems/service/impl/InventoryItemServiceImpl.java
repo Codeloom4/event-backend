@@ -315,11 +315,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Override
-    public DataTableBean getOtherItemList(String category) {
+    public DataTableBean getOtherItemList(String category, int page, int size) {
         DataTableBean dataTableBean = new DataTableBean();
         List<Object> inventoryDtoList = new ArrayList<>();
-        int page = 0;
-        int size = 10;
+//        int page = 0;
+//        int size = 10;
         String code = ResponseCode.RSP_ERROR;
         Pageable pageable = PageRequest.of(page, size);
         try {

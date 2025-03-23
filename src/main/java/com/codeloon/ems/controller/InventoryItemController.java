@@ -151,13 +151,14 @@ public class InventoryItemController {
     }
 
     @GetMapping("/getitems/{category}")
-    public ResponseEntity<?> getOtherItemList(@PathVariable String category) {
+    public ResponseEntity<?> getOtherItemList(@PathVariable String category, @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         DataTableBean dataTableBean = new DataTableBean();
         try {
-            dataTableBean = inventoryItemService.getOtherItemList(category);
+            dataTableBean = inventoryItemService.getOtherItemList(category, page, size);
             httpStatus = HttpStatus.OK;
             responseBean.setContent(dataTableBean);
             responseBean.setResponseMsg(dataTableBean.getMsg());
