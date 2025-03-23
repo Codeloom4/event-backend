@@ -123,20 +123,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             Optional<Package> packageData = packageRepository.findById(orderAccessBean.getPackageId());
             orderId = this.generateOrderNumber();
 
-            Optional<User> user = userRepository.findById(systemBeanDto.getSysUser());
-
-            orderRequest = OrderRequest.builder()
-                    .orderId(orderId)
-                    .packageId(packageData.get())
-                    .customerNote(orderAccessBean.getCusNote())
-                    .total(totalCost)
-                    .eventDate(orderAccessBean.getEventDate())
-                    .requestedDate(LocalDateTime.now())
-                    .customerUsername(user.get())
-                    .lastUpdatedDatetime(LocalDateTime.now())
-                    .orderStatus(orderStatus.get())
-                    .paymentStatus(payStatus.get())
-                    .build();
+            Optional<User> user = userRepository.findByUsername(systemBeanDto.getSysUser());
 
             orderRequest.setOrderId(orderId);
             orderRequest.setPackageId(packageData.get());
@@ -152,23 +139,20 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             for (OrderItemListBean orderData : orderAccessBean.getOrderItemListBeanList()) {
                 OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
                 Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(orderData.getInventoryItemId());
-                BigDecimal bulkPrice = orderRequestDetail1.getUnitPrice().multiply(BigDecimal.valueOf(orderRequestDetail1.getQuantity()));
-
-                totalCost = totalCost.add(bulkPrice);
 
                 orderRequestDetail1.setOrderId(orderRequest);
                 orderRequestDetail1.setItemId(inventoryItem.get());
                 orderRequestDetail1.setItemName(inventoryItem.get().getItemName());
                 orderRequestDetail1.setUnitPrice(BigDecimal.valueOf(orderData.getSellPrice()));
                 orderRequestDetail1.setQuantity(orderData.getQuantity());
-                orderRequestDetail1.setBulkPrice(bulkPrice);
+                orderRequestDetail1.setBulkPrice(BigDecimal.valueOf(orderData.getBulkPrice()));
                 orderRequestDetail1.setCreatedDatetime(LocalDateTime.now());
                 orderRequestDetail1.setCustomerId(systemBeanDto.getSysUser());
 
                 orderRequestDetail.add(orderRequestDetail1);
             };
 
-            orderRequest.setTotal(totalCost);
+            orderRequest.setTotal(BigDecimal.valueOf(orderAccessBean.getTotal_price()));
 
             orderRequestRepository.saveAndFlush(orderRequest);
             orderRequestDetailRepository.saveAll(orderRequestDetail);

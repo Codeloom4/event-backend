@@ -157,7 +157,7 @@ public class OrderRequestController {
 
 
     //Order req update (Assign new package according to cus requirements) - for admin side
-    //Req body {"packageId" : ""}
+    //Req body {"packageId" : "", "orderStatus" : "A" or "R"}
     @PostMapping("/updateorder")
     public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto orderRequestDto) {
         ResponseEntity<?> responseEntity;
@@ -176,9 +176,27 @@ public class OrderRequestController {
 
 
     //Order Status update (Accept / Reject) - for customer side
-    //Req body {"orderStatus" : "", "orderId": ""}
+    //Req body {"orderStatus" : "A" or "R" , "orderId": ""}
     @PostMapping("/cusstattus")
     public ResponseEntity<?> cusStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = orderRequestservice.cusStatusUpdate(orderRequestDto);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating updating order status.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+    //refundable Status Update (Accept / Reject) - for customer side
+    //Req body {"orderStatus" : "A" or "R" , "orderId": ""}
+    @PostMapping("/refundstattus")
+    public ResponseEntity<?> refundableStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
