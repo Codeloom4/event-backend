@@ -24,13 +24,14 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping("/getall")
-    public ResponseEntity<?> getAllInventory() {
+    public ResponseEntity<?> getAllInventory(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         DataTableBean dataTableBean = new DataTableBean();
         try {
-            dataTableBean = inventoryService.getAllInventory();
+            dataTableBean = inventoryService.getAllInventory(page, size);
             httpStatus = HttpStatus.OK;
             responseBean.setContent(dataTableBean);
             responseBean.setResponseMsg(dataTableBean.getMsg());
