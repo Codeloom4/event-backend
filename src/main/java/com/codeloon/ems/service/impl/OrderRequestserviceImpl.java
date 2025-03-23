@@ -46,6 +46,8 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
 
     private final StatusRepository statusRepository;
 
+    private final UserRepository userRepository;
+
     @Override
     public ResponseBean accessAndLoad(String packid) {
         ResponseBean responseBean = new ResponseBean();
@@ -63,21 +65,24 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                 orderAccessBean.setTotal_price(packageItems.get(0).getPackage_id().getPackagePrice());
                 orderAccessBean.setPackageTypeCode(packageItems.get(0).getPackage_id().getPackage_type().getCode());
                 orderAccessBean.setPackageTypeDes(packageItems.get(0).getPackage_id().getPackage_type().getDescription());
+                orderAccessBean.setEventType(packageItems.get(0).getPackage_id().getEvent().getEventType());
 
                 packageItems.forEach(packItem ->{
                     OrderItemListBean orderItemListBean = new OrderItemListBean();
+                    Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(Long.valueOf(packItem.getItemCode()));
+                    InventoryItem inventoryItem1 = inventoryItem.get();
+
                     orderItemListBean.setPackageItemId(packItem.getId());
                     orderItemListBean.setPackageId(packItem.getPackage_id().getId());
                     orderItemListBean.setInventoryItemId(Long.valueOf(packItem.getItemCode()));
-                    orderItemListBean.setItemName(packItem.getItemName());
+                    orderItemListBean.setItemName(inventoryItem.get().getItemName());
                     orderItemListBean.setQuantity(packItem.getQuantity());
                     orderItemListBean.setSellPrice(packItem.getSellPrice());
                     orderItemListBean.setBulkPrice(packItem.getBulkPrice());
                     orderItemListBean.setCategory(packItem.getItemCategory());
-                    //orderItemListBean.setItemDes();
+                    orderItemListBean.setItemDes(inventoryItem.get().getDescription());
 
                     orderItemListBeanList.add(orderItemListBean);
-
                 });
                 orderAccessBean.setOrderItemListBeanList(orderItemListBeanList);
 
@@ -90,6 +95,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             }
 
         } catch (Exception e) {
+            log.error(String.valueOf(e));
             throw new RuntimeException(e);
 
         } finally {
@@ -117,6 +123,8 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             Optional<Package> packageData = packageRepository.findById(orderAccessBean.getPackageId());
             orderId = this.generateOrderNumber();
 
+            Optional<User> user = userRepository.findById(systemBeanDto.getSysUser());
+
             orderRequest = OrderRequest.builder()
                     .orderId(orderId)
                     .packageId(packageData.get())
@@ -124,7 +132,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                     .total(totalCost)
                     .eventDate(orderAccessBean.getEventDate())
                     .requestedDate(LocalDateTime.now())
-                    .customerUsername(systemBeanDto.getSysUser())
+                    .customerUsername(user.get())
                     .lastUpdatedDatetime(LocalDateTime.now())
                     .orderStatus(orderStatus.get())
                     .paymentStatus(payStatus.get())
@@ -136,7 +144,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             orderRequest.setTotal(totalCost);
             orderRequest.setEventDate(orderAccessBean.getEventDate());
             orderRequest.setRequestedDate(LocalDateTime.now());
-            orderRequest.setCustomerUsername(systemBeanDto.getSysUser());
+            orderRequest.setCustomerUsername(user.get());
             orderRequest.setLastUpdatedDatetime(LocalDateTime.now());
             orderRequest.setOrderStatus(orderStatus.get());
             orderRequest.setPaymentStatus(payStatus.get());
@@ -275,7 +283,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                 orderDetailsBean.setTotal_amount(orderRequest.get().getTotal());
                 orderDetailsBean.setEventDate(orderRequest.get().getEventDate());
                 orderDetailsBean.setRequestedDate(orderRequest.get().getRequestedDate());
-                orderDetailsBean.setCusId(orderRequest.get().getCustomerUsername());
+                orderDetailsBean.setCusId(orderRequest.get().getCustomerUsername().getId());
                 orderDetailsBean.setOrderStatus(orderRequest.get().getOrderStatus().getCode());
                 orderDetailsBean.setOrderStatusDes(orderRequest.get().getOrderStatus().getDescription());
                 orderDetailsBean.setAdminRemark(orderRequest.get().getRemark());
@@ -348,7 +356,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             orderRequestDto.setTotal(data.getTotal());
             orderRequestDto.setEventDate(data.getEventDate());
             orderRequestDto.setRequestedDate(data.getRequestedDate());
-            orderRequestDto.setCustomerUsername(data.getCustomerUsername());
+            orderRequestDto.setCustomerUsername(data.getCustomerUsername().getUsername());
             orderRequestDto.setLastUpdatedDatetime(data.getLastUpdatedDatetime());
             orderRequestDto.setOrderStatus(data.getOrderStatus());
             orderRequestDto.setPaymentStatus(data.getPaymentStatus());

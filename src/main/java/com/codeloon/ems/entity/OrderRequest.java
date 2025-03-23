@@ -39,8 +39,12 @@ public class OrderRequest {
     @Column(name = "requested_date", nullable = false, updatable = false)
     private LocalDateTime requestedDate;
 
-    @Column(name = "cus_username", length = 20)
-    private String customerUsername;
+//    @Column(name = "cus_username", length = 20)
+//    private String customerUsername;
+
+    @ManyToOne
+    @JoinColumn(name = "cus_username", referencedColumnName = "username")
+    private User customerUsername;
 
     @Column(name = "lastupdated_datetime")
     private LocalDateTime lastUpdatedDatetime = LocalDateTime.now();
