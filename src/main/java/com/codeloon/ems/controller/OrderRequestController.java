@@ -204,7 +204,7 @@ public class OrderRequestController {
             responseBean = orderRequestservice.cusStatusUpdate(orderRequestDto);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
-            log.error("Error occurred while updating updating order status.{} ", ex.getMessage());
+            log.error("Error occurred while updating updating refundable status.{} ", ex.getMessage());
         } finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }

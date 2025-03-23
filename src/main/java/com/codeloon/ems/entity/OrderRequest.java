@@ -62,4 +62,8 @@ public class OrderRequest {
 
     @Column(name = "approved_user", length = 20)
     private String approvedUser;
+
+    @Column(name = "ref_status", length = 50)
+    private String refStatus;
+
 }

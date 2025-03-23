@@ -153,6 +153,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             };
 
             orderRequest.setTotal(BigDecimal.valueOf(orderAccessBean.getTotal_price()));
+            orderRequest.setRefStatus(DataVarList.REFUNDABLE_PENDING);
 
             orderRequestRepository.saveAndFlush(orderRequest);
             orderRequestDetailRepository.saveAll(orderRequestDetail);
