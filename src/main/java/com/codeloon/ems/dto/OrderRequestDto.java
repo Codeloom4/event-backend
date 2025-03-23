@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class OrderRequestDto {
 
     private String orderId;
-    private Package packageId;
+    private String packageId;
     private String customerNote;
     private BigDecimal total;
     private LocalDate eventDate;

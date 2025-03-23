@@ -1,6 +1,7 @@
 package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.InventoryItemDto;
+import com.codeloon.ems.dto.OrderRequestDto;
 import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.OrderAccessBean;
 import com.codeloon.ems.util.ResponseBean;
@@ -18,6 +19,12 @@ public interface OrderRequestservice {
     ResponseBean viewOrderDetails(String packid);
 
     DataTableBean orderReqListStatus(String status, int page, int size);
+
+    ResponseBean adminStatusUpdate(OrderRequestDto orderRequestDto);
+
+    ResponseBean updateOrder(OrderRequestDto orderRequestDto);
+
+    ResponseBean cusStatusUpdate(OrderRequestDto orderRequestDto);
 
 
 }

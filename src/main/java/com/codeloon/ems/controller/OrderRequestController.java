@@ -137,18 +137,15 @@ public class OrderRequestController {
     }
 
 
-
-
-
-    //TODO Order Status update (Status and Remark update) - for Admin - 7
-    //Req body {"orderStatus" : "", "remark" : "" }
+    //Order Status update (Status and Remark update) - for Admin - 7
+    //Req body {"orderId": "","orderStatus" : "A" or "R", "remark" : "" }
     @PostMapping("/adminstattus")
     public ResponseEntity<?> adminStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            //responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
+            responseBean = orderRequestservice.adminStatusUpdate(orderRequestDto);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while updating updating order status.{} ", ex.getMessage());
@@ -159,7 +156,7 @@ public class OrderRequestController {
     }
 
 
-    //TODO Order req update (Assign new package according to cus requirements) - for admin side
+    //Order req update (Assign new package according to cus requirements) - for admin side
     //Req body {"packageId" : ""}
     @PostMapping("/updateorder")
     public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto orderRequestDto) {
@@ -167,7 +164,7 @@ public class OrderRequestController {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            //responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
+            responseBean = orderRequestservice.updateOrder(orderRequestDto);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while updating order request.{} ", ex.getMessage());
@@ -178,15 +175,15 @@ public class OrderRequestController {
     }
 
 
-    //TODO Order Status update (Accept / Reject) - for customer side
-    //Req body {"orderStatus" : ""}
+    //Order Status update (Accept / Reject) - for customer side
+    //Req body {"orderStatus" : "", "orderId": ""}
     @PostMapping("/cusstattus")
     public ResponseEntity<?> cusStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         ResponseBean responseBean = new ResponseBean();
         try {
-            //responseBean = orderRequestservice.createOrderRequest(orderAccessBean);
+            responseBean = orderRequestservice.cusStatusUpdate(orderRequestDto);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
             log.error("Error occurred while updating updating order status.{} ", ex.getMessage());

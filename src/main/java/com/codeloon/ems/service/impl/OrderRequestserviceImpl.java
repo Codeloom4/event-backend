@@ -343,7 +343,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             OrderRequestDto orderRequestDto = new OrderRequestDto();
 
             orderRequestDto.setOrderId(data.getOrderId());
-            orderRequestDto.setPackageId(data.getPackageId());
+            orderRequestDto.setPackageId(data.getPackageId().getId());
             orderRequestDto.setCustomerNote(data.getCustomerNote());
             orderRequestDto.setTotal(data.getTotal());
             orderRequestDto.setEventDate(data.getEventDate());
@@ -395,5 +395,157 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
         dataTableBean.setMsg(msg);
         dataTableBean.setCode(code);
         return dataTableBean;
+    }
+
+    @Override
+    public ResponseBean adminStatusUpdate(OrderRequestDto orderRequestDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            Optional<OrderRequest> orderRequest = orderRequestRepository.findById(orderRequestDto.getOrderId());
+            Optional<Status> statusOptional;
+
+            if(orderRequest.isPresent()){
+                OrderRequest orderRequest1 = orderRequest.get();
+                orderRequest1.setRemark(orderRequestDto.getRemark());
+
+                if(orderRequestDto.getOrderStatus().equals("A")){
+                    statusOptional = statusRepository.findById(DataVarList.ORD_APPROVED);
+                    orderRequest1.setOrderStatus(statusOptional.get());
+
+                }else if (orderRequestDto.getOrderStatus().equals("R")){
+                    statusOptional = statusRepository.findById(DataVarList.ORD_REJECTED);
+                    orderRequest1.setOrderStatus(statusOptional.get());
+                }
+
+                orderRequestRepository.saveAndFlush(orderRequest1);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Order req updated successfully.";
+                log.info("Order req updated successfully. ");
+
+            }else {
+                code = ResponseCode.RSP_ERROR;
+                msg = "Invalid Order id";
+                log.info("Invalid Order id. ");
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating order status", ex);
+            msg = "Error occurred while creating updating order status.";
+
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
+    }
+
+    @Override
+    public ResponseBean updateOrder(OrderRequestDto orderRequestDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        OrderRequest orderRequest = new OrderRequest();
+        List<OrderRequestDetail> orderRequestDetail = new ArrayList<>();
+        BigDecimal totalCost = BigDecimal.valueOf(0);
+
+        try {
+            Optional<Status> orderStatus = statusRepository.findById(DataVarList.ORD_PENDING);
+            Optional<Status> payStatus = statusRepository.findById(DataVarList.UNPAID);
+            Optional<Package> packageData = packageRepository.findById(orderRequestDto.getPackageId());
+            Optional<OrderRequest> orderRequest1 = orderRequestRepository.findById(orderRequestDto.getOrderId());
+
+            if(orderRequest1.isPresent()){
+                orderRequest = orderRequest1.get();
+
+                orderRequest.setPackageId(packageData.get());
+                orderRequest.setLastUpdatedDatetime(LocalDateTime.now());
+            }
+
+//            for (OrderItemListBean orderData : orderAccessBean.getOrderItemListBeanList()) {
+//                OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
+//                Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(orderData.getInventoryItemId());
+//                BigDecimal bulkPrice = orderRequestDetail1.getUnitPrice().multiply(BigDecimal.valueOf(orderRequestDetail1.getQuantity()));
+//
+//                totalCost = totalCost.add(bulkPrice);
+//
+//                orderRequestDetail1.setOrderId(orderRequest);
+//                orderRequestDetail1.setItemId(inventoryItem.get());
+//                orderRequestDetail1.setItemName(inventoryItem.get().getItemName());
+//                orderRequestDetail1.setUnitPrice(BigDecimal.valueOf(orderData.getSellPrice()));
+//                orderRequestDetail1.setQuantity(orderData.getQuantity());
+//                orderRequestDetail1.setBulkPrice(bulkPrice);
+//                orderRequestDetail1.setCreatedDatetime(LocalDateTime.now());
+//                orderRequestDetail1.setCustomerId(systemBeanDto.getSysUser());
+//
+//                orderRequestDetail.add(orderRequestDetail1);
+//            };
+//
+//            orderRequest.setTotal(totalCost);
+//
+//            orderRequestRepository.saveAndFlush(orderRequest);
+//            orderRequestDetailRepository.saveAll(orderRequestDetail);
+
+            code = ResponseCode.RSP_SUCCESS;
+            msg = "Order req created successfully.";
+            log.info("Order req created  successfully. ");
+
+        }catch (Exception ex) {
+            log.error("Error occurred while creating Order", ex);
+            msg = "Error occurred while creating Order.";
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
+    }
+
+    @Override
+    public ResponseBean cusStatusUpdate(OrderRequestDto orderRequestDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            Optional<OrderRequest> orderRequest = orderRequestRepository.findById(orderRequestDto.getOrderId());
+            Optional<Status> statusOptional;
+
+            if(orderRequest.isPresent()){
+                OrderRequest orderRequest1 = orderRequest.get();
+
+                if(orderRequestDto.getOrderStatus().equals("A")){
+                    statusOptional = statusRepository.findById(DataVarList.ORD_APPROVED);
+                    orderRequest1.setOrderStatus(statusOptional.get());
+
+                }else if (orderRequestDto.getOrderStatus().equals("R")){
+                    statusOptional = statusRepository.findById(DataVarList.ORD_REJECTED);
+                    orderRequest1.setOrderStatus(statusOptional.get());
+                }
+                orderRequestRepository.saveAndFlush(orderRequest1);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Order req updated successfully.";
+                log.info("Order req updated successfully. ");
+            }else {
+                code = ResponseCode.RSP_ERROR;
+                msg = "Invalid Order id";
+                log.info("Invalid Order id. ");
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating order status", ex);
+            msg = "Error occurred while creating updating order status.";
+
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
     }
 }
