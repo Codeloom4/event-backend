@@ -347,8 +347,8 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             orderRequestDto.setRequestedDate(data.getRequestedDate());
             orderRequestDto.setCustomerUsername(data.getCustomerUsername().getUsername());
             orderRequestDto.setLastUpdatedDatetime(data.getLastUpdatedDatetime());
-            orderRequestDto.setOrderStatus(data.getOrderStatus());
-            orderRequestDto.setPaymentStatus(data.getPaymentStatus());
+            orderRequestDto.setOrderStatus(data.getOrderStatus().getCode());
+            orderRequestDto.setPaymentStatus(data.getPaymentStatus().getCode());
             orderRequestDto.setRemark(data.getRemark());
             orderRequestDto.setApprovedUser(data.getApprovedUser());
 
@@ -434,7 +434,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
 
         }catch (Exception ex) {
             log.error("Error occurred while updating order status", ex);
-            msg = "Error occurred while creating updating order status.";
+            msg = "Error occurred while updating order status.";
 
         } finally {
             responseBean.setResponseMsg(msg);

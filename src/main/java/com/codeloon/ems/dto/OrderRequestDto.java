@@ -28,8 +28,8 @@ public class OrderRequestDto {
     private LocalDateTime requestedDate;
     private String customerUsername;
     private LocalDateTime lastUpdatedDatetime;
-    private Status orderStatus;
-    private Status paymentStatus;
+    private String orderStatus;
+    private String paymentStatus;
     private String remark;
     private String approvedUser;
 }

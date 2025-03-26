@@ -1,6 +1,5 @@
 package com.codeloon.ems.controller;
 
-import com.codeloon.ems.dto.InventoryItemDto;
 import com.codeloon.ems.dto.OrderRequestDto;
 import com.codeloon.ems.model.DataTableBean;
 import com.codeloon.ems.model.OrderAccessBean;
@@ -148,13 +147,12 @@ public class OrderRequestController {
             responseBean = orderRequestservice.adminStatusUpdate(orderRequestDto);
             httpStatus = HttpStatus.CREATED;
         } catch (Exception ex) {
-            log.error("Error occurred while updating updating order status.{} ", ex.getMessage());
+            log.error("Error occurred while updating order status.{} ", ex.getMessage());
         } finally {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
     }
-
 
     //Order req update (Assign new package according to cus requirements) - for admin side
     //Req body {"packageId" : "", "orderId":"", "orderStatus" : "A" or "R"}
