@@ -290,6 +290,9 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                         orderItemListBean.setBulkPrice(packItem.getBulkPrice());
                         orderItemListBean.setItemCategory(packItem.getItemId().getCategory());
 
+                        //TODO balance calculation with date
+                        orderItemListBean.setItemBalance(packItem.getItemId().getQuantity());
+
                         orderDetailListBeanList.add(orderItemListBean);
 
                     });

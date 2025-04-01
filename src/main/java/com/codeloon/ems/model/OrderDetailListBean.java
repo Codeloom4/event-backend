@@ -18,4 +18,5 @@ public class OrderDetailListBean {
     private Integer quantity;
     private BigDecimal bulkPrice;
     private String itemCategory;
+    private Integer itemBalance;
 }
