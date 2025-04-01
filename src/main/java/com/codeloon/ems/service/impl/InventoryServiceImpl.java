@@ -1,28 +1,39 @@
-package com.codeloon.ems.service;
+package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.InventoryDto;
+import com.codeloon.ems.dto.SystemBeanDto;
+import com.codeloon.ems.entity.Event;
 import com.codeloon.ems.entity.Inventory;
 import com.codeloon.ems.entity.InventoryItem;
 import com.codeloon.ems.entity.User;
 import com.codeloon.ems.model.DataTableBean;
+import com.codeloon.ems.model.EventBean;
+import com.codeloon.ems.model.InventoryBean;
+import com.codeloon.ems.model.InventoryItemBean;
 import com.codeloon.ems.repository.InventoryItemRepository;
 import com.codeloon.ems.repository.InventoryRepository;
 import com.codeloon.ems.repository.UserRepository;
+import com.codeloon.ems.service.InventoryService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Slf4j
 @Service
@@ -33,22 +44,43 @@ public class InventoryServiceImpl implements InventoryService {
     private final UserRepository userRepository;
     private final InventoryItemRepository inventoryItemRepository;
 
+    @Autowired
+    private SystemBeanDto systemBeanDto;
+
     @Override
-    public List<InventoryDto> getAllInventory() {
-        List<InventoryDto> inventoryDtoList = new ArrayList<>();
+    public DataTableBean getAllInventory(int page, int size) {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> inventoryDtoList = new ArrayList<>();
+//        int page = 0;
+//        int size = 10;
+        String code = ResponseCode.RSP_ERROR;
+        Pageable pageable = PageRequest.of(page, size);
 
         try {
-            List<Inventory> inventoryList = inventoryRepository.findAll();
+            Page<Inventory> inventoryList = inventoryRepository.findAll(pageable);
             inventoryList.forEach(inventory -> {
-                InventoryDto inventoryDto = new InventoryDto();
+                InventoryBean inventoryDto = new InventoryBean();
+                List<Long> barcodeList = new ArrayList<>();
                 BeanUtils.copyProperties(inventory, inventoryDto);
+
+                if(inventoryDto.getIsRefundable()){
+                    barcodeList = this.generateBarcodeRange(inventory.getStartBarcode(), inventory.getEndBarcode());
+                    inventoryDto.setBarcodeList(barcodeList);
+                }
+
                 inventoryDtoList.add(inventoryDto);
             });
-
+            dataTableBean.setPagecount(inventoryList.getTotalPages());
+            dataTableBean.setCount(inventoryList.getTotalElements());
         } catch (Exception ex) {
             log.error("Error occurred while retrieving all inventory details", ex);
+        } finally {
+            dataTableBean.setMsg("Success");
+            dataTableBean.setCode(ResponseCode.RSP_SUCCESS);
+            dataTableBean.setList(inventoryDtoList);
+
         }
-        return inventoryDtoList;
+        return dataTableBean;
     }
 
     @Override
@@ -59,7 +91,8 @@ public class InventoryServiceImpl implements InventoryService {
 
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("itemName").ascending());
-            Page<Object[]> inventoryList = inventoryRepository.searchInventoryByName(itemName, pageable);
+//            Page<Object[]> inventoryList = inventoryRepository.searchInventoryByName(itemName, pageable);
+            Page<Inventory> inventoryList = inventoryRepository.findByItemNameContaining(itemName, pageable);
 
             if(!inventoryList.isEmpty()){
                 List<Object> inventoryDataList = this.mapSearchData(inventoryList);
@@ -74,7 +107,7 @@ public class InventoryServiceImpl implements InventoryService {
                 dataTableBean.setCount(0);
                 dataTableBean.setPagecount(0);
 
-                log.warn("Inventory item with iemName '{}' not found", itemName);
+                log.warn("Inventory item with itemName '{}' not found", itemName);
                 msg = "Inventory not found: " + itemName;
             }
 
@@ -96,39 +129,47 @@ public class InventoryServiceImpl implements InventoryService {
         String code = ResponseCode.RSP_ERROR;
 
         try {
-            String startingBcode = ""; //TODO generate Starting Barcode
-            String endingBcode = "";  //TODO generate ending Barcode
+            Long startingBcode = 0L;
+            Long endingBcode = 0L;
 
-            Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+            Optional<User> getSystemUser = userRepository.findByUsername(systemBeanDto.getSysUser());
             Optional<InventoryItem> getInventoryItem = inventoryItemRepository.findById(inventory.getItemId());
-            InventoryItem inventoryItem = getInventoryItem.get();
+            if (getInventoryItem.isPresent()){
+                InventoryItem inventoryItem = getInventoryItem.get();
 
-            Inventory inventoryEntity = Inventory.builder()
-                    .id(2L)
-                    .itemName(inventory.getItemName())
-                    .itemId(inventoryItem)
-                    .startBarcode(startingBcode)
-                    .endBarcode(endingBcode)
-                    .isRefundable(inventory.getIsRefundable())
-                    .purchasePrice(inventory.getPurchasePrice())
-                    .salesPrice(inventory.getSalesPrice())
-                    .orderQuantity(inventory.getOrderQuantity())
-                    .salesQuantity(inventory.getSalesQuantity())
-                    .createdAt(LocalDateTime.now())
-                    .createdUser(getSystemUser.get())
-                    .balanceQuantity(inventory.getOrderQuantity())
-                    .totalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()))
-                    .build();
+                Inventory inventory1 = new Inventory();
 
-            inventoryRepository.saveAndFlush(inventoryEntity);
-            inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventoryEntity.getSalesPrice())/2);
-            inventoryItem.setQuantity(inventoryItem.getQuantity() + inventoryEntity.getOrderQuantity());
-            inventoryItemRepository.saveAndFlush(inventoryItem);
+                inventory1 = this.convertToEntity(inventory);
 
-            code = ResponseCode.RSP_SUCCESS;
-            msg = "Inventory created successfully.";
-            log.info("Inventory created  successfully. Inventory ID : {}, Inv Name : {}", inventoryEntity.getId(),
-                    inventoryEntity.getItemName());
+                inventory1.setCreatedAt(LocalDateTime.now());
+                inventory1.setCreatedUser(getSystemUser.get());
+                inventory1.setBalanceQuantity(inventory.getOrderQuantity());
+                inventory1.setTotalAmount(Double.valueOf(inventory.getOrderQuantity() * inventory.getPurchasePrice()));
+
+                //Inventory getLastInventory = inventoryRepository.findTopByOrderByIdDesc();
+
+                Long lastBarcode = inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() != 0 ?
+                        inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() : 1000000000L;
+
+                startingBcode = lastBarcode + 1;
+                endingBcode = startingBcode + inventory.getOrderQuantity() - 1;
+                inventory1.setEndBarcode(endingBcode);
+                inventory1.setStartBarcode(startingBcode);
+
+                inventoryRepository.saveAndFlush(inventory1);
+                inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventory1.getSalesPrice())/2);
+                inventoryItem.setQuantity(inventoryItem.getQuantity() + inventory1.getOrderQuantity());
+                inventoryItemRepository.saveAndFlush(inventoryItem);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Inventory created successfully.";
+                log.info("Inventory created  successfully. Inventory ID : {}, Inv Name : {}", inventory1.getId(),
+                        inventory1.getItemName());
+            }else {
+                code = ResponseCode.RSP_ERROR;
+                msg = "Invalid item id";
+                log.info("Inventory created  failed due to invalid item id");
+            }
 
         }catch (Exception ex) {
             log.error("Error occurred while adding inventory", ex);
@@ -136,7 +177,7 @@ public class InventoryServiceImpl implements InventoryService {
         } finally {
             responseBean.setResponseMsg(msg);
             responseBean.setResponseCode(code);
-            responseBean.setContent(inventory);
+            responseBean.setContent(null);
         }
         return responseBean;
     }
@@ -151,19 +192,15 @@ public class InventoryServiceImpl implements InventoryService {
 
             Optional<Inventory> inventoryOptional = inventoryRepository.findById(InventoryId);
             if(inventoryOptional.isPresent()){
-                Optional<User> getSystemUser = userRepository.findByUsername(inventory.getCreatedUser());
+                Optional<User> getSystemUser = userRepository.findByUsername(systemBeanDto.getSysUser());
                 Inventory inventoryEntity = inventoryOptional.get();
 
-                inventoryEntity = Inventory.builder()
-                        .itemName(inventory.getItemName())
-                        .isRefundable(inventory.getIsRefundable())
-                        .purchasePrice(inventory.getPurchasePrice())
-                        .salesPrice(inventory.getSalesPrice())
-                        .orderQuantity(inventory.getOrderQuantity())
-                        .salesQuantity(inventory.getSalesQuantity())
-                        .createdAt(LocalDateTime.now())
-                        .createdUser(getSystemUser.get())
-                        .build();
+                inventoryEntity.setPurchasePrice(inventory.getPurchasePrice());
+                inventoryEntity.setSalesPrice(inventory.getSalesPrice());
+                inventoryEntity.setOrderQuantity(inventory.getOrderQuantity());
+                inventoryEntity.setSalesQuantity(inventory.getSalesQuantity());
+                inventoryEntity.setCreatedAt(LocalDateTime.now());
+                inventoryEntity.setCreatedUser(getSystemUser.get());
 
                 inventoryRepository.saveAndFlush(inventoryEntity);
 
@@ -220,21 +257,21 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
 
-    private List<Object> mapSearchData(Page<Object[]> dataList) {
+    private List<Object> mapSearchData(Page<Inventory> dataList) {
         List<Object> advanceSearchDataBeanList = new ArrayList<>();
         dataList.forEach(data -> {
             InventoryDto searchDataBean = new InventoryDto();
 
-            searchDataBean.setId((Long) data[0]);
-            searchDataBean.setItemName((String) data[1]);
-            searchDataBean.setIsRefundable((Boolean) data[2]);
-            searchDataBean.setPurchasePrice((Long) data[3]);
-            searchDataBean.setSalesPrice((Long) data[4]);
-            searchDataBean.setOrderQuantity((Integer) data[5]);
-            searchDataBean.setSalesQuantity((Integer) data[6]);
-            searchDataBean.setBalanceQuantity((Integer) data[7]);
-            searchDataBean.setStartBarcode((String) data[8]);
-            searchDataBean.setEndBarcode((String) data[9]);
+            searchDataBean.setId(data.getId());
+            searchDataBean.setItemName(data.getItemName());
+            searchDataBean.setIsRefundable(data.getIsRefundable());
+            searchDataBean.setPurchasePrice(data.getPurchasePrice());
+            searchDataBean.setSalesPrice(data.getSalesPrice());
+            searchDataBean.setOrderQuantity(data.getOrderQuantity());
+            searchDataBean.setSalesQuantity(data.getSalesQuantity());
+            searchDataBean.setBalanceQuantity(data.getBalanceQuantity());
+            searchDataBean.setStartBarcode(data.getStartBarcode());
+            searchDataBean.setEndBarcode(data.getEndBarcode());
 
             advanceSearchDataBeanList.add(searchDataBean);
         });
@@ -242,5 +279,26 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
 
+    private InventoryDto convertToDto(Inventory inventory) {
+        InventoryDto inventoryDto = new InventoryDto();
+        BeanUtils.copyProperties(inventory, inventoryDto);
+        return inventoryDto;
+    }
+
+    private Inventory convertToEntity(InventoryDto inventoryDto) {
+        Inventory inventory = new Inventory();
+        BeanUtils.copyProperties(inventoryDto, inventory);
+        return inventory;
+    }
+
+    public static List<Long> generateBarcodeRange(Long startBarcode, Long endBarcode) {
+        if (startBarcode == null || endBarcode == null) {
+            return null;
+        }
+
+        return LongStream.rangeClosed(startBarcode, endBarcode)
+                .boxed()
+                .collect(Collectors.toList());
+    }
 
 }

@@ -13,11 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "events")
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String eventType;
+    @Column(name = "eventtype", nullable = false, unique = true)
+    private String eventType; // Primary Key
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -25,4 +22,3 @@ public class Event {
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 }
-

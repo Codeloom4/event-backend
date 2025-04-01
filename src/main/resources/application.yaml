@@ -8,11 +8,42 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5
-      maximum-pool-size: 10
+      maximum-pool-size: 100
+
+#    url: jdbc:mysql://127.0.0.1:3306/ems_db
+#    username: root
+#    password: password
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    hikari:
+#      minimum-idle: 5
+#      maximum-pool-size: 10
+
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: infopartycrafters25@gmail.com
+    password: "nuyw bshy mlyh tjez"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        transport:
+          protocol: smtp
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+
 
 # Cross-Origin Resource Sharing configurations
 cors:
@@ -26,6 +57,22 @@ cors:
     - DELETE
     - OPTIONS
 
+ems:
+  companyName : "Party Crafters PVT LTD"
+  support:
+    email : infopartycrafters25@gmail.com
+    contact: 0110220299
+
+#  spring.mail.host=smtp.gmail.com
+#  spring.mail.port=587
+#  spring.mail.username=<your-gmail-address@gmail.com>
+#  spring.mail.password=<app-password-obtained-from-your-google-account>
+#  spring.mail.properties.mail.smtp.auth=true
+#  spring.mail.properties.mail.transport.protocol=smtp
+#  spring.mail.properties.mail.smtp.starttls.enable=true
+#  spring.mail.properties.mail.smtp.starttls.required=true
+
+
 logging:
   level:
     org.springframework.security: DEBUG
@@ -37,4 +84,16 @@ file:
   upload:
     windows: C:/ems/uploads/
     linux: /opt/ems/uploads/
+
+
+grouping:
+  windows: C:/ems/grouping/
+  linux: /opt/ems/grouping/
+
+inventory:
+  low-stock-threshold: 32
+
+image:
+  upload:
+    directory: C:/ems/gallery/
 

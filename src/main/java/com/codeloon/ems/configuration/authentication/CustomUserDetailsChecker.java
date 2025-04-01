@@ -1,6 +1,6 @@
 package com.codeloon.ems.configuration.authentication;
 
-import com.codeloon.ems.service.CustomUserDetails;
+import com.codeloon.ems.service.impl.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,15 +34,15 @@ public class CustomUserDetailsChecker implements UserDetailsChecker {
             throw new AccountExpiredException("User account has expired.");
         }
 
-        if (!customUser.isCredentialsNonExpired()) {
-            log.warn("User credentials have expired.");
-            throw new CredentialsExpiredException("User credentials have expired.");
-        }
-
-        if (customUser.isForcePasswordChange()) {
-            log.warn("Password change required before logging in.");
-            throw new CredentialsExpiredException("Password change required before logging in.");
-        }
+//        if (!customUser.isCredentialsNonExpired()) {
+//            log.warn("User credentials have expired.");
+//            throw new CredentialsExpiredException("User credentials have expired.");
+//        }
+//
+//        if (customUser.isForcePasswordChange()) {
+//            log.warn("Password change required before logging in.");
+//            throw new CredentialsExpiredException("Password change required before logging in.");
+//        }
     }
 
 }

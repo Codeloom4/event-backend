@@ -19,4 +19,6 @@ public interface UserService {
     ResponseBean updateUser(String username, UserDto userDto);
 
     ResponseBean resetPassword(ResetDto resetDto);
+
+    ResponseBean deleteUser(String userId);
 }

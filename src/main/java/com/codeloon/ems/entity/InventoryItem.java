@@ -24,7 +24,7 @@ public class InventoryItem {
     @Column(name = "item_name", nullable = false)
     private String itemName;
 
-    @Column(name = "is_refundable", nullable = false)
+    @Column(name = "is_refundable")
     private Boolean isRefundable;
 
     @Column(name = "average_price")
@@ -38,4 +38,13 @@ public class InventoryItem {
 
     @Column(name = "created_user", nullable = false)
     private String createdUser;
+
+    @Column(name = "min_order_qty")
+    private Integer minOrderQty;
+
+    @Column(name = "category", nullable = false)
+    private String category;
+
+    @Column(name = "description")
+    private String description;
 }

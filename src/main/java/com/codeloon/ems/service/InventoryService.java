@@ -8,7 +8,7 @@ import com.codeloon.ems.util.ResponseBean;
 import java.util.List;
 
 public interface InventoryService {
-    List<InventoryDto> getAllInventory();
+    DataTableBean getAllInventory(int page, int size);
 
     DataTableBean getInventoryByName(String name, int page, int size);
 

@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface EventService {
     List<EventBean> getAllEvents();
-    ResponseBean findEventById(Long eventId);
+    ResponseBean findEventById(String eventType);
     ResponseBean createEvent(EventBean eventBean);
-    ResponseBean updateEvent(Long eventId, EventBean eventBean);
-    ResponseBean deleteEvent(Long eventId);
+    ResponseBean updateEvent(String eventType, EventBean eventBean);
+    ResponseBean deleteEvent(String eventType);
 }
 

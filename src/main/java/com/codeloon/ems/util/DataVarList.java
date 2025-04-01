@@ -28,4 +28,20 @@ public class DataVarList {
     public static final String FAILED_AUTH_FIRST_LOGIN ="Failed to authenticate: Password change required before logging in";
 
     public static final String FAILED_AUTH_ACC_INVALIED ="Invalid username or password.";
+
+    //Payment Status
+    public static final String FULLY_PAID ="FULLY_PAID";
+    public static final String PARTIALLY_PAID ="PARTIALLY_PAID";
+    public static final String UNPAID ="UNPAID";
+
+    //Order Status
+    public static final String ORD_PENDING ="ORD_PENDING";
+    public static final String ORD_APPROVED ="ORD_APPROVED";
+    public static final String ORD_CANCELED ="ORD_CANCELED";
+    public static final String ORD_REJECTED ="ORD_REJECTED";
+
+    public static final String REFUNDABLE_PENDING ="REF_PENDING";
+
+    public static final String REFUNDABLE_RECEIVED ="REF_RECEIVED";
+
 }
