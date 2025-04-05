@@ -1,33 +1,39 @@
 CREATE DATABASE ems_db;
 
 -- Table: users
-CREATE TABLE users (
-    id VARCHAR(36) PRIMARY KEY,  -- Use VARCHAR(36) to store UUID
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    account_non_expired BOOLEAN NOT NULL DEFAULT TRUE,
-    credentials_non_expired BOOLEAN NOT NULL DEFAULT TRUE,
-    account_non_locked BOOLEAN NOT NULL DEFAULT TRUE,
-    force_password_change BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `users` (
+  `id` varchar(50) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `account_non_expired` tinyint(1) NOT NULL DEFAULT '1',
+  `credentials_non_expired` tinyint(1) NOT NULL DEFAULT '1',
+  `account_non_locked` tinyint(1) NOT NULL DEFAULT '1',
+  `force_password_change` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Table: user_roles (Mapping between users and roles)
-CREATE TABLE user_roles (
-    user_id VARCHAR(36) NOT NULL,
-    role_id BIGINT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, role_id)
-);
+CREATE TABLE `user_roles` (
+  `user_id` varchar(50) NOT NULL,
+  `role_id` bigint NOT NULL,
+  PRIMARY KEY (`user_id`,`role_id`),
+  KEY `role_id` (`role_id`),
+  CONSTRAINT `user_roles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ,
+  CONSTRAINT `user_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Table: roles
-CREATE TABLE roles (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
-);
+CREATE TABLE `roles` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 
 INSERT INTO roles (name) VALUES
@@ -53,211 +59,236 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 ((SELECT id FROM users WHERE username = 'client'), (SELECT id FROM roles WHERE name = 'CLIENT'));
 
 -- Table: userpersonaldata
-CREATE TABLE userpersonaldata (
-    user_id VARCHAR(36) NOT NULL PRIMARY KEY,
-    position VARCHAR(100) NOT NULL,
-    mobile VARCHAR(100) NOT NULL,
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+CREATE TABLE `userpersonaldata` (
+  `user_id` varchar(50) NOT NULL,
+  `position` varchar(100) NOT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `address` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT `userpersonaldata_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Table: event_types
-CREATE TABLE event_types (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `transport_costs` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `delivery_fee` double NOT NULL,
+  `district_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKpydt0ah873a2m49q9nysp8li` (`district_id`),
+  CONSTRAINT `FKpydt0ah873a2m49q9nysp8li` FOREIGN KEY (`district_id`) REFERENCES `districts` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Table: venues
-CREATE TABLE venues (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    location VARCHAR(255) NOT NULL,
-    capacity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `events` (
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `description` text,
+  `eventtype` varchar(255) NOT NULL,
+  PRIMARY KEY (`eventtype`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Table: inventory
+CREATE TABLE `districts` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `district_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK9mgy39acawqmviib49ah3f2cs` (`district_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `gallery` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `event_type` varchar(255) NOT NULL,
+  `group_name` varchar(255) NOT NULL,
+  `image_path` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `groupings` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `event_type` varchar(255) NOT NULL,
+  `event_name` varchar(255) NOT NULL,
+  `total_participants` int NOT NULL,
+  `number_of_groups` int DEFAULT NULL,
+  `grouping_method` varchar(255) DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 CREATE TABLE `inventory` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `balance_qty` int NOT NULL,
+  `balance_qty` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `end_barcode` varchar(255) DEFAULT NULL,
   `is_refundable` bit(1) NOT NULL,
   `item_name` varchar(255) NOT NULL,
   `order_qty` int NOT NULL,
   `purchase_price` bigint NOT NULL,
-  `sales_price` bigint NOT NULL,
-  `sales_qty` int NOT NULL,
+  `sales_price` bigint DEFAULT NULL,
+  `sales_qty` int DEFAULT NULL,
   `start_barcode` varchar(255) DEFAULT NULL,
+  `total_amount` double DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `created_user` varchar(50) NOT NULL,
+  `item_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK2r2e8xs9dt2kjmw1scx3roso5` (`created_user`),
-  CONSTRAINT `FK2r2e8xs9dt2kjmw1scx3roso5` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`)
-);
+  KEY `FKa8d7pwqdo2edwk2aodts2qgf` (`item_id`),
+  CONSTRAINT `FK2r2e8xs9dt2kjmw1scx3roso5` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`),
+  CONSTRAINT `FKa8d7pwqdo2edwk2aodts2qgf` FOREIGN KEY (`item_id`) REFERENCES `inventory_item` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-INSERT INTO `ems_db`.`package_type`
-(`code`,`description`) VALUES
- ('B','Bronze'),
- ('S','Silver'),
- ('G','Gold');
+CREATE TABLE `inventory_item` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_user` varchar(255) NOT NULL,
+  `is_refundable` bit(1) DEFAULT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `order_qty` int DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `average_price` bigint DEFAULT NULL,
+  `min_order_qty` int DEFAULT NULL,
+  `category` varchar(255) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Table: packages
-CREATE TABLE packages (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    event_type_id BIGINT NOT NULL,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    created_by BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (event_type_id) REFERENCES event_types(id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-);
+CREATE TABLE `order_request` (
+  `order_id` varchar(50) NOT NULL,
+  `package_id` varchar(50) NOT NULL,
+  `cus_note` text,
+  `total` decimal(10,2) NOT NULL,
+  `event_date` date NOT NULL,
+  `requested_date` datetime DEFAULT CURRENT_TIMESTAMP,
+  `cus_username` varchar(20) DEFAULT NULL,
+  `lastupdated_datetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `order_status` varchar(20) DEFAULT NULL,
+  `payment_status` varchar(20) DEFAULT NULL,
+  `remark` text,
+  `approved_user` varchar(20) DEFAULT NULL,
+  `ref_status` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`order_id`),
+  KEY `package_id` (`package_id`),
+  KEY `order_status` (`order_status`),
+  KEY `payment_status` (`payment_status`),
+  CONSTRAINT `order_request_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `package` (`id`),
+  CONSTRAINT `order_request_ibfk_2` FOREIGN KEY (`order_status`) REFERENCES `status` (`code`),
+  CONSTRAINT `order_request_ibfk_3` FOREIGN KEY (`payment_status`) REFERENCES `status` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Table: package_items
-CREATE TABLE package_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    package_id BIGINT NOT NULL,
-    inventory_id BIGINT NOT NULL,
-    quantity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE,
-    FOREIGN KEY (inventory_id) REFERENCES inventories(id) ON DELETE CASCADE
-);
+CREATE TABLE `order_request_detail` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_id` varchar(50) NOT NULL,
+  `item_id` bigint DEFAULT NULL,
+  `item_name` varchar(255) DEFAULT NULL,
+  `unit_price` decimal(10,2) DEFAULT NULL,
+  `quantity` int DEFAULT NULL,
+  `bulk_price` decimal(10,2) DEFAULT NULL,
+  `created_datetime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `cus_id` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `item_id` (`item_id`),
+  CONSTRAINT `order_request_detail_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `order_request` (`order_id`),
+  CONSTRAINT `order_request_detail_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `inventory_item` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Table: orders
-CREATE TABLE orders (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
-    package_id BIGINT NOT NULL,
-    status ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
-    total_price DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
-    FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL
-);
-
--- Table: order_customizations
-CREATE TABLE order_customizations (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    order_id BIGINT NOT NULL,
-    inventory_id BIGINT NOT NULL,
-    quantity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (inventory_id) REFERENCES inventories(id) ON DELETE CASCADE
-);
-
--- Table: payments
-CREATE TABLE payments (
-    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    amount DECIMAL(38,2) NOT NULL,
-    currency VARCHAR(255) NOT NULL,
-    payment_method VARCHAR(255) NOT NULL,
-    file_path VARCHAR(255),
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL
-) ENGINE=InnoDB;
-
--- Table: Inventory
-CREATE TABLE Inventory (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    item_name VARCHAR(255) NOT NULL,
-    is_refundable BOOLEAN NOT NULL,
-    purchase_price DECIMAL(20,2) NOT NULL,
-    sales_price DECIMAL(10,2) NOT NULL,
-    order_qty INT NOT NULL DEFAULT 0,
-    sales_qty INT NOT NULL DEFAULT 0,
-    balance_qty INT GENERATED ALWAYS AS (order_qty - sales_qty) STORED,
-    start_Barcode VARCHAR(100) UNIQUE,
-    end_Barcode VARCHAR(100) UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    created_user VARCHAR(100) NOT NULL,
-    FOREIGN KEY (created_user) REFERENCES users(id) ON DELETE CASCADE
-);
+CREATE TABLE `package` (
+  `id` varchar(50) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `description` varchar(255) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_user` varchar(50) NOT NULL,
+  `eventtype` varchar(255) NOT NULL,
+  `package_type` varchar(10) NOT NULL,
+  `package_price` double DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK5w2s5w41h46jo7cq46hrb8cx2` (`name`),
+  KEY `FK5nks1mw7xrebi7wu8yxh84447` (`created_user`),
+  KEY `FK79g5s0ixtn8kiy4e82g8awb43` (`eventtype`),
+  KEY `FKbgcf2n0wtukw0g8j5ca0lgfft` (`package_type`),
+  CONSTRAINT `FK5nks1mw7xrebi7wu8yxh84447` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`),
+  CONSTRAINT `FK79g5s0ixtn8kiy4e82g8awb43` FOREIGN KEY (`eventtype`) REFERENCES `events` (`eventtype`),
+  CONSTRAINT `FKbgcf2n0wtukw0g8j5ca0lgfft` FOREIGN KEY (`package_type`) REFERENCES `package_type` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 
-INSERT INTO districts (district_name) VALUES
-('Ampara'),
-('Anuradhapura'),
-('Badulla'),
-('Batticaloa'),
-('Colombo'),
-('Galle'),
-('Gampaha'),
-('Hambantota'),
-('Jaffna'),
-('Kalutara'),
-('Kandy'),
-('Kegalle'),
-('Kilinochchi'),
-('Kurunegala'),
-('Mannar'),
-('Matale'),
-('Matara'),
-('Monaragala'),
-('Mullaitivu'),
-('Nuwara Eliya'),
-('Polonnaruwa'),
-('Puttalam'),
-('Ratnapura'),
-('Trincomalee'),
-('Vavuniya');
+CREATE TABLE `package_item` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `bulk_price` double DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `item_name` varchar(255) DEFAULT NULL,
+  `quantity` int DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_user` varchar(50) NOT NULL,
+  `package_id` varchar(50) NOT NULL,
+  `sell_price` double DEFAULT NULL,
+  `item_code` varchar(255) DEFAULT NULL,
+  `item_category` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKq7gklpuem4jw3bowf946sq4vw` (`created_user`),
+  KEY `FKm508a63acm06ntfgnsafntx98` (`package_id`),
+  KEY `idx_package_item_code` (`item_code`),
+  KEY `idx_package_item_category` (`item_category`),
+  KEY `idx_package_created_at` (`created_at`),
+  KEY `idx_package_sell_price` (`sell_price`),
+  KEY `idx_package_name` (`item_name`),
+  CONSTRAINT `FKm508a63acm06ntfgnsafntx98` FOREIGN KEY (`package_id`) REFERENCES `package` (`id`),
+  CONSTRAINT `FKq7gklpuem4jw3bowf946sq4vw` FOREIGN KEY (`created_user`) REFERENCES `users` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-CREATE TABLE groupings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    event_type VARCHAR(255) NOT NULL,
-    event_name VARCHAR(255) NOT NULL,
-    total_participants INT NOT NULL,
-    number_of_groups INT,
-    grouping_method VARCHAR(50) NOT NULL,
-    file_path VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE TABLE `package_slides` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `file_name` varchar(255) DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `package_id` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Status Table create
+CREATE TABLE `package_type` (
+  `code` varchar(10) NOT NULL,
+  `description` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-CREATE TABLE status (
-    code VARCHAR(20) PRIMARY KEY,
-    description VARCHAR(100) NOT NULL,
-    type VARCHAR(50) NOT NULL
-);
+CREATE TABLE `password_history` (
+  `id` bigint NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-CREATE TABLE order_request (
-    order_id VARCHAR(50) PRIMARY KEY,
-    package_id VARCHAR(50) NOT NULL,
-    cus_note TEXT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    event_date DATE NOT NULL,
-    requested_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    cus_username VARCHAR(20) NULL,
-    lastupdated_datetime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    order_status VARCHAR(20) NULL,
-    payment_status VARCHAR(20) NULL,
-    remark TEXT NULL,
-    approved_user VARCHAR(20),
-    FOREIGN KEY (package_id) REFERENCES package(id),
-    FOREIGN KEY (order_status) REFERENCES status(code),
-    FOREIGN KEY (payment_status) REFERENCES status(code)
-);
+CREATE TABLE `password_history_seq` (
+  `next_val` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-CREATE TABLE order_request_detail (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id VARCHAR(50) NOT NULL,
-    item_id BIGINT NULL,
-    item_name VARCHAR(255) NULL,
-    unit_price DECIMAL(10,2) NULL,
-    quantity INT NULL,
-    bulk_price DECIMAL(10,2) NULL,
-    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
-    cus_id VARCHAR(50) NULL,
-    FOREIGN KEY (order_id) REFERENCES order_request(order_id),
-    FOREIGN KEY (item_id) REFERENCES inventory_item(id)
-);
+CREATE TABLE `payments` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `amount` decimal(38,2) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `currency` varchar(255) NOT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `payment_method` varchar(255) NOT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `order_id` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `status` (
+  `code` varchar(20) NOT NULL,
+  `description` varchar(100) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `transport_costs` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `delivery_fee` double NOT NULL,
+  `district_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKpydt0ah873a2m49q9nysp8li` (`district_id`),
+  CONSTRAINT `FKpydt0ah873a2m49q9nysp8li` FOREIGN KEY (`district_id`) REFERENCES `districts` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

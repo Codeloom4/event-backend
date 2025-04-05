@@ -1,8 +1,12 @@
 package com.codeloon.ems.service.impl;
 
 import com.codeloon.ems.dto.PaymentDto;
+import com.codeloon.ems.entity.OrderRequest;
 import com.codeloon.ems.entity.Payment;
+import com.codeloon.ems.entity.Status;
+import com.codeloon.ems.repository.OrderRequestRepository;
 import com.codeloon.ems.repository.PaymentRepository;
+import com.codeloon.ems.repository.StatusRepository;
 import com.codeloon.ems.service.PaymentService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
@@ -29,8 +33,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+    private static final String PAYMENT_INITIATED_STATUS_CODE = "PAYMENT_INITIATED";
 
     private final PaymentRepository paymentRepository;
+    private final OrderRequestRepository orderRequestRepository;
+    private final StatusRepository statusRepository;
 
     @Value("${file.upload.windows}")
     private String windowsUploadPath;
@@ -43,6 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
     public ResponseBean createPayment(PaymentDto paymentDto, MultipartFile file) {
         ResponseBean responseBean = new ResponseBean();
         try {
+            // 1. Upload file
             String filePath = uploadFile(file);
             if (filePath == null) {
                 responseBean.setResponseCode(ResponseCode.RSP_ERROR);
@@ -50,12 +58,15 @@ public class PaymentServiceImpl implements PaymentService {
                 return responseBean;
             }
 
+            // 2. Create payment record
             Payment payment = new Payment();
             BeanUtils.copyProperties(paymentDto, payment);
             payment.setFilePath(filePath);
-            //payment.setCreatedAt(new Date());
-
             Payment savedPayment = paymentRepository.save(payment);
+
+            // 3. Update order status
+            updateOrderPaymentStatus(paymentDto.getOrderId());
+
             responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
             responseBean.setResponseMsg("Payment created successfully.");
             responseBean.setContent(savedPayment);
@@ -65,6 +76,18 @@ public class PaymentServiceImpl implements PaymentService {
             responseBean.setResponseMsg("Error creating payment: " + e.getMessage());
         }
         return responseBean;
+    }
+
+    private void updateOrderPaymentStatus(String orderId) {
+        OrderRequest orderRequest = orderRequestRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+
+        Status paymentInitiatedStatus = statusRepository.findById(PAYMENT_INITIATED_STATUS_CODE)
+                .orElseThrow(() -> new RuntimeException("Status " + PAYMENT_INITIATED_STATUS_CODE + " not found"));
+
+        orderRequest.setPaymentStatus(paymentInitiatedStatus);  // Changed from setOrderStatus to setPaymentStatus
+        orderRequest.setLastUpdatedDatetime(LocalDateTime.now());
+        orderRequestRepository.save(orderRequest);
     }
 
     @Override

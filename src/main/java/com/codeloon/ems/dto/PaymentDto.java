@@ -19,5 +19,6 @@ public class PaymentDto {
     @NotBlank(message = "Payment method is required")
     private String paymentMethod;
 
+    @NotBlank(message = "Order ID is required")
+    private String orderId;
 }
-

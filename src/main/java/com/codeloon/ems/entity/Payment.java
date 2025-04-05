@@ -26,6 +26,9 @@ public class Payment {
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
 
+    @Column(name = "order_id", nullable = false)  // Add this field
+    private String orderId;
+
     @Column(name = "file_path")
     private String filePath;
 
