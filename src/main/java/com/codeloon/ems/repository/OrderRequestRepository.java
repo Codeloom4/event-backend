@@ -20,6 +20,10 @@ public interface OrderRequestRepository extends JpaRepository<OrderRequest,Strin
 
     Page<OrderRequest> findAll(Pageable pageable);
 
+    @Query(" select c from OrderRequest c where c.orderStatus.code = ?1 ")
     Page<OrderRequest> findAllByOrderStatus(String status, Pageable pageable);
+
+    @Query(" select c from OrderRequest c where c.refStatus = ?1 ")
+    Page<OrderRequest> findAllByRefStatus(String status, Pageable pageable);
 
 }

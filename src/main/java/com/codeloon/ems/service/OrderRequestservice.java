@@ -25,5 +25,10 @@ public interface OrderRequestservice {
 
     ResponseBean cusStatusUpdate(OrderRequestDto orderRequestDto);
 
+    ResponseBean paymentStatusUpdate(OrderRequestDto orderRequestDto);
+
+    DataTableBean refundableOrderList(int page, int size);
+
+    ResponseBean refundStatusUpdate(OrderRequestDto orderRequestDto);
 
 }

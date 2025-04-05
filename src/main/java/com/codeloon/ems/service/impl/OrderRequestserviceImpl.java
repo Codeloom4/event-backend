@@ -115,6 +115,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
         List<OrderRequestDetail> orderRequestDetail = new ArrayList<>();
         BigDecimal totalCost = BigDecimal.valueOf(0);
         String orderId = null;
+        int isRef = 0;
 
         try {
 
@@ -150,10 +151,16 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                 orderRequestDetail1.setCustomerId(systemBeanDto.getSysUser());
 
                 orderRequestDetail.add(orderRequestDetail1);
+
+                if(inventoryItem.get().getIsRefundable()){
+                    isRef = 1;
+                }
             };
 
             orderRequest.setTotal(BigDecimal.valueOf(orderAccessBean.getTotal_price()));
-            orderRequest.setRefStatus(DataVarList.REFUNDABLE_PENDING);
+            if(isRef == 1){
+                orderRequest.setRefStatus(DataVarList.REFUNDABLE_PENDING);
+            }
 
             orderRequestRepository.saveAndFlush(orderRequest);
             orderRequestDetailRepository.saveAll(orderRequestDetail);
@@ -352,8 +359,11 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             orderRequestDto.setLastUpdatedDatetime(data.getLastUpdatedDatetime());
             orderRequestDto.setOrderStatus(data.getOrderStatus().getCode());
             orderRequestDto.setPaymentStatus(data.getPaymentStatus().getCode());
+            orderRequestDto.setOrderStatusDes(data.getOrderStatus().getDescription());
+            orderRequestDto.setPaymentStatusDes(data.getPaymentStatus().getDescription());
             orderRequestDto.setRemark(data.getRemark());
             orderRequestDto.setApprovedUser(data.getApprovedUser());
+            orderRequestDto.setRefundableStatus(data.getRefStatus() != null ? data.getRefStatus() : "--");
 
             dataBeanList.add(orderRequestDto);
         });
@@ -555,4 +565,137 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
         }
         return responseBean;
     }
+
+
+    @Override
+    public ResponseBean paymentStatusUpdate(OrderRequestDto orderRequestDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            Optional<OrderRequest> orderRequest = orderRequestRepository.findById(orderRequestDto.getOrderId());
+            Optional<Status> statusOptional;
+
+            if(orderRequest.isPresent()){
+                OrderRequest orderRequest1 = orderRequest.get();
+
+                if(orderRequestDto.getOrderStatus().equals("A")){
+                    statusOptional = statusRepository.findById(DataVarList.PAYEMNT_APPROVED);
+                    orderRequest1.setPaymentStatus(statusOptional.get());
+
+                }else if (orderRequestDto.getOrderStatus().equals("R")){
+                    statusOptional = statusRepository.findById(DataVarList.PAYEMNT_REJECTED);
+                    orderRequest1.setPaymentStatus(statusOptional.get());
+                }
+
+                orderRequest1.setLastUpdatedDatetime(LocalDateTime.now());
+                orderRequest1.setApprovedUser(systemBeanDto.getSysUser());
+
+                orderRequestRepository.saveAndFlush(orderRequest1);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Payment status updated successfully.";
+                log.info("Payment status updated successfully. ");
+
+            }else {
+                code = ResponseCode.RSP_ERROR;
+                msg = "Invalid Order id";
+                log.info("Invalid Order id. ");
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating payment status", ex);
+            msg = "Error occurred while updating payment status.";
+
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
+    }
+
+
+    @Override
+    public DataTableBean refundableOrderList(int page, int size) {
+        DataTableBean dataTableBean = new DataTableBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+        Page<OrderRequest> inventoryList = null;
+
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("requestedDate").ascending());
+
+            //search only from item name
+            inventoryList = orderRequestRepository.findAllByRefStatus(DataVarList.REFUNDABLE_PENDING, pageable);
+
+            if(!inventoryList.isEmpty()){
+                List<Object> orderDataList = this.mapSearchData(inventoryList);
+                dataTableBean.setList(orderDataList);
+                dataTableBean.setCount(inventoryList.getTotalElements());
+                dataTableBean.setPagecount(inventoryList.getTotalPages());
+
+                msg = "List review successfully.";
+                code = ResponseCode.RSP_SUCCESS;
+            }else {
+                dataTableBean.setCount(0);
+                dataTableBean.setPagecount(0);
+
+                log.warn("List review not found");
+                msg = "Order List not found: ";
+            }
+        } catch (Exception ex) {
+            log.error("Error occurred while reviewing order list : {}", ex.getMessage(), ex);
+            msg = "Error occurred while eviewing order list.";
+        }
+        dataTableBean.setMsg(msg);
+        dataTableBean.setCode(code);
+        return dataTableBean;
+    }
+
+
+    @Override
+    public ResponseBean refundStatusUpdate(OrderRequestDto orderRequestDto) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
+        try {
+            Optional<OrderRequest> orderRequest = orderRequestRepository.findById(orderRequestDto.getOrderId());
+            Optional<Status> statusOptional;
+
+            if(orderRequest.isPresent()){
+                OrderRequest orderRequest1 = orderRequest.get();
+                orderRequest1.setRefStatus(DataVarList.REFUNDABLE_RECEIVED);
+
+                orderRequest1.setLastUpdatedDatetime(LocalDateTime.now());
+                orderRequest1.setApprovedUser(systemBeanDto.getSysUser());
+
+                orderRequestRepository.saveAndFlush(orderRequest1);
+
+                code = ResponseCode.RSP_SUCCESS;
+                msg = "Refundable status updated successfully.";
+                log.info("Refundable status updated successfully. ");
+
+            }else {
+                code = ResponseCode.RSP_ERROR;
+                msg = "Invalid Order id";
+                log.info("Invalid Order id. ");
+            }
+
+        }catch (Exception ex) {
+            log.error("Error occurred while updating Refundable status", ex);
+            msg = "Error occurred while updating Refundable status.";
+
+        } finally {
+            responseBean.setResponseMsg(msg);
+            responseBean.setResponseCode(code);
+            responseBean.setContent(null);
+        }
+        return responseBean;
+    }
+
+
+
 }

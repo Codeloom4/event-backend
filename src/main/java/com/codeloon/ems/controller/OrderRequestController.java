@@ -209,4 +209,63 @@ public class OrderRequestController {
         return responseEntity;
     }
 
+
+    //Payment Status update (Status update) - for Admin
+    //Req body {"orderId": "","paymentStatus" : "A" or "R" }
+    @PostMapping("/paymentstattus")
+    public ResponseEntity<?> paymentStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = orderRequestservice.paymentStatusUpdate(orderRequestDto);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating payment status.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+
+    //View all REFUNDABLE orders - for Admin
+    @GetMapping("/allrefundable")
+    public ResponseEntity<?> refundableOrderList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        DataTableBean dataTableBean = new DataTableBean();
+        try {
+            dataTableBean = orderRequestservice.refundableOrderList(page, size);
+            httpStatus = HttpStatus.OK;
+            responseBean.setContent(dataTableBean);
+            responseBean.setResponseMsg(dataTableBean.getMsg());
+            responseBean.setResponseCode(dataTableBean.getCode());
+        }catch (Exception ex){
+            log.error("Error occurred while searching order list.{} ", ex.getMessage());
+        }finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
+
+
+    //Refundable Status update (ref_status update) - for Admin
+    //Req body {"orderId": "" }
+    @PostMapping("/paymentstattus")
+    public ResponseEntity<?> refundStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
+        ResponseEntity<?> responseEntity;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResponseBean responseBean = new ResponseBean();
+        try {
+            responseBean = orderRequestservice.refundStatusUpdate(orderRequestDto);
+            httpStatus = HttpStatus.CREATED;
+        } catch (Exception ex) {
+            log.error("Error occurred while updating refundable status.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+    }
 }
