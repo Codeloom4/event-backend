@@ -72,3 +72,13 @@ INSERT INTO events (created_at, description, event_type) VALUES
 (NOW(), 'Funeral Events', 'EVT-FUNERAL'),
 (NOW(), 'Educational Events', 'EVT-EDU'),
 (NOW(), 'Memorial Events', 'EVT-MEMORIAL');
+
+-- Status
+INSERT INTO ems_db.status (code, description, type) VALUES
+('ORD_PENDING', 'Order approval pending ', 'ORDER_STATUS'),
+('ORD_APPROVED', 'Order approved', 'ORDER_STATUS'),
+('ORD_REJECTED', 'Order rejected', 'ORDER_STATUS'),
+('ORD_CANCELED', 'Order canceled', 'ORDER_STATUS'),
+('PAYMENT_INITIATED', 'Payment created', 'PAYMENT_STATUS'),
+('PAYMENT_APPROVED', 'Payment approved', 'PAYMENT_STATUS'),
+('PAYMENT_REJECTED', 'Payment rejected', 'PAYMENT_STATUS');
