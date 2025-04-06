@@ -134,7 +134,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
             InventoryItem inventoryItemEntity = InventoryItem.builder()
                     .itemName(inventoryItemDto.getItemName())
-                    .isRefundable(inventoryItemDto.getIsRefundable())
+                    .isRefundable(inventoryItemDto.getIsRefundable() != null ? inventoryItemDto.getIsRefundable() : false)
                     .updatedAt(LocalDateTime.now())
                     .createdUser(systemBeanDto.getSysUser())
                     .minOrderQty(inventoryItemDto.getMinOrderQty())
@@ -175,7 +175,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 InventoryItem inventoryItemEntity = inventoryItemOptional.get();
 
                 inventoryItemEntity.setItemName(inventoryItemDto.getItemName());
-                inventoryItemEntity.setIsRefundable(inventoryItemDto.getIsRefundable());
+                inventoryItemEntity.setIsRefundable(inventoryItemDto.getIsRefundable() != null ? inventoryItemDto.getIsRefundable() : false);
                 inventoryItemEntity.setUpdatedAt(LocalDateTime.now());
                 inventoryItemEntity.setCreatedUser(systemBeanDto.getSysUser());
                 inventoryItemEntity.setMinOrderQty(inventoryItemDto.getMinOrderQty());
@@ -251,6 +251,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     .quantity(0)
                     .category(inventoryItemDto.getCategory())
                     .description(inventoryItemDto.getDescription())
+                    .isRefundable(false)
                     .build();
 
             inventoryItemRepository.saveAndFlush(inventoryItemEntity);
