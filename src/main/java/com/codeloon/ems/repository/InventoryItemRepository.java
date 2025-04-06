@@ -34,4 +34,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
     Page<InventoryItem> findByIsRefundable(boolean b, Pageable pageable);
 
     Page<InventoryItem> findByItemNameAndIsRefundable(String itemName, Boolean isRefundable, Pageable pageable);
+
+    @Query("SELECT itemName from InventoryItem where id = ?1 ")
+    String getItemName(String itemCode);
 }

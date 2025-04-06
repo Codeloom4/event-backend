@@ -226,8 +226,9 @@ public class PackageServiceImpl implements PackageService {
                 // Convert DTO to Entity
                 PackageItem packageItem = PackageItem.builder()
                         .package_id(packageEntity) // Associate with the Package
-                        .itemName(packageItemDto.getItemName())
+                        .itemName(inventoryItem.getItemName())
                         .itemCode(packageItemDto.getItemCode())
+                        .sellPrice(Double.valueOf(inventoryItem.getAvgPrice()))
                         .itemCategory(packageItemDto.getItemCategory())
                         .bulkPrice(packageItemDto.getBulkPrice())
                         .quantity(packageItemDto.getQuantity())
@@ -402,6 +403,7 @@ public class PackageServiceImpl implements PackageService {
                     PackageItemDto dto = PackageItemDto.builder()
                             .itemCode(item.getItemCode())
                             .itemCode(item.getItemName())
+                            .itemName(inventoryItemRepository.getItemName(item.getItemCode()))
                             .bulkPrice(item.getBulkPrice())
                             .quantity(item.getQuantity())
                             .itemCategory(item.getItemCategory())
