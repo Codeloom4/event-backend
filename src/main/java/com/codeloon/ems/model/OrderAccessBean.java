@@ -23,4 +23,8 @@ public class OrderAccessBean {
     private String cusNote;
     private LocalDate eventDate;
 
+    private Double deliveryFee;
+    private String districtName;
+
+
 }

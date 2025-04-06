@@ -79,8 +79,8 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                     orderItemListBean.setQuantity(packItem.getQuantity());
                     orderItemListBean.setSellPrice(packItem.getSellPrice());
                     orderItemListBean.setBulkPrice(packItem.getBulkPrice());
-                    orderItemListBean.setCategory(packItem.getItemCategory());
-                    orderItemListBean.setItemDes(inventoryItem.get().getDescription());
+                    orderItemListBean.setCategory(inventoryItem1.getCategory());
+                    orderItemListBean.setItemDes(inventoryItem.get().getDescription() != null ? inventoryItem.get().getDescription() : "--");
 
                     orderItemListBeanList.add(orderItemListBean);
                 });
@@ -136,7 +136,8 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             orderRequest.setLastUpdatedDatetime(LocalDateTime.now());
             orderRequest.setOrderStatus(orderStatus.get());
             orderRequest.setPaymentStatus(payStatus.get());
-
+            orderRequest.setDeliveryFee(orderAccessBean.getDeliveryFee());
+            orderRequest.setDistrictName(orderAccessBean.getDistrictName());
             for (OrderItemListBean orderData : orderAccessBean.getOrderItemListBeanList()) {
                 OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
                 Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(orderData.getInventoryItemId());

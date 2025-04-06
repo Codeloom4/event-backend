@@ -268,6 +268,8 @@ public class InventoryServiceImpl implements InventoryService {
             InventoryDto searchDataBean = new InventoryDto();
 
             searchDataBean.setId(data.getId());
+            searchDataBean.setItemId(data.getItemId());
+            searchDataBean.setCreatedAt(data.getCreatedAt());
             searchDataBean.setItemName(data.getItemName());
             searchDataBean.setIsRefundable(data.getIsRefundable());
             searchDataBean.setPurchasePrice(data.getPurchasePrice());

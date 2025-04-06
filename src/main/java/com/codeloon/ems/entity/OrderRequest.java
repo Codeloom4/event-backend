@@ -66,4 +66,10 @@ public class OrderRequest {
     @Column(name = "ref_status", length = 50)
     private String refStatus;
 
+    @Column(name = "delivery_fee")
+    private Double deliveryFee;
+
+    @Column(name = "district_name")
+    private String districtName;
+
 }
