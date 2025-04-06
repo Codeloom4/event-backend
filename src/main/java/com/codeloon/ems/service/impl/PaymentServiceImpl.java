@@ -91,10 +91,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public ResponseBean getPaymentById(Long id) {
+    public ResponseBean getPaymentByOrderId(String orderId) {  // Changed from getPaymentById
         ResponseBean responseBean = new ResponseBean();
         try {
-            Payment payment = paymentRepository.findById(id).orElse(null);
+            Payment payment = paymentRepository.findById(orderId).orElse(null);
             if (payment != null) {
                 responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
                 responseBean.setResponseMsg("Payment retrieved successfully.");
@@ -152,9 +152,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Resource downloadFile(Long id) {
+    public Resource downloadFile(String orderId) {  // Changed from Long id
         try {
-            Payment payment = paymentRepository.findById(id)
+            Payment payment = paymentRepository.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Payment not found"));
 
             Path filePath = Paths.get(payment.getFilePath());
@@ -169,6 +169,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+
 
 }
 

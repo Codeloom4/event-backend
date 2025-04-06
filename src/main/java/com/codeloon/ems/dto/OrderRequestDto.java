@@ -30,6 +30,9 @@ public class OrderRequestDto {
     private LocalDateTime lastUpdatedDatetime;
     private String orderStatus;
     private String paymentStatus;
+    private String orderStatusDes;
+    private String paymentStatusDes;
     private String remark;
     private String approvedUser;
+    private String refundableStatus;
 }

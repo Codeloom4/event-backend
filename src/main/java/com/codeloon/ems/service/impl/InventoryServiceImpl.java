@@ -148,8 +148,13 @@ public class InventoryServiceImpl implements InventoryService {
 
                 //Inventory getLastInventory = inventoryRepository.findTopByOrderByIdDesc();
 
-                Long lastBarcode = inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() != 0 ?
-                        inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() : 1000000000L;
+                Inventory lastInventory = inventoryRepository.findTopByOrderByIdDesc();
+                Long lastBarcode = (lastInventory != null && lastInventory.getEndBarcode() != 0)
+                        ? lastInventory.getEndBarcode()
+                        : 1000000000L;
+
+//                Long lastBarcode = inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() != 0 ?
+//                        inventoryRepository.findTopByOrderByIdDesc().getEndBarcode() : 1000000000L;
 
                 startingBcode = lastBarcode + 1;
                 endingBcode = startingBcode + inventory.getOrderQuantity() - 1;
