@@ -46,8 +46,9 @@ public class OrderReminderService {
                 .findByRequestedDateBetweenAndOrderStatus(startOfDay, endOfDay, paymentApprovedStatus.get());
 
         for (OrderRequest order : orders) {
-            Optional<User> userDetails = userRepository.findByUsername(order.getCustomerUsername());
-            userDetails.ifPresent(user -> sendEmail(user.getEmail(), order));
+//            Optional<User> userDetails = userRepository.findByUsername(String.valueOf(order.getCustomerUsername()));
+//            userDetails.ifPresent(user -> sendEmail(order.getCustomerUsername().getEmail(), order));
+            sendEmail(order.getCustomerUsername().getEmail(), order);
         }
 
     }
