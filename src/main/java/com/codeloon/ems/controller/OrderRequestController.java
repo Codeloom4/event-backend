@@ -253,7 +253,7 @@ public class OrderRequestController {
 
     //Refundable Status update (ref_status update) - for Admin
     //Req body {"orderId": "" }
-    @PostMapping("/paymentstattus")
+    @PostMapping("/refundstattus")
     public ResponseEntity<?> refundStatusUpdate(@RequestBody OrderRequestDto orderRequestDto) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
