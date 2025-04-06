@@ -153,7 +153,8 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
 
                 orderRequestDetail.add(orderRequestDetail1);
 
-                if(inventoryItem.get().getIsRefundable()){
+                boolean isrefGet = inventoryItem.get().getIsRefundable() != null ? inventoryItem.get().getIsRefundable() : false;
+                if(isrefGet){
                     isRef = 1;
                 }
             };

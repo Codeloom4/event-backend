@@ -81,4 +81,5 @@ INSERT INTO ems_db.status (code, description, type) VALUES
 ('ORD_CANCELED', 'Order canceled', 'ORDER_STATUS'),
 ('PAYMENT_INITIATED', 'Payment created', 'PAYMENT_STATUS'),
 ('PAYMENT_APPROVED', 'Payment approved', 'PAYMENT_STATUS'),
-('PAYMENT_REJECTED', 'Payment rejected', 'PAYMENT_STATUS');
+('PAYMENT_REJECTED', 'Payment rejected', 'PAYMENT_STATUS'),
+('UNPAID', 'Initially Unpaid', 'PAYMENT_STATUS');
