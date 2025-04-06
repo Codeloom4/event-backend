@@ -7,8 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface PaymentService {
     ResponseBean createPayment(PaymentDto paymentDto, MultipartFile file);
-    ResponseBean getPaymentById(Long id);
+    ResponseBean getPaymentByOrderId(String orderId);  // Changed from getPaymentById
     ResponseBean getAllPayments();
-    Resource downloadFile(Long id);
+    Resource downloadFile(String orderId);  // Changed from Long id
 }
-

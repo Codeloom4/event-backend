@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "order_id", nullable = false)
+    private String orderId;  // Changed from Long id to String orderId as primary key
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -25,9 +25,6 @@ public class Payment {
 
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
-
-    @Column(name = "order_id", nullable = false)  // Add this field
-    private String orderId;
 
     @Column(name = "file_path")
     private String filePath;
