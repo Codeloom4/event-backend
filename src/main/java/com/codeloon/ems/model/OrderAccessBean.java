@@ -25,6 +25,7 @@ public class OrderAccessBean {
 
     private Double deliveryFee;
     private String districtName;
+    private String address;
 
 
 }

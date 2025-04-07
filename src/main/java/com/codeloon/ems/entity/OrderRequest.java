@@ -72,4 +72,6 @@ public class OrderRequest {
     @Column(name = "district_name")
     private String districtName;
 
+    @Column(name = "address")
+    private String address;
 }

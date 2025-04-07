@@ -138,6 +138,7 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
             orderRequest.setPaymentStatus(payStatus.get());
             orderRequest.setDeliveryFee(orderAccessBean.getDeliveryFee());
             orderRequest.setDistrictName(orderAccessBean.getDistrictName());
+            orderRequest.setAddress(orderAccessBean.getAddress());
             for (OrderItemListBean orderData : orderAccessBean.getOrderItemListBeanList()) {
                 OrderRequestDetail orderRequestDetail1 = new OrderRequestDetail();
                 Optional<InventoryItem> inventoryItem = inventoryItemRepository.findById(orderData.getInventoryItemId());
