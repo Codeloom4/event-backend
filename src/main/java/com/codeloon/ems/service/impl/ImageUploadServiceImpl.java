@@ -40,7 +40,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
     @Override
     public ResponseBean uploadImages(String packageId, MultipartFile[] files) {
         ResponseBean responseBean = new ResponseBean();
-        String msg = null;
+        String msg;
         String code = ResponseCode.RSP_ERROR;
         List<PackageSlide> uploadedFiles = new ArrayList<>();
         try {
@@ -103,7 +103,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
     }
 
     public void deleteImages(String packageId) {
-        List<PackageSlide> images = new ArrayList<>();
+        List<PackageSlide> images;
         if (isEmpty(packageId)) {
             log.warn("Package Id is mandatory for delete images");
         } else {
