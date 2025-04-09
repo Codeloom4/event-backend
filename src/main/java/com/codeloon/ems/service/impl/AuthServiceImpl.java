@@ -32,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<AuthResponse> login(LoginDto loginDto) {
         String token = "";
         String userRole = null;
+        User user = null;
         try {
             // 01 - AuthenticationManager is used to authenticate the user
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -49,21 +50,22 @@ public class AuthServiceImpl implements AuthService {
             //04 - Roles
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             userRole = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
+
+            user = userRepository.findByUsername(loginDto.getUsername()).orElse(null);
         } catch (AuthenticationException e) {
             // 04 - Return the token to controller
             return handleAuthenticationException(e);
         }
-        AuthResponse credentialsExpResponse = validateUserCredentialsStatus(loginDto.getUsername(), token, userRole);
+        AuthResponse credentialsExpResponse = validateUserCredentialsStatus(user, token, userRole);
         if (credentialsExpResponse != null) {
             return new ResponseEntity<>(credentialsExpResponse, HttpStatus.OK);
         }
         // 05 - Return the token to controller
-        return this.buildResponse(token, userRole, DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
+        return this.buildResponse(token, userRole,user.getId(), DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
     }
 
-    private AuthResponse validateUserCredentialsStatus(String userName, String token, String userRole) {
+    private AuthResponse validateUserCredentialsStatus(User user, String token, String userRole) {
         try {
-            User user = userRepository.findByUsername(userName).orElse(null);
             if (user != null) {
                 boolean requiresPasswordReset = !user.getCredentialsNonExpired() || user.getForcePasswordChange();
                 if (requiresPasswordReset) {
@@ -78,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
                             .accessToken(token)
                             .accessMsg(errorMessage)
                             .userRole(userRole)
+                            .userId(user.getId())
                             .build();
                 }
             }
@@ -88,12 +91,13 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole, String authMsg, String authStatus, HttpStatus httpStatus) {
+    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole,String userId, String authMsg, String authStatus, HttpStatus httpStatus) {
         AuthResponse authResponseDto = AuthResponse.builder()
                 .accessCode(authStatus)
                 .accessToken(token)
                 .accessMsg(authMsg)
                 .userRole(userRole)
+                .userId(userId)
                 .build();
         return new ResponseEntity<>(authResponseDto, httpStatus);
     }
@@ -116,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
             accessMsg = DataVarList.FAILED_AUTH_ACC_INVALIED;
             httpStatus = HttpStatus.UNAUTHORIZED;
         }
-        return buildResponse("", null, accessMsg, accessCode, httpStatus);
+        return buildResponse("", null,null, accessMsg, accessCode, httpStatus);
     }
 
 }
