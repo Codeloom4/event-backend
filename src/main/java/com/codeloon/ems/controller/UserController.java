@@ -9,6 +9,8 @@ import com.codeloon.ems.util.ResponseCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,15 +28,13 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<?> getAllUser() {
+    public ResponseEntity<?> getAllUser(Pageable pageable) {
         ResponseEntity<?> responseEntity;
         ResponseBean responseBean = new ResponseBean();
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         try {
-            List<UserBean> users = userService.getAllUsers();
+            responseBean = userService.getAllUsers(pageable);
             responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
-            responseBean.setResponseMsg("");
-            responseBean.setContent(users);
             httpStatus = HttpStatus.OK;
         } catch (Exception ex) {
             log.error("Error occurred while retrieving user list.{} ", ex.getMessage());

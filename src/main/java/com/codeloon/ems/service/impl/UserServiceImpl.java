@@ -23,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,20 +60,31 @@ public class UserServiceImpl implements UserService {
     private String companyName;
 
     @Override
-    public List<UserBean> getAllUsers() {
+    public ResponseBean getAllUsers(Pageable pageable) {
+        ResponseBean responseBean = new ResponseBean();
+        String msg = "";
+        String code = ResponseCode.RSP_ERROR;
+
         List<UserBean> userBeans = new ArrayList<>();
         try {
-            List<User> users = userRepository.findAll();
+            Page<User> users = userRepository.findAll(pageable);
+            List<User> usersList = users.getContent();
             UserBean userBean = null;
-            for (User user : users) {
+            for (User user : usersList) {
                 userBean = new UserBean();
                 BeanUtils.copyProperties(user, userBean);
                 userBeans.add(userBean);
             }
+            responseBean.setContent(userBeans);
+            code = ResponseCode.RSP_SUCCESS;
+            msg = "User retrieval success";
+
         } catch (Exception ex) {
             log.error("Error occurred while retrieving all system users", ex);
         }
-        return userBeans;
+        responseBean.setResponseCode(code);
+        responseBean.setResponseMsg(msg);
+        return responseBean;
     }
 
     @Override
@@ -132,7 +145,7 @@ public class UserServiceImpl implements UserService {
 
                 //send user creation email notification
                 if (!userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT)) {
-                    //emailSenderService.sendPlainTextEmail(formCredentialEmail(userDto));
+                    emailSenderService.sendPlainTextEmail(formCredentialEmail(userDto));
                 }
 
                 code = ResponseCode.RSP_SUCCESS;
