@@ -155,6 +155,7 @@ public class InventoryServiceImpl implements InventoryService {
                 endingBcode = startingBcode + inventory.getOrderQuantity() - 1;
                 inventory1.setEndBarcode(endingBcode);
                 inventory1.setStartBarcode(startingBcode);
+                inventory1.setIsRefundable(inventoryItem.getIsRefundable());
 
                 inventoryRepository.saveAndFlush(inventory1);
                 inventoryItem.setAvgPrice((inventoryItem.getAvgPrice() + inventory1.getSalesPrice())/2);
