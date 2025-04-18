@@ -2,13 +2,11 @@ package com.codeloon.ems.service;
 
 import com.codeloon.ems.dto.ResetDto;
 import com.codeloon.ems.dto.UserDto;
-import com.codeloon.ems.model.UserBean;
 import com.codeloon.ems.util.ResponseBean;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    List<UserBean> getAllUsers();
+    ResponseBean getAllUsers(Pageable pageable);
 
     ResponseBean findByUsername(String userName);
 

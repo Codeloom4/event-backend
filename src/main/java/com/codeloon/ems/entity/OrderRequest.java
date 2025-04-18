@@ -39,8 +39,12 @@ public class OrderRequest {
     @Column(name = "requested_date", nullable = false, updatable = false)
     private LocalDateTime requestedDate;
 
-    @Column(name = "cus_username", length = 20)
-    private String customerUsername;
+//    @Column(name = "cus_username", length = 20)
+//    private String customerUsername;
+
+    @ManyToOne
+    @JoinColumn(name = "cus_username", referencedColumnName = "username")
+    private User customerUsername;
 
     @Column(name = "lastupdated_datetime")
     private LocalDateTime lastUpdatedDatetime = LocalDateTime.now();
@@ -58,4 +62,16 @@ public class OrderRequest {
 
     @Column(name = "approved_user", length = 20)
     private String approvedUser;
+
+    @Column(name = "ref_status", length = 50)
+    private String refStatus;
+
+    @Column(name = "delivery_fee")
+    private Double deliveryFee;
+
+    @Column(name = "district_name")
+    private String districtName;
+
+    @Column(name = "address")
+    private String address;
 }

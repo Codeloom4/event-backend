@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "order_id", nullable = false)
+    private String orderId;  // Changed from Long id to String orderId as primary key
 
     @Column(nullable = false)
     private BigDecimal amount;

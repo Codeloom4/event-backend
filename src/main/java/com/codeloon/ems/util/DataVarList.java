@@ -39,5 +39,9 @@ public class DataVarList {
     public static final String ORD_APPROVED ="ORD_APPROVED";
     public static final String ORD_CANCELED ="ORD_CANCELED";
     public static final String ORD_REJECTED ="ORD_REJECTED";
+    public static final String REFUNDABLE_PENDING ="REF_PENDING";
+    public static final String REFUNDABLE_RECEIVED ="REF_RECEIVED";
+    public static final String PAYEMNT_APPROVED ="PAYMENT_APPROVED";
+    public static final String PAYEMNT_REJECTED ="PAYMENT_REJECTED";
 
 }

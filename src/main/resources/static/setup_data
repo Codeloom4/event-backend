@@ -1,0 +1,85 @@
+/*
+    Execute after database created.
+*/
+
+-- roles
+INSERT INTO roles (name) VALUES
+('ADMIN'),
+('EMPLOYEE'),
+('CLIENT');
+
+-- users
+INSERT INTO users (id, username, password, email, enabled, account_non_expired, credentials_non_expired, account_non_locked, force_password_change) VALUES
+('ADM-ADM250213WQK', 'admin', '$2a$12$UT71LwajSuaNYdjScea7t.KJcVRA0CvwIsOPHbbLe8PHjzoGq1tUa', 'admin@example.com', TRUE, TRUE, TRUE, TRUE, FALSE),
+('EMP-EMP250222YS7', 'employee', '$2a$12$UT71LwajSuaNYdjScea7t.KJcVRA0CvwIsOPHbbLe8PHjzoGq1tUa', 'employee@example.com', TRUE, TRUE, TRUE, TRUE,FALSE),
+('CLI-CLI250225N94', 'client', '$2a$12$UT71LwajSuaNYdjScea7t.KJcVRA0CvwIsOPHbbLe8PHjzoGq1tUa', 'client@example.com', TRUE, TRUE, TRUE, TRUE, FALSE);
+
+-- user_roles
+INSERT INTO user_roles (user_id, role_id) VALUES
+((SELECT id FROM users WHERE username = 'admin'), (SELECT id FROM roles WHERE name = 'ADMIN'));
+
+-- Assign the EMPLOYEE role to the second user
+INSERT INTO user_roles (user_id, role_id) VALUES
+((SELECT id FROM users WHERE username = 'employee'), (SELECT id FROM roles WHERE name = 'EMPLOYEE'));
+
+-- Assign the CLIENT role to the third user
+INSERT INTO user_roles (user_id, role_id) VALUES
+((SELECT id FROM users WHERE username = 'client'), (SELECT id FROM roles WHERE name = 'CLIENT'));
+
+-- package_type
+INSERT INTO `package_type`
+(`code`,`description`) VALUES
+ ('B','Bronze'),
+ ('S','Silver'),
+ ('G','Gold');
+
+ -- districts
+INSERT INTO districts (district_name) VALUES
+('Ampara'),
+('Anuradhapura'),
+('Badulla'),
+('Batticaloa'),
+('Colombo'),
+('Galle'),
+('Gampaha'),
+('Hambantota'),
+('Jaffna'),
+('Kalutara'),
+('Kandy'),
+('Kegalle'),
+('Kilinochchi'),
+('Kurunegala'),
+('Mannar'),
+('Matale'),
+('Matara'),
+('Monaragala'),
+('Mullaitivu'),
+('Nuwara Eliya'),
+('Polonnaruwa'),
+('Puttalam'),
+('Ratnapura'),
+('Trincomalee'),
+('Vavuniya');
+
+-- events
+INSERT INTO events (created_at, description, event_type) VALUES
+(NOW(), 'Birth Day Parties', 'EVT-BDAY'),
+(NOW(), 'Coperate Events', 'EVT-CORP'),
+(NOW(), 'Family Events', 'EVT-FAM'),
+(NOW(), 'Social Events', 'EVT-SOCIAL'),
+(NOW(), 'Charity Events', 'EVT-CHAR'),
+(NOW(), 'Wedding Events', 'EVT-WED'),
+(NOW(), 'Funeral Events', 'EVT-FUNERAL'),
+(NOW(), 'Educational Events', 'EVT-EDU'),
+(NOW(), 'Memorial Events', 'EVT-MEMORIAL');
+
+-- Status
+INSERT INTO ems_db.status (code, description, type) VALUES
+('ORD_PENDING', 'Order approval pending ', 'ORDER_STATUS'),
+('ORD_APPROVED', 'Order approved', 'ORDER_STATUS'),
+('ORD_REJECTED', 'Order rejected', 'ORDER_STATUS'),
+('ORD_CANCELED', 'Order canceled', 'ORDER_STATUS'),
+('PAYMENT_INITIATED', 'Payment created', 'PAYMENT_STATUS'),
+('PAYMENT_APPROVED', 'Payment approved', 'PAYMENT_STATUS'),
+('PAYMENT_REJECTED', 'Payment rejected', 'PAYMENT_STATUS'),
+('UNPAID', 'Initially Unpaid', 'PAYMENT_STATUS');

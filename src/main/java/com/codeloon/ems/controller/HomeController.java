@@ -1,9 +1,11 @@
 package com.codeloon.ems.controller;
 
 import com.codeloon.ems.model.EventBean;
+import com.codeloon.ems.model.TransportCostBean;
 import com.codeloon.ems.service.EventService;
 import com.codeloon.ems.service.GalleryService;
 import com.codeloon.ems.service.PackageService;
+import com.codeloon.ems.service.TransportCostService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +29,7 @@ public class HomeController {
     private final EventService eventService;
     private final GalleryService galleryService;
     private final PackageService packageService;
+    private final TransportCostService transportCostService;
 
     @GetMapping("/")
     public String getHome() {
@@ -99,6 +103,28 @@ public class HomeController {
             responseEntity = new ResponseEntity<>(responseBean, httpStatus);
         }
         return responseEntity;
+    }
+
+
+    @GetMapping("/transport-costs")
+    public ResponseEntity<?> getAllTransportCosts() {
+        ResponseEntity<?> responseEntity;
+        ResponseBean responseBean = new ResponseBean();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        try {
+            List<TransportCostBean> trancosts = transportCostService.getAllTransportCosts();
+            responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
+            responseBean.setResponseMsg("transport costs retrieved successfully.");
+            responseBean.setContent(trancosts);
+            httpStatus = HttpStatus.OK;
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving event list.{} ", ex.getMessage());
+        } finally {
+            responseEntity = new ResponseEntity<>(responseBean, httpStatus);
+        }
+        return responseEntity;
+
+
     }
 
 

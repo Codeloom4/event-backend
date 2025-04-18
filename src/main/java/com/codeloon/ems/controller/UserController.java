@@ -1,7 +1,6 @@
 package com.codeloon.ems.controller;
 
 import com.codeloon.ems.dto.UserDto;
-import com.codeloon.ems.model.UserBean;
 import com.codeloon.ems.service.UserService;
 import com.codeloon.ems.util.DataVarList;
 import com.codeloon.ems.util.ResponseBean;
@@ -9,12 +8,11 @@ import com.codeloon.ems.util.ResponseCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -26,15 +24,13 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<?> getAllUser() {
+    public ResponseEntity<?> getAllUser(Pageable pageable) {
         ResponseEntity<?> responseEntity;
         ResponseBean responseBean = new ResponseBean();
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         try {
-            List<UserBean> users = userService.getAllUsers();
+            responseBean = userService.getAllUsers(pageable);
             responseBean.setResponseCode(ResponseCode.RSP_SUCCESS);
-            responseBean.setResponseMsg("");
-            responseBean.setContent(users);
             httpStatus = HttpStatus.OK;
         } catch (Exception ex) {
             log.error("Error occurred while retrieving user list.{} ", ex.getMessage());

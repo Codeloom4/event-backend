@@ -15,6 +15,7 @@ import java.util.Set;
 @Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "users")
+@ToString(exclude = "personalData")
 public class User {
 
     @Id

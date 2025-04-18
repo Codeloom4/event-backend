@@ -20,11 +20,16 @@ public interface OrderRequestRepository extends JpaRepository<OrderRequest,Strin
     @Query("SELECT COUNT(o) FROM OrderRequest o ")
     int getOrderCount();
 
+    @Query(" select c from OrderRequest c where c.customerUsername.username = ?1 ")
     Page<OrderRequest> findByCustomerUsername(String cusName, Pageable pageable);
 
     Page<OrderRequest> findAll(Pageable pageable);
 
+    @Query(" select c from OrderRequest c where c.orderStatus.code = ?1 ")
     Page<OrderRequest> findAllByOrderStatus(String status, Pageable pageable);
+
+    @Query(" select c from OrderRequest c where c.refStatus = ?1 ")
+    Page<OrderRequest> findAllByRefStatus(String status, Pageable pageable);
 
 
     List<OrderRequest> findByRequestedDateBetweenAndOrderStatus(LocalDateTime startOfDay, LocalDateTime endOfDay, Status status);

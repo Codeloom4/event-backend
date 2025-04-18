@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -41,7 +40,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
     @Override
     public ResponseBean uploadImages(String packageId, MultipartFile[] files) {
         ResponseBean responseBean = new ResponseBean();
-        String msg = null;
+        String msg;
         String code = ResponseCode.RSP_ERROR;
         List<PackageSlide> uploadedFiles = new ArrayList<>();
         try {
@@ -51,8 +50,9 @@ class ImageUploadServiceImpl implements ImageUploadService {
             } else if (isEmpty(packageId)) {
                 msg = "Package Id is Invalid";
             } else {
+                int fileId = 0;
                 for (MultipartFile file : files) {
-                    String fileName = this.generateFileName(packageId, file);
+                    String fileName = this.generateFileName(packageId, file, ++fileId);
                     String filePath = uploadFile(file, packageId, fileName);
                     PackageSlide slide = saveToDatabase(packageId, fileName, filePath);
                     uploadedFiles.add(slide);
@@ -103,7 +103,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
     }
 
     public void deleteImages(String packageId) {
-        List<PackageSlide> images = new ArrayList<>();
+        List<PackageSlide> images;
         if (isEmpty(packageId)) {
             log.warn("Package Id is mandatory for delete images");
         } else {
@@ -137,13 +137,14 @@ class ImageUploadServiceImpl implements ImageUploadService {
         }
     }
 
-    private String generateFileName(String packageId, MultipartFile file) {
+    private String generateFileName(String packageId, MultipartFile file, int fileId) {
         String originalFileName = file.getOriginalFilename();
         String fileExtension = (originalFileName != null && originalFileName.contains("."))
                 ? originalFileName.substring(originalFileName.lastIndexOf("."))
                 : "";
-        return packageId + fileExtension;
+        return packageId + "_" + fileId + fileExtension;
     }
+
     private PackageSlide saveToDatabase(String packageId, String fileName, String filePath) {
         PackageSlide slide = new PackageSlide();
         slide.setPackageId(packageId);
@@ -166,7 +167,7 @@ class ImageUploadServiceImpl implements ImageUploadService {
             Path path = Paths.get(packageDir.getAbsolutePath(), fileName);
             Files.write(path, file.getBytes());
 
-            return packageId  + "/" +  fileName;
+            return packageId + "/" + fileName;
         } catch (IOException e) {
             log.error("Error uploading file", e);
             return null;

@@ -17,9 +17,15 @@ public class OrderAccessBean {
     private Double total_price;
     private String packageTypeCode;
     private String packageTypeDes;
+    private String eventType;
     private List<OrderItemListBean> orderItemListBeanList;
 
     private String cusNote;
     private LocalDate eventDate;
+
+    private Double deliveryFee;
+    private String districtName;
+    private String address;
+
 
 }

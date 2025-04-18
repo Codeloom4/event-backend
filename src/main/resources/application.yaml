@@ -17,11 +17,11 @@ spring:
 #    hikari:
 #      minimum-idle: 5
 #      maximum-pool-size: 10
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    show-sql: true
 
   mail:
     host: smtp.gmail.com

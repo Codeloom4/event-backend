@@ -77,7 +77,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        return new CustomAuthenticationProvider(userDetailsService);
+        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder()); // pass encoder here
     }
 
 

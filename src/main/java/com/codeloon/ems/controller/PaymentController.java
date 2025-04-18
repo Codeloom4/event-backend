@@ -51,9 +51,9 @@ public class PaymentController {
         return responseEntity;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseBean> getPaymentById(@PathVariable Long id) {
-        ResponseBean response = paymentService.getPaymentById(id);
+    @GetMapping("/{orderId}")  // Changed from {id}
+    public ResponseEntity<ResponseBean> getPaymentByOrderId(@PathVariable String orderId) {  // Changed from Long id
+        ResponseBean response = paymentService.getPaymentByOrderId(orderId);
         return ResponseEntity.ok(response);
     }
 
@@ -64,11 +64,17 @@ public class PaymentController {
     }
 
 
-    @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long id) {
-        Resource file = paymentService.downloadFile(id);
+    @GetMapping("/{orderId}/download")  // Changed from {id}
+    public ResponseEntity<Resource> downloadFile(@PathVariable String orderId) {  // Changed from Long id
+        Resource file = paymentService.downloadFile(orderId);
+        // Extract the original filename and extension
+        String originalFilename = file.getFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+
+        // Rename the file to include the orderId
+        String newFilename = "Payment_" + orderId + extension;  // Changed from id to orderId
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + newFilename + "\"")
                 .body(file);
     }
 }
