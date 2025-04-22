@@ -19,8 +19,8 @@ public class InventoryDto {
     private Long itemId;
     private String itemName;
     private Boolean isRefundable;
-    private Long purchasePrice;
-    private Long salesPrice;
+    private Double purchasePrice;
+    private Double salesPrice;
     private Integer orderQuantity;
     private Integer salesQuantity;
     private Integer balanceQuantity;

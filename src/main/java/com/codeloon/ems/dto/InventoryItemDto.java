@@ -18,7 +18,7 @@ public class InventoryItemDto {
     private Long id;
     private String itemName;
     private Boolean isRefundable;
-    private Long avgPrice;
+    private Double avgPrice;
     private Integer quantity;
     private LocalDateTime updatedAt;
     private String createdUser;
