@@ -52,4 +52,6 @@ public class Package {
     @OneToMany(mappedBy = "package_id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PackageItem> packageItems;
 
+    @Column(name = "iscomplete")
+    private Boolean isComplete;
 }
