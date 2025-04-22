@@ -139,7 +139,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     .createdUser(systemBeanDto.getSysUser())
                     .minOrderQty(inventoryItemDto.getMinOrderQty())
                     .category("Inventory")
-                    .avgPrice(0L)
+                    .avgPrice(0D)
                     .quantity(0)
                     .build();
 

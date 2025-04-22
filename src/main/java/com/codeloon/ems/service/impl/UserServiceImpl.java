@@ -73,6 +73,18 @@ public class UserServiceImpl implements UserService {
             for (User user : usersList) {
                 userBean = new UserBean();
                 BeanUtils.copyProperties(user, userBean);
+                UserPersonalData personalData = personalDataRepository.findById(user.getId()).orElse(null);
+                if (personalData != null) {
+                    userBean.setEmail(personalData.getAddress());
+                    userBean.setAddress(personalData.getAddress());
+                    userBean.setPosition(personalData.getPosition());
+                    userBean.setMobileNo(personalData.getMobile());
+                } else {
+                    userBean.setEmail("NA");
+                    userBean.setAddress("NA");
+                    userBean.setPosition("NA");
+                    userBean.setMobileNo("NA");
+                }
                 userBeans.add(userBean);
             }
             responseBean.setContent(userBeans);

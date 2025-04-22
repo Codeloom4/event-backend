@@ -34,10 +34,10 @@ public class Inventory {
     private Boolean isRefundable;
 
     @Column(name = "purchase_price",nullable = false)
-    private Long purchasePrice;
+    private Double purchasePrice;
 
     @Column(name = "sales_price",nullable = false)
-    private Long salesPrice;
+    private Double salesPrice;
 
     @Column(name = "order_qty", nullable = false)
     private Integer orderQuantity;
@@ -63,7 +63,7 @@ public class Inventory {
     @Column(name = "updated_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_user", referencedColumnName = "username", nullable = false)
     private User createdUser;
 

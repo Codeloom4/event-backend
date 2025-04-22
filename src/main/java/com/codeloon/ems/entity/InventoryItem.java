@@ -28,7 +28,7 @@ public class InventoryItem {
     private Boolean isRefundable;
 
     @Column(name = "average_price")
-    private Long avgPrice;
+    private Double avgPrice;
 
     @Column(name = "order_qty")
     private Integer quantity;
