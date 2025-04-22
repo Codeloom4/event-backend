@@ -596,11 +596,11 @@ public class OrderRequestserviceImpl implements OrderRequestservice {
                 boolean requestStatus = false;
                 OrderRequest orderRequest1 = orderRequest.get();
 
-                if (orderRequestDto.getOrderStatus().equals("A")) {
+                if (orderRequestDto.getPaymentStatus().equals("A")) {
                     statusOptional = statusRepository.findById(DataVarList.PAYEMNT_APPROVED);
                     orderRequest1.setPaymentStatus(statusOptional.get());
                     requestStatus = true;
-                } else if (orderRequestDto.getOrderStatus().equals("R")) {
+                } else if (orderRequestDto.getPaymentStatus().equals("R")) {
                     statusOptional = statusRepository.findById(DataVarList.PAYEMNT_REJECTED);
                     orderRequest1.setPaymentStatus(statusOptional.get());
                 }

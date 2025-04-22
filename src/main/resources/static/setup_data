@@ -33,6 +33,11 @@ INSERT INTO `package_type`
  ('S','Silver'),
  ('G','Gold');
 
+--userpersonaldata
+INSERT INTO userpersonaldata (created_at, mobile, user_id,position,address) VALUES
+(NOW(), '0763999740', 'A001', 'Manager','test address'),
+(NOW(), '0763999740', 'E001', 'employee','test address'),
+(NOW(), '0763999740', 'C001','','test address');
  -- districts
 INSERT INTO districts (district_name) VALUES
 ('Ampara'),

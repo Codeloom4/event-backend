@@ -220,8 +220,6 @@ public class PackageServiceImpl implements PackageService {
 
             if (ObjectUtils.isEmpty(inventoryItem)) {
                 msg = "Inventory not found";
-            } else if (inventoryItem.getQuantity() < packageItemDto.getQuantity()) {
-                msg = "Inventory Quantity Exceeds";
             } else {
                 // Convert DTO to Entity
                 PackageItem packageItem = PackageItem.builder()
