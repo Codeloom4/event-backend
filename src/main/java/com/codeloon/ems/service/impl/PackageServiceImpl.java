@@ -436,7 +436,7 @@ public class PackageServiceImpl implements PackageService {
             List<PackageViewBean> packageViewBeanList = new ArrayList<>();
 
             // Fetch paginated packages
-            Page<Package> packagePage = packageRepository.findAll(pageable);
+            Page<Package> packagePage = packageRepository.findAllByIsComplete(pageable, true);
             List<Package> existingPackages = packagePage.getContent();
 
             if (!existingPackages.isEmpty()) {

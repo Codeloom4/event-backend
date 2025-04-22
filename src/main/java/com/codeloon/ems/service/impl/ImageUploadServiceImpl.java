@@ -1,11 +1,15 @@
 package com.codeloon.ems.service.impl;
 
+import com.codeloon.ems.entity.Package;
 import com.codeloon.ems.entity.PackageSlide;
+import com.codeloon.ems.repository.PackageRepository;
 import com.codeloon.ems.repository.PackageSlideRepository;
 import com.codeloon.ems.service.ImageUploadService;
 import com.codeloon.ems.util.ResponseBean;
 import com.codeloon.ems.util.ResponseCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -32,6 +37,9 @@ class ImageUploadServiceImpl implements ImageUploadService {
     private String linuxUploadPath;
 
     private final PackageSlideRepository packageSlideRepository;
+
+    @Autowired
+    PackageRepository packageRepository;
 
     public ImageUploadServiceImpl(PackageSlideRepository packageSlideRepository) {
         this.packageSlideRepository = packageSlideRepository;
@@ -57,6 +65,12 @@ class ImageUploadServiceImpl implements ImageUploadService {
                     PackageSlide slide = saveToDatabase(packageId, fileName, filePath);
                     uploadedFiles.add(slide);
                 }
+
+                Optional<Package> packageOptional = packageRepository.findById(packageId);
+                Package packageData = packageOptional.get();
+                packageData.setIsComplete(true);
+                packageRepository.saveAndFlush(packageData);
+
                 msg = "Images uploaded successfully";
                 code = ResponseCode.RSP_SUCCESS;
             }

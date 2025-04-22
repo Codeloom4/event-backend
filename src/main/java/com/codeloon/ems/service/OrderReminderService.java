@@ -37,13 +37,14 @@ public class OrderReminderService {
 //    @Scheduled(cron = "0 * * * * ?") // Runs every minute
     public void sendReminderEmails() {
         LocalDate oneYearAgoDate = LocalDate.now().minusYears(1);
-        LocalDateTime startOfDay = oneYearAgoDate.atStartOfDay();               // 2024-04-06T00:00
-        LocalDateTime endOfDay = oneYearAgoDate.atTime(LocalTime.MAX);          // 2024-04-06T23:59:59.999999999
-
+        LocalDateTime startOfDay = oneYearAgoDate.atStartOfDay();
+        LocalDateTime endOfDay = oneYearAgoDate.atTime(LocalTime.MAX);
+        LocalDate oneYearAgoDateTest = LocalDate.now().minusYears(1);
+        System.out.println(" new date ********************"+oneYearAgoDateTest);
         Optional<Status> paymentApprovedStatus = statusRepository.findById("PAYMENT_APPROVED");
 
         List<OrderRequest> orders = OrderRequestRepository
-                .findByRequestedDateBetweenAndOrderStatus(startOfDay, endOfDay, paymentApprovedStatus.get());
+                .findByRequestedDateBetweenAndPaymentStatus(startOfDay, endOfDay, paymentApprovedStatus.get());
 
         for (OrderRequest order : orders) {
 //            Optional<User> userDetails = userRepository.findByUsername(String.valueOf(order.getCustomerUsername()));
@@ -53,11 +54,31 @@ public class OrderReminderService {
 
     }
 
+//    private void sendEmail(String toEmail, OrderRequest order) {
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setTo(toEmail);
+//        message.setSubject("Last Year Order Reminder");
+//        String text = "Dear Customer, It's been a year since your order. " + order.getCustomerNote() + ", We appreciate your support!";
+//        message.setText(text);
+//
+//        mailSender.send(message);
+//    }
+
     private void sendEmail(String toEmail, OrderRequest order) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
-        message.setSubject("Last Year Order Reminder");
-        String text = "Dear Customer, It's been a year since your order. " + order.getCustomerNote() + ", We appreciate your support!";
+        message.setSubject("🎉 Ready to Celebrate Again? Let’s Plan Your Next Event!");
+
+        String text = "💌 Dear Valued Customer,\n\n" +
+                "We hope you’re doing wonderfully! 🌟 It’s hard to believe it’s already been a whole year since we had the pleasure of organizing your event.\n\n" +
+                "📅 Your note from that time: \"" + order.getCustomerNote() + "\" really touched us — thank you again for letting us be part of your special day!\n\n" +
+                "As a new season of celebrations begins, we’d love to help you make this year’s event even more unforgettable. 🎊 Whether it’s a birthday, wedding, corporate gathering, or any special occasion, our team is here to bring your vision to life.\n\n" +
+                "📞 Let’s reconnect and start planning something amazing together! You can reach us anytime at:\n" +
+                "🌐 www.partyCraft.com\n" +
+                "We can’t wait to hear from you!\n\n" +
+                "With warm wishes,\n" +
+                "✨ partyCrafting";
+
         message.setText(text);
 
         mailSender.send(message);

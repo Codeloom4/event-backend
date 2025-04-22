@@ -15,4 +15,6 @@ public interface PackageRepository extends JpaRepository<Package, String> {
     List<Package> findPackagesByEvent(Event event);
 
     Page<Package> findAll(Pageable pageable);
+
+    Page<Package> findAllByIsComplete(Pageable pageable, boolean isComplete);
 }
