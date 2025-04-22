@@ -33,4 +33,6 @@ public interface OrderRequestRepository extends JpaRepository<OrderRequest,Strin
 
 
     List<OrderRequest> findByRequestedDateBetweenAndOrderStatus(LocalDateTime startOfDay, LocalDateTime endOfDay, Status status);
+
+    List<OrderRequest> findByRequestedDateBetweenAndPaymentStatus(LocalDateTime startOfDay, LocalDateTime endOfDay, Status status);
 }
