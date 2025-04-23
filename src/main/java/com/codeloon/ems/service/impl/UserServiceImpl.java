@@ -116,6 +116,10 @@ public class UserServiceImpl implements UserService {
                     userDto.getRoles().add(DataVarList.ROLE_CLIENT);
                 }
 
+                if (!userRole.equalsIgnoreCase(DataVarList.ROLE_CLIENT)) {
+                    userDto.setPassword(UserUtils.generateRandomTempPassword());
+                }
+
                 User userEntity = User.builder()
                         .id(customerId)
                         .username(userDto.getUsername())
@@ -250,7 +254,7 @@ public class UserServiceImpl implements UserService {
                     if (passwordHistoryList.isEmpty()) {
                         // Update the password
                         user.setPassword(newEncodedPassword);
-                        user.setForcePasswordChange(false);
+                        user.setForcePasswordChange(true);
                         userRepository.saveAndFlush(user);
 
                         // Save the new password in password history

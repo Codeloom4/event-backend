@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/{username}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<?> geUserByUsername(@PathVariable String username) {
         ResponseEntity<?> responseEntity;
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;

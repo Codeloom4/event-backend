@@ -61,13 +61,20 @@ public class AuthServiceImpl implements AuthService {
             return new ResponseEntity<>(credentialsExpResponse, HttpStatus.OK);
         }
         // 05 - Return the token to controller
-        return this.buildResponse(token, userRole,user.getId(), DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
+        return this.buildResponse(token, userRole, user.getId(), DataVarList.SUCCESS_AUTH, DataVarList.AUTH_SUCCESS, HttpStatus.OK);
     }
 
     private AuthResponse validateUserCredentialsStatus(User user, String token, String userRole) {
         try {
             if (user != null) {
-                boolean requiresPasswordReset = !user.getCredentialsNonExpired() || user.getForcePasswordChange();
+                boolean requiresPasswordReset = false;
+
+                if (!user.getCredentialsNonExpired()) { //!=1
+                    requiresPasswordReset = true;
+                } else if (!user.getForcePasswordChange()) { //==0
+                    requiresPasswordReset = true;
+                }
+
                 if (requiresPasswordReset) {
                     String errorMessage = !user.getCredentialsNonExpired() ?
                             DataVarList.FAILED_AUTH_CRED_EXPIRED :
@@ -91,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole,String userId, String authMsg, String authStatus, HttpStatus httpStatus) {
+    private ResponseEntity<AuthResponse> buildResponse(String token, String userRole, String userId, String authMsg, String authStatus, HttpStatus httpStatus) {
         AuthResponse authResponseDto = AuthResponse.builder()
                 .accessCode(authStatus)
                 .accessToken(token)
@@ -120,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
             accessMsg = DataVarList.FAILED_AUTH_ACC_INVALIED;
             httpStatus = HttpStatus.UNAUTHORIZED;
         }
-        return buildResponse("", null,null, accessMsg, accessCode, httpStatus);
+        return buildResponse("", null, null, accessMsg, accessCode, httpStatus);
     }
 
 }
