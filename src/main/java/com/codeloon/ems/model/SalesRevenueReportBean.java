@@ -10,9 +10,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SalesRevenueReportBean {
+    private String customerName;
+    private String orderId;
+    private String packageId;
+    private BigDecimal averagePrice;
+    private Integer quantity;
     private String itemName;
-    private Integer soldQuantity;
-    private BigDecimal salesPrice;
+    private String category;
     private BigDecimal totalRevenue;
 }
-

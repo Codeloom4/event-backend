@@ -1,12 +1,9 @@
 package com.codeloon.ems.service;
 
-import com.codeloon.ems.dto.UserSummaryDto;
-import com.codeloon.ems.dto.StockSummaryDto;
-import com.codeloon.ems.dto.RevenueSummaryDto;
-import com.codeloon.ems.repository.UserSummaryRepository;
-import com.codeloon.ems.repository.StockSummaryRepository;
-import com.codeloon.ems.repository.RevenueSummaryRepository;
+import com.codeloon.ems.dto.*;
+import com.codeloon.ems.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +14,8 @@ public class DashboardService {
 
     private final UserSummaryRepository userSummaryRepository;
     private final StockSummaryRepository stockSummaryRepository;
-    private final RevenueSummaryRepository revenueSummaryRepository;
+    private final OrderRequestRepository orderRequestRepository;
+    private final PaymentRepository paymentRepository;
 
     public List<UserSummaryDto> getUserSummary() {
         return userSummaryRepository.getUserSummary();
@@ -27,8 +25,15 @@ public class DashboardService {
         return stockSummaryRepository.getStockSummary();
     }
 
-    public List<RevenueSummaryDto> getRevenueSummary() {
-        return revenueSummaryRepository.getRevenueSummary();
+    public PaymentStatsDto getPaymentStats() {
+        PaymentStatsDto stats = new PaymentStatsDto();
+        stats.setTotalRevenue(paymentRepository.getTotalRevenue());
+        return stats;
+    }
+
+    public OrderStatsDto getOrderStats() {
+        OrderStatsDto stats = new OrderStatsDto();
+        stats.setCompletedOrders(orderRequestRepository.countCompletedOrders());
+        return stats;
     }
 }
-

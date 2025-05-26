@@ -1,14 +1,13 @@
 package com.codeloon.ems.controller;
 
-import com.codeloon.ems.dto.UserSummaryDto;
-import com.codeloon.ems.dto.StockSummaryDto;
-import com.codeloon.ems.dto.RevenueSummaryDto;
+import com.codeloon.ems.dto.*;
 import com.codeloon.ems.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,10 +31,16 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getStockSummary());
     }
 
-    @GetMapping("/revenue-summary")
+    @GetMapping("/payment-stats")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<RevenueSummaryDto>> getRevenueSummary() {
-        return ResponseEntity.ok(dashboardService.getRevenueSummary());
+    public ResponseEntity<PaymentStatsDto> getPaymentStats() {
+        return ResponseEntity.ok(dashboardService.getPaymentStats());
+    }
+
+    @GetMapping("/order-stats")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE')")
+    public ResponseEntity<OrderStatsDto> getOrderStats() {
+        return ResponseEntity.ok(dashboardService.getOrderStats());
     }
 }
 

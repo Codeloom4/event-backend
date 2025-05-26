@@ -44,22 +44,44 @@ public class SalesRevenueReportService {
             try (Workbook workbook = new XSSFWorkbook()) {
                 Sheet sheet = workbook.createSheet("Sales and Revenue Report");
                 Row headerRow = sheet.createRow(0);
-                String[] columns = {"Item Name", "Sold Quantity", "Sales Price", "Total Revenue"};
+                String[] columns = {
+                        "Customer Name",
+                        "Order ID",
+                        "Package ID",
+                        "Average Price",
+                        "Quantity",
+                        "Item Name",
+                        "Category",
+                        "Total Revenue"
+                };
+
+                // Create header cells
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font headerFont = workbook.createFont();
+                headerFont.setBold(true);
+                headerStyle.setFont(headerFont);
 
                 for (int i = 0; i < columns.length; i++) {
                     Cell cell = headerRow.createCell(i);
                     cell.setCellValue(columns[i]);
+                    cell.setCellStyle(headerStyle);
                 }
 
+                // Create data rows
                 int rowNum = 1;
                 for (SalesRevenueReportBean item : reportList) {
                     Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(item.getItemName());
-                    row.createCell(1).setCellValue(item.getSoldQuantity());
-                    row.createCell(2).setCellValue(item.getSalesPrice().doubleValue());
-                    row.createCell(3).setCellValue(item.getTotalRevenue().doubleValue());
+                    row.createCell(0).setCellValue(item.getCustomerName());
+                    row.createCell(1).setCellValue(item.getOrderId());
+                    row.createCell(2).setCellValue(item.getPackageId());
+                    row.createCell(3).setCellValue(item.getAveragePrice().doubleValue());
+                    row.createCell(4).setCellValue(item.getQuantity());
+                    row.createCell(5).setCellValue(item.getItemName());
+                    row.createCell(6).setCellValue(item.getCategory());
+                    row.createCell(7).setCellValue(item.getTotalRevenue().doubleValue());
                 }
 
+                // Auto-size columns
                 for (int i = 0; i < columns.length; i++) {
                     sheet.autoSizeColumn(i);
                 }
@@ -78,4 +100,3 @@ public class SalesRevenueReportService {
         return "SalesRevenueReport_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + ".xlsx";
     }
 }
-
